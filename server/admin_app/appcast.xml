@@ -1,0 +1,23 @@
+<rss version="2.0">
+  <channel>
+    <title>Your App Name</title>
+    <link>https://yourserver.com/yourapp.apk</link>
+    <description>Your app description</description>
+    <item>
+      <title>Version 1.1.0</title>
+      <sparkle:version>110</sparkle:version>
+      <sparkle:shortVersionString>1.1.0</sparkle:shortVersionString>
+      <description>
+        <![CDATA[
+        <ul>
+          <li>New feature 1</li>
+          <li>Improvement 2</li>
+          <li>Bug fix 3</li>
+        </ul>
+        ]]>
+      </description>
+      <pubDate>Wed, 29 Mar 2023 12:00:00 +0000</pubDate>
+      <enclosure url="https://yourserver.com/yourapp.apk" length="12345678" type="application/octet-stream"/>
+    </item>
+  </channel>
+</rss>

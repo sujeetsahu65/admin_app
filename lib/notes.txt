@@ -1,0 +1,224 @@
+Launching lib\main.dart on Z92 in debug mode...
+I/flutter (11898): PlayerState.stopped
+I/flutter (11898): PlayerState.stopped
+Warning: The plugin flutter_plugin_android_lifecycle requires Android SDK version 34.
+For more information about build configuration, see https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+Warning: The plugin path_provider_android requires Android SDK version 34.
+For more information about build configuration, see https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+Warning: The plugin url_launcher_android requires Android SDK version 34.
+For more information about build configuration, see https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
+One or more plugins require a higher Android SDK version.
+Fix this issue by adding the following to D:\web_dev\flutter_tut\flutter_project\admin_app\android\app\build.gradle:
+android {
+  compileSdkVersion 34
+  ...
+}
+
+
+√  Built build\app\outputs\flutter-apk\app-debug.apk.
+D/SharedPreferencesImpl(12599): Time required to fsync /data/user/0/com.example.admin_app/shared_prefs/WebViewChromiumPrefs.xml: [<1: 0, <2: 0, <4: 0, <8: 0, <16: 0, <32: 0, <64: 0, <128: 0, <256: 0, <512: 0, <1024: 0, <2048: 1, <4096: 0, <8192: 0, <16384: 0, >=16384: 0]
+Connecting to VM Service at ws://127.0.0.1:52583/krXOjD2NyB0=/ws
+I/zygote64(12599): Do partial code cache collection, code=49KB, data=59KB
+I/zygote64(12599): After code cache collection, code=49KB, data=59KB
+I/zygote64(12599): Increasing code cache capacity to 256KB
+I/zygote64(12599): Compiler allocated 12MB to compile void android.view.ViewRootImpl.performTraversals()
+I/flutter (12599): [FBP] <setLogLevel> args: 5
+D/[FBP-Android](12599): [FBP] onMethodCall: flutterRestart
+D/[FBP-Android](12599): [FBP] initializing BluetoothAdapter
+D/[FBP-Android](12599): [FBP] disconnectAllDevices(flutterRestart)
+D/[FBP-Android](12599): [FBP] connectedPeripherals: 0
+D/[FBP-Android](12599): [FBP] onMethodCall: setLogLevel
+I/zygote64(12599): Do full code cache collection, code=125KB, data=106KB
+I/zygote64(12599): After code cache collection, code=93KB, data=73KB
+I/flutter (12599): [FBP] <setLogLevel> result: true
+I/flutter (12599): /
+I/flutter (12599): /login
+V/PhoneWindow(12599): DecorView setVisiblity: visibility = 0, Parent = ViewRoot{a4548db com.example.admin_app/com.example.admin_app.MainActivity,ident = 0}, this = DecorView@97be448[MainActivity]
+D/OpenGLRenderer(12599): ProgramCache.generateProgram: 0
+D/OpenGLRenderer(12599): ProgramCache.generateProgram: 34359738368
+I/flutter (12599): [FBP] <isSupported> args: null
+D/[FBP-Android](12599): [FBP] onMethodCall: isSupported
+I/flutter (12599): [FBP] <isSupported> result: true
+I/flutter (12599): [FBP] <turnOn> args: null
+D/[FBP-Android](12599): [FBP] onMethodCall: turnOn
+I/flutter (12599): [FBP] <turnOn> result: false
+I/flutter (12599): jhnskjfnkshgjhgbjbhjhb
+I/flutter (12599): [FBP] <getAdapterState> args: null
+D/[FBP-Android](12599): [FBP] onMethodCall: getAdapterState
+I/flutter (12599): [FBP] <getAdapterState> result: {adapter_state: 4}
+I/flutter (12599): BluetoothAdapterState.on
+I/flutter (12599): bllllllll_is on
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 48 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///D:/web_dev/flutter_tut/flutter_project/admin_app/lib/pages/auth/screens/login_page.dart:52:20
+
+To inspect this widget in Flutter DevTools, visit:
+http://127.0.0.1:9100/#/inspector?uri=http%3A%2F%2F127.0.0.1%3A52583%2FkrXOjD2NyB0%3D%2F&inspectorRef=inspector-0
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#aef63 relayoutBoundary=up3 OVERFLOWING:
+  needs compositing
+  creator: Column ← _FormScope ← WillPopScope ← Form-[LabeledGlobalKey<FormState>#30f29] ← Padding ←
+    MediaQuery ← Padding ← SafeArea ← KeyedSubtree-[GlobalKey#0f5c7] ← _BodyBuilder ← MediaQuery ←
+    LayoutId-[<_ScaffoldSlot.body>] ← ⋯
+  parentData: offset=Offset(16.0, 16.0) (can use size)
+  constraints: BoxConstraints(0.0<=w<=448.0, 0.0<=h<=515.3)
+  size: Size(448.0, 515.3)
+  direction: vertical
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  verticalDirection: down
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+I/zygote64(12599): Do partial code cache collection, code=124KB, data=96KB
+I/zygote64(12599): After code cache collection, code=124KB, data=96KB
+I/zygote64(12599): Increasing code cache capacity to 512KB
+I/flutter (12599): {"status_code":200,"status":true,"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbl9pZCI6MSwiY2xpZW50X2lkIjo2LCJyb2xlIjoiYWRtaW4iLCJsb2NfaWQiOjQyLCJpYXQiOjE3MjI3NTkwOTF9.XRBVq1-pWFMtaEaZS5tGDYi15w5BvFVjefavZ988TTo","role":"admin"}
+I/flutter (12599): /
+I/flutter (12599): Looking up a deactivated widget's ancestor is unsafe.
+I/flutter (12599): At this point the state of the widget's element tree is no longer stable.
+I/flutter (12599): To safely refer to a widget's ancestor in its dispose() method, save a reference to the ancestor by calling dependOnInheritedWidgetOfExactType() in the widget's didChangeDependencies() method.
+E/flutter (12599): [ERROR:flutter/runtime/dart_vm_initializer.cc(41)] Unhandled Exception: Looking up a deactivated widget's ancestor is unsafe.
+E/flutter (12599): At this point the state of the widget's element tree is no longer stable.
+E/flutter (12599): To safely refer to a widget's ancestor in its dispose() method, save a reference to the ancestor by calling dependOnInheritedWidgetOfExactType() in the widget's didChangeDependencies() method.
+E/flutter (12599): #0      Element._debugCheckStateIsActiveForAncestorLookup.<anonymous closure> (package:flutter/src/widgets/framework.dart:4558:9)
+E/flutter (12599): #1      Element._debugCheckStateIsActiveForAncestorLookup (package:flutter/src/widgets/framework.dart:4572:6)
+E/flutter (12599): #2      Element.findAncestorWidgetOfExactType (package:flutter/src/widgets/framework.dart:4633:12)
+E/flutter (12599): #3      debugCheckHasScaffoldMessenger.<anonymous closure> (package:flutter/src/material/debug.dart:175:17)
+E/flutter (12599): #4      debugCheckHasScaffoldMessenger (package:flutter/src/material/debug.dart:187:4)
+E/flutter (12599): #5      ScaffoldMessenger.of (package:flutter/src/material/scaffold.dart:147:12)
+E/flutter (12599): #6      _LoginPage.build.<anonymous closure> (package:admin_app/pages/auth/screens/login_page.dart:131:43)
+E/flutter (12599): <asynchronous suspension>
+E/flutter (12599):
+I/flutter (12599): /home
+I/flutter (12599): PlayerState.stopped
+I/flutter (12599): PlayerState.stopped
+I/flutter (12599): PlayerState.stopped
+I/flutter (12599): /settings
+I/flutter (12599): 0.0
+I/flutter (12599): 0
+I/flutter (12599): 0
+I/flutter (12599): 2024-08-04 11:11:34.000
+I/flutter (12599): 2024-08-02 19:25:38.000
+I/flutter (12599): 20
+I/flutter (12599): [FBP] <isSupported> args: null
+D/[FBP-Android](12599): [FBP] onMethodCall: isSupported
+I/flutter (12599): [FBP] <isSupported> result: true
+I/flutter (12599): [FBP] <turnOn> args: null
+D/[FBP-Android](12599): [FBP] onMethodCall: turnOn
+I/flutter (12599): [FBP] <turnOn> result: false
+I/flutter (12599): jhnskjfnkshgjhgbjbhjhb
+I/flutter (12599): BluetoothAdapterState.on
+I/flutter (12599): bllllllll_is on
+I/flutter (12599): selelelelele
+W/BluetoothAdapter(12599): getBluetoothService() called with no BluetoothManagerCallback
+D/BluetoothSocket(12599): connect() Address: 66:11:22:33:44:55
+W/BluetoothAdapter(12599): getBluetoothService() called with no BluetoothManagerCallback
+D/Debug   (12599): name=zcspt009
+D/Debug   (12599): getDeviceplatformTag=9
+D/Debug   (12599): name=zcspt009
+D/Debug   (12599): getDeviceplatformTag=9
+D/Debug   (12599): sdkSysPowerOn() iRet =  0
+D/Debug   (12599): lockfile is exist.
+D/Debug   (12599): proThreadInit sucess
+D/Debug   (12599): name=zcspt009
+D/Debug   (12599): getDeviceplatformTag=9
+D/Debug   (12599): SmartPos SDK Versin :V3.1.3_R220321
+D/Debug   (12599): [Len=22]Send Data =
+D/Debug   (12599):
+D/Debug   (12599): 02 00 12 0C 30 3A 00 F7 ED 81 2E 2D 11 49 9D 77 98 6C 40 7C
+D/Debug   (12599): 84 72
+D/Debug   (12599): uiExpectLen=17
+D/Debug   (12599):
+D/Debug   (12599): 02 00 11 00 F8 62 4D 8E 25 E5 BE E0 E3 83 4C E3 3E 18 F8 1B
+D/Debug   (12599): DC
+D/Debug   (12599): sdkSysInit() iRet =  0
+I/flutter (12599): connecttttttttttttttttttt
+I/flutter (12599): /settings
+I/flutter (12599): /home
+I/flutter (12599): PlayerState.stopped
+I/flutter (12599): 0.0
+I/flutter (12599): 0
+I/flutter (12599): 0
+I/flutter (12599): 2024-08-04 11:11:47.000
+I/flutter (12599): 2024-08-02 19:25:38.000
+I/flutter (12599): 20
+D/WebView (12599): WebView<init>
+D/BluePrintPos(12599):
+D/BluePrintPos(12599): dwidth : 720
+D/BluePrintPos(12599):
+D/BluePrintPos(12599): dheight : 1280
+D/WebView (12599): loadDataWithBaseURL
+D/WebView (12599): setInitialScale=1
+I/cr_LibraryLoader(12599): Using linker: org.chromium.base.library_loader.ModernLinker
+D/BluePrintPos(12599):
+D/BluePrintPos(12599): =======> enabled scrolled <=========
+D/BluePrintPos(12599):
+D/BluePrintPos(12599):  ///////////////// webview setted /////////////////
+W/AudioCapabilities(12599): Unsupported mime audio/x-adpcm-ms
+W/AudioCapabilities(12599): Unsupported mime audio/x-adpcm-dvi-ima
+W/AudioCapabilities(12599): Unsupported mime audio/ape
+W/AudioCapabilities(12599): Unsupported mime audio/alac
+I/zygote64(12599): Do full code cache collection, code=251KB, data=189KB
+I/zygote64(12599): After code cache collection, code=244KB, data=164KB
+W/VideoCapabilities(12599): Unrecognized profile/level 1/32 for video/mp4v-es
+W/VideoCapabilities(12599): Unrecognized profile/level 32768/2 for video/mp4v-es
+W/VideoCapabilities(12599): Unrecognized profile/level 32768/64 for video/mp4v-es
+W/VideoCapabilities(12599): Unrecognized level 0 for video/x-vnd.on2.vp9
+I/chatty  (12599): uid=10094(u0_a94) Chrome_InProcGp identical 11 lines
+W/VideoCapabilities(12599): Unrecognized level 0 for video/x-vnd.on2.vp9
+W/VideoCapabilities(12599): Unsupported mime video/divx
+W/VideoCapabilities(12599): Unsupported mime video/divx3
+W/VideoCapabilities(12599): Unsupported mime video/xvid
+W/VideoCapabilities(12599): Unsupported mime video/x-ms-wmv
+W/VideoCapabilities(12599): Unrecognized profile/level 1/32 for video/mp4v-es
+I/VideoCapabilities(12599): Unsupported profile 4 for video/mp4v-es
+W/cr_MediaCodecUtil(12599): HW encoder for video/avc is not available on this device.
+I/zygote64(12599): Do partial code cache collection, code=249KB, data=174KB
+I/zygote64(12599): After code cache collection, code=249KB, data=174KB
+I/zygote64(12599): Increasing code cache capacity to 1024KB
+D/BluePrintPos(12599):
+D/BluePrintPos(12599):  ================ webview completed ==============
+D/BluePrintPos(12599):
+D/BluePrintPos(12599):  scroll delayed 250
+D/WebView (12599): evaluateJavascript=document.body.offsetWidth
+D/WebView (12599): evaluateJavascript=document.body.offsetHeight
+D/BluePrintPos(12599):
+D/BluePrintPos(12599): offsetWidth : 576
+D/BluePrintPos(12599):
+D/BluePrintPos(12599): offsetHeight : 4170.0
+D/BluePrintPos(12599):
+D/BluePrintPos(12599):  Got snapshot
+I/Choreographer(12599): Skipped 68 frames!  The application may be doing too much work on its main thread.
+W/BluetoothAdapter(12599): getBluetoothService() called with no BluetoothManagerCallback
+D/Debug   (12599): sdkBluePri Get data len=192667
+D/Debug   (12599): currentId1=526390118832
+D/Debug   (12599): alloc_fifo
+D/Debug   (12599): pushfifo data uiLen=192667
+D/Debug   (12599): packLen in =0
+D/Debug   (12599): sdkBluePri() iRet =  0
+D/Debug   (12599): packLen out =0
+D/Debug   (12599): packLen[out]  =192667
+F/google-breakpad(12862): Microdump skipped (uninteresting)
+W/google-breakpad(12599): ### ### ### ### ### ### ### ### ### ### ### ### ###
+W/google-breakpad(12599): Chrome build fingerprint:
+W/google-breakpad(12599): 1.0.0
+W/google-breakpad(12599): 1
+W/google-breakpad(12599): ### ### ### ### ### ### ### ### ### ### ### ### ###
+E/libsigchain(12599): exiting due to SIG_DFL handler for signal 11
+Lost connection to device.
+
+Exited.
