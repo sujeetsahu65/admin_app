@@ -154,8 +154,8 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     ref.read(loadingProvider.notifier).showLoader();
 // await _bluetoothPermissionHandler.requestAndEnsureBluetooth();
     final ReceiptSectionText receiptHeadText = ReceiptSectionText();
-    final ReceiptSectionText receiptBody1Text = ReceiptSectionText();
-    final ReceiptSectionText receiptBody2Text = ReceiptSectionText();
+    // final ReceiptSectionText receiptHeadText = ReceiptSectionText();
+    // final ReceiptSectionText receiptHeadText = ReceiptSectionText();
 
 //  final orderItemsData = ref.watch(orderItemsProvider(order.orderId));
 
@@ -232,7 +232,7 @@ final orderItemsData = await orderService.fetchOrderItems(order.orderId);
     final item = orderItems[i];
     
     // Print item quantity, name, and size
-    receiptBody1Text.addLeftRightText(
+    receiptHeadText.addLeftRightText(
       '${item.itemOrderQty} x ${item.foodItemName}(${item.itemSizeName})',
       '${item.totalBasicPrice}€',
    leftStyle: ReceiptTextStyleType.bold,
@@ -243,23 +243,23 @@ final orderItemsData = await orderService.fetchOrderItems(order.orderId);
 
     // Print extra comment if available
     if (item.foodExtratext.isNotEmpty) {
-      receiptBody1Text.addText(
+      receiptHeadText.addText(
         'Extra Comment:',
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.medium,
       );
-      receiptBody1Text.addText(item.foodExtratext, size: ReceiptTextSizeType.medium);
+      receiptHeadText.addText(item.foodExtratext, size: ReceiptTextSizeType.medium);
     }
 
     // Print toppings
     for (var entry in item.toppingsByVariantOption.entries) {
-      receiptBody1Text.addText(
+      receiptHeadText.addText(
         entry.key,
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.medium,
       );
       for (var topping in entry.value) {
-        receiptBody1Text.addLeftRightText(
+        receiptHeadText.addLeftRightText(
           topping.toppingslistname,
           '${topping.foodVariantOptionPrice}€',
           leftStyle: ReceiptTextStyleType.normal,
@@ -272,10 +272,10 @@ final orderItemsData = await orderService.fetchOrderItems(order.orderId);
 
     // Add a divider if there are more items and not a combo offer
     // if (i < orderItems.length - 1 && !isComboOffer) {
-    //   receiptBody1Text.addSpacer(useDashed: true);
+    //   receiptHeadText.addSpacer(useDashed: true);
     // }
     if(i<(orderItems.length-1)){
-      receiptBody1Text.addText(
+      receiptHeadText.addText(
       '----------------------',
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
@@ -287,7 +287,7 @@ final orderItemsData = await orderService.fetchOrderItems(order.orderId);
 
   // ===========Combooffers==========
 if(comboOfferItems.isNotEmpty){
-   receiptBody2Text.addText(
+   receiptHeadText.addText(
         'Combo Offer',
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.large,
@@ -297,7 +297,7 @@ if(comboOfferItems.isNotEmpty){
 for (int j = 0; j< comboOfferItems.length; j++) {
 final comboItem = comboOfferItems[j];
 
-    receiptBody2Text.addLeftRightText(
+    receiptHeadText.addLeftRightText(
       '${comboItem.comboName}',
       '${comboItem.totalPrice}€',
    leftStyle: ReceiptTextStyleType.bold,
@@ -312,7 +312,7 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
     final comboFooditem = comboOfferItems[j].orderItems[k];
     
     // Print comboFooditem quantity, name, and size
-    receiptBody2Text.addText(
+    receiptHeadText.addText(
       '${comboFooditem.itemOrderQty} x ${comboFooditem.foodItemName}(${comboFooditem.itemSizeName})',
       // style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.medium,
@@ -320,23 +320,23 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
 
     // Print extra comment if available
     if (comboFooditem.foodExtratext.isNotEmpty) {
-      receiptBody2Text.addText(
+      receiptHeadText.addText(
         'Extra Comment:',
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.medium,
       );
-      receiptBody2Text.addText(comboFooditem.foodExtratext, size: ReceiptTextSizeType.medium);
+      receiptHeadText.addText(comboFooditem.foodExtratext, size: ReceiptTextSizeType.medium);
     }
 
     // Print toppings
     for (var tentry in comboFooditem.toppingsByVariantOption.entries) {
-      receiptBody2Text.addText(
+      receiptHeadText.addText(
         tentry.key,
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.medium,
       );
       for (var topping in tentry.value) {
-        receiptBody2Text.addLeftRightText(
+        receiptHeadText.addLeftRightText(
           topping.toppingslistname,
           '${topping.foodVariantOptionPrice}€',
           leftStyle: ReceiptTextStyleType.normal,
@@ -354,7 +354,7 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
   }
 
       if(j<(comboOfferItems.length-1)){
-      receiptBody2Text.addText(
+      receiptHeadText.addText(
       '----------------------',
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
@@ -390,17 +390,18 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
     await _bluePrintPos.printReceiptText(
       receiptHeadText,
       feedCount: 0,
+      // useRaster: true,
     );
 
    
-    await _bluePrintPos.printReceiptText(
-      receiptBody1Text,
-      feedCount: 0,
-    );
-    await _bluePrintPos.printReceiptText(
-      receiptBody2Text,
-      feedCount: 0,
-    );
+    // await _bluePrintPos.printReceiptText(
+    //   receiptHeadText,
+    //   feedCount: 0,
+    // );
+    // await _bluePrintPos.printReceiptText(
+    //   receiptHeadText,
+    //   feedCount: 0,
+    // );
     ref.read(loadingProvider.notifier).hideLoader();
     // await _bluePrintPos.printReceiptText(
     //   receiptFooterText,
