@@ -6,11 +6,26 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class OrderService {
-  Future<List<Order>> fetchOrders() async {
+  Future<List<Order>> fetchOrders({mode = 'newOrders'}) async {
     try {
       final token = await getLocalToken();
+      late final path;
+      late final dataKey;
+      if (mode == 'receivedOrders') {
+        path = 'received-orders';
+        dataKey = 'received_orders';
+      } else if (mode == 'preOrders') {
+        path = 'pre-orders';
+        dataKey = 'pre_orders';
+      } else if (mode == 'cancelledOrders') {
+        path = 'cancelled-orders';
+        dataKey = 'cancelled_orders';
+      } else {
+        path = 'new-orders';
+         dataKey = 'new_orders';
+      }
       final response = await http.get(
-        Uri.parse('$uri/order/new-orders'),
+        Uri.parse('$uri/order/$path'),
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': '${token}',
@@ -23,7 +38,7 @@ class OrderService {
         // state = orderJson.map((json) => json).toList();
 
         final List<dynamic> jsonList =
-            json.decode(response.body)['data']['new_orders'];
+            json.decode(response.body)['data'][dataKey];
         return jsonList.map((json) => Order.fromJson(json)).toList();
       } else {
         return [];
@@ -136,7 +151,7 @@ class OrderService {
     }
   }
 
-  Future<Map<String,List>> fetchOrderItems(orderId) async {
+  Future<Map<String, List>> fetchOrderItems(orderId) async {
     try {
       final token = await getLocalToken();
       final response = await http.get(
@@ -161,11 +176,12 @@ class OrderService {
 
         List<OrderItem> orderItems =
             orderItemsJson.map((json) => OrderItem.fromJson(json)).toList();
-            
-        List<ComboOfferItem> comboOfferItems =
-            comboOfferItemsJson.map((json) => ComboOfferItem.fromJson(json)).toList();
 
-        return {'orderItems':orderItems,'comboOfferItems':comboOfferItems};
+        List<ComboOfferItem> comboOfferItems = comboOfferItemsJson
+            .map((json) => ComboOfferItem.fromJson(json))
+            .toList();
+
+        return {'orderItems': orderItems, 'comboOfferItems': comboOfferItems};
       } else {
         return {};
       }

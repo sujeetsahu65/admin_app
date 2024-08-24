@@ -1,4 +1,7 @@
 import 'package:admin_app/common/widgets/other_widgets/appbarWrapper.dart';
+import 'package:admin_app/pages/cancelled_orders/screens/cancelled_orders.dart';
+import 'package:admin_app/pages/pre_orders/screens/pre_orders.dart';
+import 'package:admin_app/pages/received_orders/screens/received_orders.dart';
 import 'package:admin_app/pages/settings/screens/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +10,6 @@ import 'package:admin_app/providers/auth.dart';
 import 'package:admin_app/pages/auth/screens/login_page.dart';
 import 'package:admin_app/pages/home/screens/home.dart';
 import 'package:admin_app/pages/auth/screens/splash_screen.dart';
-
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -20,17 +22,32 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/login',
-        builder: (BuildContext context, GoRouterState state) =>
-
-LoginPage(),
+        builder: (BuildContext context, GoRouterState state) => LoginPage(),
       ),
       GoRoute(
         path: '/home',
-         builder: (BuildContext context, GoRouterState state) => AppBarWrapper(child: HomePage()),
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: HomePage()),
       ),
       GoRoute(
         path: '/settings',
-         builder: (BuildContext context, GoRouterState state) => AppBarWrapper(child: Settings()),
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: Settings()),
+      ),
+      GoRoute(
+        path: '/received-orders',
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: ReceivedOrders()),
+      ),
+      GoRoute(
+        path: '/pre-orders',
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: PreOrders()),
+      ),
+      GoRoute(
+        path: '/cancelled-orders',
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: CancelledOrders()),
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
@@ -48,4 +65,3 @@ LoginPage(),
     },
   );
 });
-

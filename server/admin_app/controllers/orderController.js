@@ -131,7 +131,7 @@ exports.getNewOrders = async (req, res) =>
 // ========CANCELLED ORDERS=========
 exports.getCancelledOrders = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
+  const { shopSequelize,enc_key, loc_id } = req;
   const lang_id = req.lang_id
   const now = new Date()
   const current_date = format(now, 'yyyy-MM-dd');
@@ -142,13 +142,82 @@ exports.getCancelledOrders = async (req, res) =>
 
 
 
-    const cancelled_orders = await shopSequelize.query(query, {
+    const result = await shopSequelize.query(query, {
       type: shopSequelize.QueryTypes.SELECT,
     });
 
 
-    if (cancelled_orders.length > 0)
+    if (result.length > 0)
     {
+
+               cancelled_orders = result.map(row =>
+      {
+        return {
+          // ...row,
+          // key: enc_key
+          userEmail: utils.decryptPassWithKey(row.user_email, enc_key),
+          userMobileNo: utils.decryptPassWithKey(row.user_mobile_no, enc_key),
+          userAddress: utils.decryptPassWithKey(row.address, enc_key),
+          userZipcode: utils.decryptPassWithKey(row.zipcode, enc_key),
+          userCity: utils.decryptPassWithKey(row.city, enc_key),
+          userBuildingNo: utils.decryptPassWithKey(row.building_no, enc_key),
+
+          firstName: row.first_name,
+          lastName: row.last_name,
+          userFullName: row.user_fullname,
+          orderId: row.order_id,
+          waiterId: row.waiter_id,
+          deliveryPartnerCost: row.delivery_partner_cost,
+          deliveryStatusInformation: row.partner_statusInformation,
+          orderNO: row.rand_order_no,
+          deliveryBoyName: row.delivery_boy_name,
+          deliveryBoyMobileNo: row.delivery_boy_mob_no,
+          orderDateTime: row.order_datetime,
+          userNote: row.additional_info,
+          deliveryTypeId: row.delivery_type_id,
+          deliveryPartnerId: row.delivery_partner_id,
+          deliveryTypeTitle: row.delivery_type_title,
+          deliveryTypeImg: row.delivery_type_img,
+          paymentModeLangTitle: row.payment_mode_lang_title,
+          paymentModeId: row.payment_mode_id,
+          paymentStatusId: row.payment_status_id,
+          ordersStatusId: row.orders_status_id,
+          preOrderBooking: row.pre_order_booking,
+          tableBooking: row.table_booking,
+          tableBookingDuration: row.table_booking_duration,
+          tableBookingPeople: row.table_booking_people,
+          sendEmailOrderSetTime: row.send_email_order_set_time,
+          sendSmsOrderSetTime: row.send_sms_order_set_time,
+          sendEmailOrderOntheway: row.send_email_order_ontheway,
+          sendSmsOrderOntheway: row.send_sms_order_ontheway,
+          sendEmailOrderCancel: row.send_email_order_cancel,
+          sendSmsOrderCancel: row.send_sms_order_cancel,
+          orderLanguageId: row.order_language_id,
+          orderTimerStartTime: row.order_timer_start_time,
+          setOrderMinutTime: row.set_order_minut_time,
+          foodItemSubtotalAmt: row.food_item_subtotal_amt,
+          totalItemTaxAmt: row.total_item_tax_amt,
+          discountAmt: row.discount_amt,
+          regOfferAmount: row.reg_offer_amount,
+          deliveryCharges: row.delivery_charges,
+          extraDeliveryCharges: row.extra_delivery_charges,
+          minimumOrderPrice: row.Minimum_order_price,
+          grandTotal: row.grand_total,
+          finalPayableAmount: row.final_payable_amount,
+          orderFrom: row.order_from,
+          qrcodeOrderLabel: row.qrcode_order_label,
+          bonusValueUsed: row.bonus_value_used,
+          bonusValueGet: row.bonus_value_get,
+          userId: row.user_id,
+          doneStatus: row.done_status,
+          orderUserDistance: row.order_user_distance,
+          preOrderResponseAlertTime: row.pre_order_response_alert_time,
+          tableBookingResponseAlertTime: row.table_booking_response_alert_time,
+          fcmToken: row.fcm_token,
+          deliveryCouponAmt: row.delivery_coupon_amt,
+          couponDiscount: row.coupon_discount,
+          comboOfferApplied: row.combo_offer_applied,
+        }});
 
       return res.json({ status_code: 200, status: true, data: { cancelled_orders } });
     }
@@ -166,7 +235,7 @@ exports.getCancelledOrders = async (req, res) =>
 // ========RECEIVED ORDERS=========
 exports.getReceivedOrders = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
+  const { shopSequelize,enc_key, loc_id } = req;
   const lang_id = req.lang_id;
   const now = new Date();
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
@@ -175,15 +244,84 @@ exports.getReceivedOrders = async (req, res) =>
   {
 
     let query = `SELECT users.first_name,users.last_name,users.user_email,orders.user_fullname,orders.waiter_id,orders.user_mobile_no,orders.order_id,orders.delivery_partner_cost,orders.partner_statusInformation,orders.rand_order_no,orders.delivery_boy_name,orders.delivery_boy_mob_no,orders.order_datetime,orders.address,orders.zipcode,orders.city,orders.building_no,orders.additional_info,orders.delivery_type_id,orders.delivery_partner_id,delivery_type_master.delivery_type_${lang_id} as delivery_type_title,delivery_type_master.delivery_type_img,payment_mode_master.payment_mode_lang_${lang_id} as payment_mode_lang_title,orders.payment_mode_id,orders.payment_status_id,orders.orders_status_id,orders.pre_order_booking,orders.table_booking,orders.table_booking_duration,orders.table_booking_people,orders.send_email_order_set_time,orders.send_sms_order_set_time,orders.send_email_order_ontheway,orders.send_sms_order_ontheway,orders.send_email_order_cancel,orders.send_sms_order_cancel,orders.order_language_id,orders.order_timer_start_time,orders.set_order_minut_time,orders.food_item_subtotal_amt,orders.total_item_tax_amt,orders.discount_amt,orders.reg_offer_amount,orders.delivery_charges,orders.extra_delivery_charges,orders.Minimum_order_price,orders.grand_total,orders.final_payable_amount,orders.order_from,orders.qrcode_order_label,orders.bonus_value_used,orders.bonus_value_get,orders.user_id,orders.done_status,orders.distance as order_user_distance,orders.pre_order_response_alert_time,orders.table_booking_response_alert_time,orders.fcm_token, orders.delivery_coupon_amt,orders.coupon_discount, orders.combo_offer_applied  FROM orders INNER JOIN users ON orders.user_id=users.user_id INNER JOIN delivery_type_master ON orders.delivery_type_id=delivery_type_master.delivery_type_id INNER JOIN payment_mode_master ON orders.payment_mode_id=payment_mode_master.payment_mode_id WHERE orders.loc_id = ${loc_id} and orders.orders_status_id=6 and date(orders.order_date)>='${yesterday}'`;
-    const recieved_orders = await shopSequelize.query(query, {
+    const result = await shopSequelize.query(query, {
       type: shopSequelize.QueryTypes.SELECT,
     });
 
 
-    if (recieved_orders.length > 0)
+    if (result.length > 0)
     {
 
-      return res.json({ status_code: 200, status: true, data: { recieved_orders } });
+           received_orders = result.map(row =>
+      {
+        return {
+          // ...row,
+          // key: enc_key
+          userEmail: utils.decryptPassWithKey(row.user_email, enc_key),
+          userMobileNo: utils.decryptPassWithKey(row.user_mobile_no, enc_key),
+          userAddress: utils.decryptPassWithKey(row.address, enc_key),
+          userZipcode: utils.decryptPassWithKey(row.zipcode, enc_key),
+          userCity: utils.decryptPassWithKey(row.city, enc_key),
+          userBuildingNo: utils.decryptPassWithKey(row.building_no, enc_key),
+
+          firstName: row.first_name,
+          lastName: row.last_name,
+          userFullName: row.user_fullname,
+          orderId: row.order_id,
+          waiterId: row.waiter_id,
+          deliveryPartnerCost: row.delivery_partner_cost,
+          deliveryStatusInformation: row.partner_statusInformation,
+          orderNO: row.rand_order_no,
+          deliveryBoyName: row.delivery_boy_name,
+          deliveryBoyMobileNo: row.delivery_boy_mob_no,
+          orderDateTime: row.order_datetime,
+          userNote: row.additional_info,
+          deliveryTypeId: row.delivery_type_id,
+          deliveryPartnerId: row.delivery_partner_id,
+          deliveryTypeTitle: row.delivery_type_title,
+          deliveryTypeImg: row.delivery_type_img,
+          paymentModeLangTitle: row.payment_mode_lang_title,
+          paymentModeId: row.payment_mode_id,
+          paymentStatusId: row.payment_status_id,
+          ordersStatusId: row.orders_status_id,
+          preOrderBooking: row.pre_order_booking,
+          tableBooking: row.table_booking,
+          tableBookingDuration: row.table_booking_duration,
+          tableBookingPeople: row.table_booking_people,
+          sendEmailOrderSetTime: row.send_email_order_set_time,
+          sendSmsOrderSetTime: row.send_sms_order_set_time,
+          sendEmailOrderOntheway: row.send_email_order_ontheway,
+          sendSmsOrderOntheway: row.send_sms_order_ontheway,
+          sendEmailOrderCancel: row.send_email_order_cancel,
+          sendSmsOrderCancel: row.send_sms_order_cancel,
+          orderLanguageId: row.order_language_id,
+          orderTimerStartTime: row.order_timer_start_time,
+          setOrderMinutTime: row.set_order_minut_time,
+          foodItemSubtotalAmt: row.food_item_subtotal_amt,
+          totalItemTaxAmt: row.total_item_tax_amt,
+          discountAmt: row.discount_amt,
+          regOfferAmount: row.reg_offer_amount,
+          deliveryCharges: row.delivery_charges,
+          extraDeliveryCharges: row.extra_delivery_charges,
+          minimumOrderPrice: row.Minimum_order_price,
+          grandTotal: row.grand_total,
+          finalPayableAmount: row.final_payable_amount,
+          orderFrom: row.order_from,
+          qrcodeOrderLabel: row.qrcode_order_label,
+          bonusValueUsed: row.bonus_value_used,
+          bonusValueGet: row.bonus_value_get,
+          userId: row.user_id,
+          doneStatus: row.done_status,
+          orderUserDistance: row.order_user_distance,
+          preOrderResponseAlertTime: row.pre_order_response_alert_time,
+          tableBookingResponseAlertTime: row.table_booking_response_alert_time,
+          fcmToken: row.fcm_token,
+          deliveryCouponAmt: row.delivery_coupon_amt,
+          couponDiscount: row.coupon_discount,
+          comboOfferApplied: row.combo_offer_applied,
+        }});
+
+      return res.json({ status_code: 200, status: true, data: { received_orders } });
     }
     else
     {

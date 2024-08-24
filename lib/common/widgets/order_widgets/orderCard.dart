@@ -19,14 +19,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OrderCard extends ConsumerWidget {
   final Order order;
+  final String page;
   // final WidgetRef ref;
   // final BluePrintPos _bluePrintPos = BluePrintPos.instance;
-  OrderCard({required this.order
+  OrderCard({required this.order, required this.page
       // required this.ref
       });
-
-
-
 
 //  void _printOrder(BuildContext context, Order order, BlueDevice printerDevice) async {
 //     if (!await _bluePrintPos.isBluetoothAvailable) {
@@ -53,7 +51,6 @@ class OrderCard extends ConsumerWidget {
     );
   }
 
-
 //   void _printOrder(BuildContext context,WidgetRef ref, Order order,PrinterState printerState) async {
 //     // BlueDevice? printerDevice
 //   final ReceiptSectionText receiptText = ReceiptSectionText();
@@ -70,9 +67,6 @@ class OrderCard extends ConsumerWidget {
 
 // _showMessage(context,'device: ${printerState.connectedDevice!.address}');
 //   }
-
-
-      
 
   Widget deliveryTimeButtons(BuildContext context, WidgetRef ref) {
     final basicDataProvider = ref.watch(generalDataProvider);
@@ -165,8 +159,8 @@ class OrderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isOrderExpanded = ref.watch(orderExpansionProvider(order.orderId));
     //  final printerState = ref.watch(printerProvider);
-     final printerNotifier = ref.read(printerProvider.notifier);
-     final basicDatatProvider = ref.watch(generalDataProvider);
+    final printerNotifier = ref.read(printerProvider.notifier);
+    final basicDatatProvider = ref.watch(generalDataProvider);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -186,14 +180,18 @@ class OrderCard extends ConsumerWidget {
                   // crossAxisAlignment: CrossAxisAlignment.center,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    GestureDetector(
-                      onTap: () => _onCacelOrder(ref),
-                      child: Icon(
-                        Icons.cancel_outlined,
-                        color: const Color.fromARGB(255, 221, 15, 0),
-                        size: 35.0,
-                      ),
-                    ),
+                    page == 'home'
+                        ? GestureDetector(
+                            onTap: () => _onCacelOrder(ref),
+                            child: Icon(
+                              Icons.cancel_outlined,
+                              color: const Color.fromARGB(255, 221, 15, 0),
+                              size: 35.0,
+                            ),
+                          )
+                        : SizedBox(
+                            width: 35,
+                          ),
 
                     // Spacer(),
                     CustomFont(text: order.orderNO, fontWeight: FontWeight.bold)
@@ -205,8 +203,8 @@ class OrderCard extends ConsumerWidget {
                         size: 35.0,
                       ),
                       // onTap: () => _printOrder(context,ref,order,printerState),
-                      onTap: () => printerNotifier.printReceipt(order,basicDatatProvider),
-                     
+                      onTap: () => printerNotifier.printReceipt(
+                          order, basicDatatProvider),
                     ),
                   ],
                 ),

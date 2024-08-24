@@ -23,19 +23,16 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/timezone.dart';
 
-
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   tz.initializeTimeZones();
-    tz.setLocalLocation(tz.getLocation('Europe/Helsinki'));
-    FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
+  tz.setLocalLocation(tz.getLocation('Europe/Helsinki'));
+  FlutterBluePlus.setLogLevel(LogLevel.verbose, color: true);
   // final finland = tz.getLocation('Europe/Helsinki');
   // tz.setLocalLocation(finland);
   runApp(ProviderScope(child: MyApp()));
 }
-
-
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -45,9 +42,8 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyApp extends ConsumerState<MyApp> {
-
-static const appcastURL =
-    'https://raw.githubusercontent.com/larryaasen/upgrader/master/test/testappcast.xml';
+  static const appcastURL =
+      'https://raw.githubusercontent.com/larryaasen/upgrader/master/test/testappcast.xml';
 
   @override
   void initState() {
@@ -58,15 +54,18 @@ static const appcastURL =
 
     // printerNotifier.connectToStoredDevice();
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(printerProvider.notifier).connectToStoredDevice();
-    });
+// this is called even before the app starts:
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   ref.read(printerProvider.notifier).connectToStoredDevice();
+    // });
+
+    ref.read(printerProvider.notifier).connectToStoredDevice();
+
 // final inputMinute = 30;
 //     final inputDateTime = time.toLocal();
 //     DateTime currentTime = TZ.now();
 // print(currentTime);
 //       Duration difference = deliveryTime.difference(currentTime);
-
 
     // final inputDateTime = DateTime.parse("2024-07-22 19:30:20").toLocal();
     // final currtime = DateTime.parse("2024-07-22 19:54:26.136").toLocal();
@@ -83,13 +82,7 @@ static const appcastURL =
 // print("curr:$currentTime");
 // // print("currsys:$currentTimesys");
 // print("diffmin:$diffmin");
-
-
   }
-
-
-
-
 
 // final initializeLanguageContentProvider = FutureProvider<void>((ref) async {
 //   final prefs = await SharedPreferences.getInstance();
@@ -101,66 +94,61 @@ static const appcastURL =
 //   await ref.read(languageContentProvider.notifier).loadLanguageContent(lang_id);
 // });
 
-
-
   @override
   Widget build(BuildContext context) {
-      // final initializeLanguageContent =
-      //   ref.watch(initializeLanguageContentProvider);
+    // final initializeLanguageContent =
+    //   ref.watch(initializeLanguageContentProvider);
     final goRouter = ref.watch(goRouterProvider);
-         final locale = ref.watch(localizationProvider);
-             
-         
+    final locale = ref.watch(localizationProvider);
+
     return MaterialApp.router(
       routerConfig: goRouter,
 
-    //  builder: (context, child) {
-    //     return Stack(
-    //       children: [
-    //         Overlay(
-    //           initialEntries: [
-    //             OverlayEntry(
-    //               builder: (context) => child!,
-    //             ),
-    //           ],
-    //         ),
-    //         GlobalLoader(), // Add the global loader here
-    //       ],
-    //     );
-    //   },
+      //  builder: (context, child) {
+      //     return Stack(
+      //       children: [
+      //         Overlay(
+      //           initialEntries: [
+      //             OverlayEntry(
+      //               builder: (context) => child!,
+      //             ),
+      //           ],
+      //         ),
+      //         GlobalLoader(), // Add the global loader here
+      //       ],
+      //     );
+      //   },
 
+      //  builder: (context, child) {
+      //     return UpgradeAlert(
+      //        key: goRouter.routerDelegate.navigatorKey,
+      //       upgrader: Upgrader(
+      //         minAppVersion: "2.0.0",
+      //         debugDisplayAlways: true,
+      //         debugLogging: true,
+      //         languageCode: 'en',
+      //         countryCode: "IND",
+      //         messages: UpgraderMessages(code: 'en'),
+      //         dialogStyle: UpgradeDialogStyle.material,
+      //         showLater: true
+      //       ),
 
-      
-    //  builder: (context, child) {
-    //     return UpgradeAlert(
-    //        key: goRouter.routerDelegate.navigatorKey,
-    //       upgrader: Upgrader(
-    //         minAppVersion: "2.0.0",
-    //         debugDisplayAlways: true,
-    //         debugLogging: true,
-    //         languageCode: 'en',
-    //         countryCode: "IND",
-    //         messages: UpgraderMessages(code: 'en'),
-    //         dialogStyle: UpgradeDialogStyle.material,
-    //         showLater: true
-    //       ),
-
-    //       //   upgrader: Upgrader(
-    //       //   dialogStyle: UpgradeDialogStyle.material,
-    //       //   durationUntilAlertAgain: Duration(days: 1),
-    //       //   showIgnore: false,
-    //       //   showLater: false,
-    //       //   canDismissDialog: false,
-    //       //   appcastConfig: AppcastConfiguration(
-    //       //     // url: '$uri/appcast.xml',
-    //       //     url: appcastURL,
-    //       //     supportedOS: ['android'],
-    //       //   ),
-    //       //   debugLogging: true,  // Enable debug logging for testing
-    //       // ),
-    //       child: child!,
-    //     );
-    //   },
+      //       //   upgrader: Upgrader(
+      //       //   dialogStyle: UpgradeDialogStyle.material,
+      //       //   durationUntilAlertAgain: Duration(days: 1),
+      //       //   showIgnore: false,
+      //       //   showLater: false,
+      //       //   canDismissDialog: false,
+      //       //   appcastConfig: AppcastConfiguration(
+      //       //     // url: '$uri/appcast.xml',
+      //       //     url: appcastURL,
+      //       //     supportedOS: ['android'],
+      //       //   ),
+      //       //   debugLogging: true,  // Enable debug logging for testing
+      //       // ),
+      //       child: child!,
+      //     );
+      //   },
       /*
     // Note:
     //1) We can wrap the all pages with appBarWrapper using builder, also we can skip the app bar for some specific page
@@ -169,7 +157,7 @@ static const appcastURL =
 
     */
 
-    /*
+      /*
   builder: (context, child) {
 
 
@@ -214,44 +202,40 @@ static const appcastURL =
 
 */
 
+      // localizationsDelegates: [
+      //   GlobalMaterialLocalizations.delegate,
+      //   GlobalWidgetsLocalizations.delegate,
+      //   GlobalCupertinoLocalizations.delegate,
+      // ],
+      // supportedLocales: [
+      //   Locale('en'), // English
+      //   Locale('en'), // Spanish
+      // ],
 
-  // localizationsDelegates: [
-  //   GlobalMaterialLocalizations.delegate,
-  //   GlobalWidgetsLocalizations.delegate,
-  //   GlobalCupertinoLocalizations.delegate,
-  // ],
-  // supportedLocales: [
-  //   Locale('en'), // English
-  //   Locale('en'), // Spanish
-  // ],
+      //   localizationsDelegates: AppLocalizations.localizationsDelegates,
+      // supportedLocales: AppLocalizations.supportedLocales,
 
-  //   localizationsDelegates: AppLocalizations.localizationsDelegates,
-  // supportedLocales: AppLocalizations.supportedLocales,
-  
-
-        locale: locale,
+      locale: locale,
       supportedLocales: [
         Locale('en'),
         Locale('es'),
         Locale('fi'),
       ],
-    localizationsDelegates: [
-    AppLocalizations.delegate, // Add this line
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-  ],
+      localizationsDelegates: [
+        AppLocalizations.delegate, // Add this line
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       debugShowCheckedModeBanner: false,
       title: 'Admin app',
-     theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(
-          Theme.of(context).textTheme,
-        )
-     ),
+      theme: ThemeData(
+          textTheme: GoogleFonts.poppinsTextTheme(
+        Theme.of(context).textTheme,
+      )),
 
 // Customizing Text Styles
 // If you want to customize specific text styles, you can do so within the textTheme property:
-
 
 // theme: ThemeData(
 //   textTheme: GoogleFonts.poppinsTextTheme(
@@ -265,16 +249,6 @@ static const appcastURL =
 //     ),
 //   ),
 // ),
-
-
-
-
-
-
-
-
     );
   }
 }
-
-

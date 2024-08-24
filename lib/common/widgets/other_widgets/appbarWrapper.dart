@@ -10,37 +10,35 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final isAuthenticated = ref.watch(authProvider);
-        // final languageId = ref.watch(languageIdProvider);
+    // final languageId = ref.watch(languageIdProvider);
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: ThemeColors.primaryColor(),
         iconTheme: IconThemeData(color: Colors.white),
         // centerTitle: true,
         titleSpacing: 0.0,
-        title:  LanguageSwitcher(),
-        leading: 
-            Builder(
-              builder: (context) => IconButton(
-                icon: Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
-                },
-              ),
-            ),
-         
+        title: LanguageSwitcher(),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },
+          ),
+        ),
+
         // actions: isAuthenticated?<Widget>[
         actions: 1 == 1
             ? <Widget>[
-              
                 IconButton(onPressed: () {}, icon: Icon(Icons.local_shipping)),
-               
-                  IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              // await authNotifier.logout();
-              // context.go('/login');
-            },
-          )
+                IconButton(
+                  icon: Icon(Icons.logout),
+                  onPressed: () async {
+                    
+                    // await authNotifier.logout();
+                    // context.go('/login');
+                  },
+                )
               ]
             : null,
         // leading:  IconButton(onPressed: (){},
@@ -48,7 +46,6 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
       ),
       body: child,
       drawer: SideBarPanel(),
-      
     );
   }
 
