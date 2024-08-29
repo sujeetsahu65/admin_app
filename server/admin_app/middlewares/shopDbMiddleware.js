@@ -1,9 +1,14 @@
-const {superSequelize, Sequelize } = require('../models');
+const { superSequelize, Sequelize, DataTypes } = require('../models');
 const utils = require('../utils');
+const order = require('../models/order');
+const user = require('../models/user');
+const deliveryType = require('../models/deliveryType');
+const paymentMode = require('../models/paymentMode');
 
 module.exports = async (req, res, next) =>
 {
     const { client_id, role, loc_id } = req.admin;
+    const { lang_id } = req;
     try
     {
 
@@ -48,12 +53,27 @@ module.exports = async (req, res, next) =>
         shopSequelize.authenticate()
             .then(() =>
             {
+
+                const enc_key = shopDb[0].enc_key;
+                const Order = order(shopSequelize, DataTypes, enc_key);
+                const User = user(shopSequelize, DataTypes, enc_key);
+                const DeliveryType = deliveryType(shopSequelize, DataTypes, lang_id);
+                const PaymentMode = paymentMode(shopSequelize, DataTypes, lang_id);
+                Order.belongsTo(User, { foreignKey: 'user_id' });
+                Order.belongsTo(DeliveryType, { foreignKey: 'delivery_type_id' });
+                Order.belongsTo(PaymentMode, { foreignKey: 'payment_mode_id' });
                 console.log('Connection has been established successfully.');
                 req.shopSequelize = shopSequelize;
                 req.loc_id = loc_id;
-                req.enc_key = shopDb[0].enc_key;
+                req.enc_key = enc_key;
                 req.data_entry_type = shopDb[0].dataentryType;
                 req.superSequelize = superSequelize;
+                req.models = {
+                    User,
+                    Order,
+                    DeliveryType,
+                    PaymentMode
+                }
                 next();
             })
             .catch(err =>

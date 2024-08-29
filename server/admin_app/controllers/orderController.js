@@ -1,7 +1,90 @@
 const utils = require('../utils');
 const { format, subDays } = require('date-fns');
+const { Order, User } = require('../models');
 // ========NEW ORDERS=========
+
+
 exports.getNewOrders = async (req, res) =>
+{
+
+  const { shopSequelize, loc_id, enc_key, lang_id } = req;
+  const { User, Order, DeliveryType, PaymentMode } = req.models;
+  console.log(`lang:${lang_id}, enc_key:${enc_key}`);
+  // const lang_id = req.lang_id
+  // const enc_key = req.enc_key
+  console.log("lang_id");
+  try
+  {
+
+    const new_orders = await Order.findAll({
+      where: {
+        loc_id: loc_id,
+        payment_status_id: 5,
+        orders_status_id: [3, 5],
+        pre_order_booking: [0, 1, 3]
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'userEmail']
+        },
+        {
+          model: DeliveryType,
+          // attributes: [
+          //   [`delivery_type_${lang_id}`, 'delivery_type_title'], 
+          //   'delivery_type_img'
+          // ]
+        },
+        {
+          model: PaymentMode,
+          // attributes: [
+          //   [`payment_mode_lang_${lang_id}`, 'payment_mode_lang_title']
+          // ]
+        }
+      ],
+      order: [['order_id', 'DESC']],
+      limit: 100
+    });
+
+
+    if (new_orders.length > 0)
+    {
+
+
+
+      // const new_orders = new_orders_data.map(order => {
+      //   return {
+      //     ...order.toJSON(),
+      //     ...order.User.toJSON(),              // Add User fields to the order object
+      //     ...order.DeliveryType?.toJSON(),      // Add DeliveryType fields to the order object
+      //     ...order.PaymentMode?.toJSON(),       // Add PaymentMode fields to the order object
+      //   }});
+
+
+
+
+
+
+      return res.json({ status_code: 200, status: true, data: { new_orders } });
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "No orders" });
+    }
+
+  }
+
+  catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error });
+  }
+
+}
+
+
+
+exports.getNewOrders2 = async (req, res) =>
 {
 
   // console.log(utils.encryptPassWithKey("hi sujeet this is$%^123", "fc9653ebf224379c42031073acbc2a03"));
@@ -66,9 +149,9 @@ exports.getNewOrders = async (req, res) =>
           userNote: row.additional_info,
           deliveryTypeId: row.delivery_type_id,
           deliveryPartnerId: row.delivery_partner_id,
-          deliveryTypeTitle: row.delivery_type_title,
+          deliveryType: row.delivery_type_title,
           deliveryTypeImg: row.delivery_type_img,
-          paymentModeLangTitle: row.payment_mode_lang_title,
+          paymentMode: row.payment_mode_lang_title,
           paymentModeId: row.payment_mode_id,
           paymentStatusId: row.payment_status_id,
           ordersStatusId: row.orders_status_id,
@@ -131,7 +214,7 @@ exports.getNewOrders = async (req, res) =>
 // ========CANCELLED ORDERS=========
 exports.getCancelledOrders = async (req, res) =>
 {
-  const { shopSequelize,enc_key, loc_id } = req;
+  const { shopSequelize, enc_key, loc_id } = req;
   const lang_id = req.lang_id
   const now = new Date()
   const current_date = format(now, 'yyyy-MM-dd');
@@ -150,7 +233,7 @@ exports.getCancelledOrders = async (req, res) =>
     if (result.length > 0)
     {
 
-               cancelled_orders = result.map(row =>
+      cancelled_orders = result.map(row =>
       {
         return {
           // ...row,
@@ -176,9 +259,9 @@ exports.getCancelledOrders = async (req, res) =>
           userNote: row.additional_info,
           deliveryTypeId: row.delivery_type_id,
           deliveryPartnerId: row.delivery_partner_id,
-          deliveryTypeTitle: row.delivery_type_title,
+          deliveryType: row.delivery_type_title,
           deliveryTypeImg: row.delivery_type_img,
-          paymentModeLangTitle: row.payment_mode_lang_title,
+          paymentMode: row.payment_mode_lang_title,
           paymentModeId: row.payment_mode_id,
           paymentStatusId: row.payment_status_id,
           ordersStatusId: row.orders_status_id,
@@ -217,7 +300,8 @@ exports.getCancelledOrders = async (req, res) =>
           deliveryCouponAmt: row.delivery_coupon_amt,
           couponDiscount: row.coupon_discount,
           comboOfferApplied: row.combo_offer_applied,
-        }});
+        }
+      });
 
       return res.json({ status_code: 200, status: true, data: { cancelled_orders } });
     }
@@ -235,7 +319,7 @@ exports.getCancelledOrders = async (req, res) =>
 // ========RECEIVED ORDERS=========
 exports.getReceivedOrders = async (req, res) =>
 {
-  const { shopSequelize,enc_key, loc_id } = req;
+  const { shopSequelize, enc_key, loc_id } = req;
   const lang_id = req.lang_id;
   const now = new Date();
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
@@ -252,7 +336,7 @@ exports.getReceivedOrders = async (req, res) =>
     if (result.length > 0)
     {
 
-           received_orders = result.map(row =>
+      received_orders = result.map(row =>
       {
         return {
           // ...row,
@@ -278,9 +362,9 @@ exports.getReceivedOrders = async (req, res) =>
           userNote: row.additional_info,
           deliveryTypeId: row.delivery_type_id,
           deliveryPartnerId: row.delivery_partner_id,
-          deliveryTypeTitle: row.delivery_type_title,
+          deliveryType: row.delivery_type_title,
           deliveryTypeImg: row.delivery_type_img,
-          paymentModeLangTitle: row.payment_mode_lang_title,
+          paymentMode: row.payment_mode_lang_title,
           paymentModeId: row.payment_mode_id,
           paymentStatusId: row.payment_status_id,
           ordersStatusId: row.orders_status_id,
@@ -319,7 +403,8 @@ exports.getReceivedOrders = async (req, res) =>
           deliveryCouponAmt: row.delivery_coupon_amt,
           couponDiscount: row.coupon_discount,
           comboOfferApplied: row.combo_offer_applied,
-        }});
+        }
+      });
 
       return res.json({ status_code: 200, status: true, data: { received_orders } });
     }
@@ -652,7 +737,7 @@ exports.cancelOrder = async (req, res) =>
 // ========GET ORDERED ITEMS=========
 exports.orderItems = async (req, res) =>
 {
-  const { shopSequelize, loc_id,data_entry_type } = req;
+  const { shopSequelize, loc_id, data_entry_type } = req;
   const lang_id = req.lang_id
 
   try
@@ -669,9 +754,9 @@ exports.orderItems = async (req, res) =>
     let query = `SELECT order_food_items.order_food_item_id,order_food_items.combo_product_type,master_food_items.food_item_name_${lang_id} as food_item_name,master_food_items.food_item_image,order_food_items.basic_price,order_food_items.item_order_qty,order_food_items.total_basic_price,order_food_items.item_total_toppings_price,order_food_items.food_extratext,order_food_items.size_id,order_food_items.food_test_id  FROM order_food_items INNER JOIN master_food_items ON order_food_items.food_item_id=master_food_items.food_item_id WHERE combo_offer_id=0 and order_food_items.order_id = :order_id and order_food_items.loc_id=${loc_id}`;
 
     let replacements = { order_id, lang_id };
-    let combo_offer_items=[];
+    let combo_offer_items = [];
 
-    const menu_loc_id = data_entry_type=='single'?1:loc_id;
+    const menu_loc_id = data_entry_type == 'single' ? 1 : loc_id;
 
     let order_items = await shopSequelize.query(query, {
       replacements,
@@ -689,7 +774,7 @@ exports.orderItems = async (req, res) =>
         const toppings = await utils.getOrderItemToppings({ sequelize: shopSequelize, loc_id, order_food_item_id: item.order_food_item_id, lang_id });
         return {
           ...item,
-          item_size_name: await utils.getItemSizeName({ sequelize:shopSequelize, loc_id: menu_loc_id, item_size_id:item.size_id, lang_id }),
+          item_size_name: await utils.getItemSizeName({ sequelize: shopSequelize, loc_id: menu_loc_id, item_size_id: item.size_id, lang_id }),
           toppings
         };
       }));
@@ -704,7 +789,7 @@ exports.orderItems = async (req, res) =>
 
 
 
-    return res.status(200).json({ status_code: 200, status: true, data: { order_items,combo_offer_items } });
+    return res.status(200).json({ status_code: 200, status: true, data: { order_items, combo_offer_items } });
 
   } catch (error)
   {
@@ -759,9 +844,9 @@ exports.orderComboOfferItems = async (req, res) =>
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
     }
 
-      const combo_offer_items = await utils.getOrderComboOfferItems({ sequelize: shopSequelize, loc_id, order_id, lang_id });
+    const combo_offer_items = await utils.getOrderComboOfferItems({ sequelize: shopSequelize, loc_id, order_id, lang_id });
 
-    return res.status(200).json({ status_code: 200, status: true, data: {combo_offer_items} });
+    return res.status(200).json({ status_code: 200, status: true, data: { combo_offer_items } });
 
   } catch (error)
   {

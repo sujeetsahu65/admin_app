@@ -15,22 +15,22 @@ const config = require('../config/config').development;
 // );
 
 const superSequelize = new Sequelize(config.database, config.username, config.password, {
-  host:config.host,
-  dialect:config.dialect,
-logging:false,
-   dialectOptions: {
-                // useUTC:false
-                //    dateStrings: true,
-                typeCast: function (field, next)
-                { // for reading from database
-                    if (field.type === 'DATETIME')
-                    {
-                        return field.string()
-                    }
-                    return next()
-                },
-                decimalNumbers: true,
-            },
+  host: config.host,
+  dialect: config.dialect,
+  logging: false,
+  dialectOptions: {
+    // useUTC:false
+    //    dateStrings: true,
+    typeCast: function (field, next)
+    { // for reading from database
+      if (field.type === 'DATETIME')
+      {
+        return field.string()
+      }
+      return next()
+    },
+    decimalNumbers: true,
+  },
   pool: {
     max: 10,
     min: 0,
@@ -54,6 +54,7 @@ superSequelize.authenticate()
 
 const Admin = adminModel(superSequelize, DataTypes);
 const AdminLogin = adminLoginModel(superSequelize, DataTypes);
+
 // const Abc = abcModel(sequelize, Sequelize);
 // const Admin = require('./admin')(superSequelize, DataTypes);
 
@@ -61,12 +62,15 @@ const AdminLogin = adminLoginModel(superSequelize, DataTypes);
 // AdminLogin.belongsTo(Admin, { foreignKey: 'loc_id', targetKey: 'loc_id' });
 
 
+// Order.belongsTo(DeliveryTypeMaster, { foreignKey: 'delivery_type_id' });
+// Order.belongsTo(PaymentModeMaster, { foreignKey: 'payment_mode_id' });
 // superSequelize.sync().then(() =>
 // {
 //   console.log('Database & tables synced!');
 // });
 
 module.exports = {
+  DataTypes,
   Admin,
   AdminLogin,
   superSequelize,

@@ -186,7 +186,7 @@ final orderItemsData = await orderService.fetchOrderItems(order.orderId);
       style: ReceiptTextStyleType.normal,
     );
     receiptHeadText.addText(
-      order.deliveryTypeTitle,
+      order.deliveryType,
       size: ReceiptTextSizeType.large,
       style: ReceiptTextStyleType.bold,
     );

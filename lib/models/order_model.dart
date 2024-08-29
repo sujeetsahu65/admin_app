@@ -14,14 +14,14 @@ class Order {
   final int orderId;
   final DateTime orderDateTime;
   final int waiterId;
-  final int deliveryPartnerCost;
+  final double deliveryPartnerCost;
   final int deliveryStatusInformation;
   final String orderNO;
   final int deliveryTypeId;
   final int deliveryPartnerId;
-  final String deliveryTypeTitle;
+  final String deliveryType;
   final String deliveryTypeImg;
-  final String paymentModeLangTitle;
+  final String paymentMode;
   final int paymentModeId;
   final int paymentStatusId;
   final int ordersStatusId;
@@ -76,9 +76,9 @@ class Order {
     required this.orderNO,
     required this.deliveryTypeId,
     required this.deliveryPartnerId,
-    required this.deliveryTypeTitle,
+    required this.deliveryType,
     required this.deliveryTypeImg,
-    required this.paymentModeLangTitle,
+    required this.paymentMode,
     required this.paymentModeId,
     required this.paymentStatusId,
     required this.ordersStatusId,
@@ -157,14 +157,14 @@ Order copyWith({
     int? orderId,
     DateTime? orderDateTime,
     int? waiterId,
-    int? deliveryPartnerCost,
+    double? deliveryPartnerCost,
     int? deliveryStatusInformation,
     String? orderNO,
     int? deliveryTypeId,
     int? deliveryPartnerId,
-    String? deliveryTypeTitle,
+    String? deliveryType,
     String? deliveryTypeImg,
-    String? paymentModeLangTitle,
+    String? paymentMode,
     int? paymentModeId,
     int? paymentStatusId,
     int? ordersStatusId,
@@ -221,9 +221,9 @@ Order copyWith({
       orderNO: orderNO ?? this.orderNO,
       deliveryTypeId: deliveryTypeId ?? this.deliveryTypeId,
       deliveryPartnerId: deliveryPartnerId ?? this.deliveryPartnerId,
-      deliveryTypeTitle: deliveryTypeTitle ?? this.deliveryTypeTitle,
+      deliveryType: deliveryType ?? this.deliveryType,
       deliveryTypeImg: deliveryTypeImg ?? this.deliveryTypeImg,
-      paymentModeLangTitle: paymentModeLangTitle ?? this.paymentModeLangTitle,
+      paymentMode: paymentMode ?? this.paymentMode,
       paymentModeId: paymentModeId ?? this.paymentModeId,
       paymentStatusId: paymentStatusId ?? this.paymentStatusId,
       ordersStatusId: ordersStatusId ?? this.ordersStatusId,
@@ -277,7 +277,7 @@ Order copyWith({
 
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
-      userEmail: json['userEmail'],
+      userEmail: json['User']['userEmail'],
       userMobileNo: json['userMobileNo'],
       userAddress: json['userAddress'],
       userZipcode: json['userZipcode'],
@@ -285,8 +285,8 @@ Order copyWith({
       userBuildingNo: json['userBuildingNo'],
       userNote: json['userNote'],
       userFullName: json['userFullName'],
-      firstName: json['firstName'],
-      lastName: json['lastName'],
+      firstName: json['User']['firstName'],
+      lastName: json['User']['lastName'],
       orderId: json['orderId'],
       orderDateTime: DateTime.parse(json['orderDateTime']),
       waiterId: json['waiterId'],
@@ -295,9 +295,9 @@ Order copyWith({
       orderNO: json['orderNO'],
       deliveryTypeId: json['deliveryTypeId'],
       deliveryPartnerId: json['deliveryPartnerId'],
-      deliveryTypeTitle: json['deliveryTypeTitle'],
-      deliveryTypeImg: json['deliveryTypeImg'],
-      paymentModeLangTitle: json['paymentModeLangTitle'],
+      deliveryType: json['DeliveryType']['deliveryType'],
+      deliveryTypeImg: json['DeliveryType']['deliveryTypeImg'],
+      paymentMode: json['PaymentMode']['paymentMode'],
       paymentModeId: json['paymentModeId'],
       paymentStatusId: json['paymentStatusId'],
       ordersStatusId: json['ordersStatusId'],
@@ -381,9 +381,9 @@ Order copyWith({
       'orderNO': orderNO,
       'deliveryTypeId': deliveryTypeId,
       'deliveryPartnerId': deliveryPartnerId,
-      'deliveryTypeTitle': deliveryTypeTitle,
+      'deliveryType': deliveryType,
       'deliveryTypeImg': deliveryTypeImg,
-      'paymentModeLangTitle': paymentModeLangTitle,
+      'paymentMode': paymentMode,
       'paymentModeId': paymentModeId,
       'paymentStatusId': paymentStatusId,
       'ordersStatusId': ordersStatusId,
