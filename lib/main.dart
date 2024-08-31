@@ -218,8 +218,8 @@ class _MyApp extends ConsumerState<MyApp> {
       locale: locale,
       supportedLocales: [
         Locale('en'),
-        Locale('es'),
         Locale('fi'),
+        Locale('es'),
       ],
       localizationsDelegates: [
         AppLocalizations.delegate, // Add this line
@@ -227,6 +227,7 @@ class _MyApp extends ConsumerState<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      
       debugShowCheckedModeBanner: false,
       title: 'Admin app',
       theme: ThemeData(

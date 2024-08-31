@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 String uri = 'http://localhost:8000/admin-app';
+int localeId = 2;
 // String uri = 'https://api.foozu3.fi/admin-app';
 Future getLocalToken() async{
     final prefs = await SharedPreferences.getInstance();

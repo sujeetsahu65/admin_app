@@ -1,4 +1,4 @@
-const { superSequelize, Sequelize, DataTypes } = require('../models');
+const { superSequelize, Sequelize, DataTypes,Op } = require('../models');
 const utils = require('../utils');
 const order = require('../models/order');
 const user = require('../models/user');
@@ -65,6 +65,7 @@ module.exports = async (req, res, next) =>
                 console.log('Connection has been established successfully.');
                 req.shopSequelize = shopSequelize;
                 req.loc_id = loc_id;
+                req.Op = Op;
                 req.enc_key = enc_key;
                 req.data_entry_type = shopDb[0].dataentryType;
                 req.superSequelize = superSequelize;

@@ -28,7 +28,8 @@ class OrderService {
         Uri.parse('$uri/order/$path'),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
@@ -60,7 +61,8 @@ class OrderService {
         }),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
@@ -86,7 +88,8 @@ class OrderService {
         }),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
@@ -111,7 +114,8 @@ class OrderService {
         }),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
@@ -136,7 +140,8 @@ class OrderService {
         }),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+           'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
@@ -159,7 +164,8 @@ class OrderService {
             '$uri/order/order-items?order_id=$orderId&include_toppings=1'),
         headers: {
           'Content-Type': 'application/json',
-          'x-auth-token': '${token}',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
         },
       );
 
