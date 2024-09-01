@@ -4,10 +4,7 @@ const utils = require('../utils');
 module.exports = (superSequelize, DataTypes, enc_key) =>
 {
   const Order = superSequelize.define('Order', {
-    //   userEmail: {
-    //     type: DataTypes.STRING,
-    //     field: 'user_email'
-    //   },
+
     userMobileNo: {
       type: DataTypes.STRING,
       field: 'user_mobile_no',
@@ -63,14 +60,6 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.STRING,
       field: 'additional_info'
     },
-    //   firstName: {
-    //     type: DataTypes.STRING,
-    //     field: 'first_name'
-    //   },
-    //   lastName: {
-    //     type: DataTypes.STRING,
-    //     field: 'last_name'
-    //   },
     userFullName: {
       type: DataTypes.STRING,
       field: 'user_fullname'
@@ -108,18 +97,6 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.INTEGER,
       field: 'delivery_partner_id'
     },
-    //   deliveryType: {
-    //     type: DataTypes.STRING,
-    //     field: 'delivery_type_title'
-    //   },
-    //   deliveryTypeImg: {
-    //     type: DataTypes.STRING,
-    //     field: 'delivery_type_img'
-    //   },
-    //   paymentMode: {
-    //     type: DataTypes.STRING,
-    //     field: 'payment_mode_lang_title'
-    //   },
     paymentModeId: {
       type: DataTypes.INTEGER,
       field: 'payment_mode_id'
@@ -136,30 +113,30 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.INTEGER,
       field: 'pre_order_booking'
     },
-    sendEmailOrderSetTime: {
-      type: DataTypes.INTEGER,
-      field: 'send_email_order_set_time'
-    },
-    sendSmsOrderSetTime: {
-      type: DataTypes.INTEGER,
-      field: 'send_sms_order_set_time'
-    },
-    sendEmailOrderOntheway: {
-      type: DataTypes.INTEGER,
-      field: 'send_email_order_ontheway'
-    },
-    sendSmsOrderOntheway: {
-      type: DataTypes.INTEGER,
-      field: 'send_sms_order_ontheway'
-    },
-    sendEmailOrderCancel: {
-      type: DataTypes.INTEGER,
-      field: 'send_email_order_cancel'
-    },
-    sendSmsOrderCancel: {
-      type: DataTypes.INTEGER,
-      field: 'send_sms_order_cancel'
-    },
+    // sendEmailOrderSetTime: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_email_order_set_time'
+    // },
+    // sendSmsOrderSetTime: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_sms_order_set_time'
+    // },
+    // sendEmailOrderOntheway: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_email_order_ontheway'
+    // },
+    // sendSmsOrderOntheway: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_sms_order_ontheway'
+    // },
+    // sendEmailOrderCancel: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_email_order_cancel'
+    // },
+    // sendSmsOrderCancel: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'send_sms_order_cancel'
+    // },
     orderLanguageId: {
       type: DataTypes.INTEGER,
       field: 'order_language_id'
@@ -209,10 +186,10 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.DOUBLE,
       field: 'final_payable_amount'
     },
-    orderFrom: {
-      type: DataTypes.STRING,
-      field: 'order_from'
-    },
+    // orderFrom: {
+    //   type: DataTypes.STRING,
+    //   field: 'order_from'
+    // },
     qrcodeOrderLabel: {
       type: DataTypes.STRING,
       field: 'qrcode_order_label'
@@ -241,15 +218,15 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.INTEGER,
       field: 'pre_order_response_alert_time'
     },
-    tableBookingResponseAlertTime: {
-      type: DataTypes.INTEGER,
-      field: 'table_booking_response_alert_time'
-    },
-    fcmToken: {
-      type: DataTypes.STRING,
-      field: 'fcm_token',
-      allowNull: true
-    },
+    // tableBookingResponseAlertTime: {
+    //   type: DataTypes.INTEGER,
+    //   field: 'table_booking_response_alert_time'
+    // },
+    // fcmToken: {
+    //   type: DataTypes.STRING,
+    //   field: 'fcm_token',
+    //   allowNull: true
+    // },
     deliveryCouponAmt: {
       type: DataTypes.DOUBLE,
       field: 'delivery_coupon_amt'

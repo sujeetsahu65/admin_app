@@ -11,10 +11,10 @@ class ContactUs {
   int printStyle;
   int deviceTypePrint;
   int orientation;
-  String orgCity;
-  String orgZipcode;
-  String latitude;
-  String longitude;
+  // String orgCity;
+  // String orgZipcode;
+  // String latitude;
+  // String longitude;
 
   ContactUs({
     required this.orgName,
@@ -29,10 +29,10 @@ class ContactUs {
     required this.printStyle,
     required this.deviceTypePrint,
     required this.orientation,
-    required this.orgCity,
-    required this.orgZipcode,
-    required this.latitude,
-    required this.longitude,
+    // required this.orgCity,
+    // required this.orgZipcode,
+    // required this.latitude,
+    // required this.longitude,
   });
 
   factory ContactUs.fromJson(Map<String, dynamic> json) {
@@ -49,10 +49,10 @@ class ContactUs {
       printStyle: json['print_style'],
       deviceTypePrint: json['device_type_print'],
       orientation: json['orientation'],
-      orgCity: json['org_city'],
-      orgZipcode: json['org_zipcode'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
+      // orgCity: json['org_city'],
+      // orgZipcode: json['org_zipcode'],
+      // latitude: json['latitude'],
+      // longitude: json['longitude'],
     );
   }
 
@@ -70,10 +70,10 @@ class ContactUs {
       'print_style': printStyle,
       'device_type_print': deviceTypePrint,
       'orientation': orientation,
-      'org_city': orgCity,
-      'org_zipcode': orgZipcode,
-      'latitude': latitude,
-      'longitude': longitude,
+      // 'org_city': orgCity,
+      // 'org_zipcode': orgZipcode,
+      // 'latitude': latitude,
+      // 'longitude': longitude,
     };
   }
 
@@ -92,10 +92,10 @@ class ContactUs {
       printStyle: 0,
       deviceTypePrint: 0,
       orientation: 0,
-      orgCity: '',
-      orgZipcode: '',
-      latitude: '',
-      longitude: '',
+      // orgCity: '',
+      // orgZipcode: '',
+      // latitude: '',
+      // longitude: '',
     );
   }
 }
@@ -103,55 +103,55 @@ class ContactUs {
 class LocationMaster {
   String locName;
   String disName;
-  String locAddress;
-  String locImage;
+  // String locAddress;
+  // String locImage;
   String locLogo;
-  String locFavicon;
-  int displayOrder;
-  int activeStatus;
-  int activeEmailStatus;
-  int deactiveEmailStatus;
-  String website;
-  String businessId;
-  String locationType;
-  int websiteType;
-  String siteUrl;
+  // String locFavicon;
+  // int displayOrder;
+  // int activeStatus;
+  // int activeEmailStatus;
+  // int deactiveEmailStatus;
+  // String website;
+  // String businessId;
+  // String locationType;
+  // int websiteType;
+  // String siteUrl;
 
   LocationMaster({
     required this.locName,
     required this.disName,
-    required this.locAddress,
-    required this.locImage,
+    // required this.locAddress,
+    // required this.locImage,
     required this.locLogo,
-    required this.locFavicon,
-    required this.displayOrder,
-    required this.activeStatus,
-    required this.activeEmailStatus,
-    required this.deactiveEmailStatus,
-    required this.website,
-    required this.businessId,
-    required this.locationType,
-    required this.websiteType,
-    required this.siteUrl,
+    // required this.locFavicon,
+    // required this.displayOrder,
+    // required this.activeStatus,
+    // required this.activeEmailStatus,
+    // required this.deactiveEmailStatus,
+    // required this.website,
+    // required this.businessId,
+    // required this.locationType,
+    // required this.websiteType,
+    // required this.siteUrl,
   });
 
   factory LocationMaster.fromJson(Map<String, dynamic> json) {
     return LocationMaster(
       locName: json['loc_name'],
       disName: json['dis_name'],
-      locAddress: json['loc_address'],
-      locImage: json['loc_image'],
+      // locAddress: json['loc_address'],
+      // locImage: json['loc_image'],
       locLogo: json['loc_logo'],
-      locFavicon: json['loc_favicon'],
-      displayOrder: json['display_order'],
-      activeStatus: json['active_status'],
-      activeEmailStatus: json['active_email_status'],
-      deactiveEmailStatus: json['deactive_email_status'],
-      website: json['website'],
-      businessId: json['businessid'],
-      locationType: json['location_type'],
-      websiteType: json['website_type'],
-      siteUrl: json['site_url'],
+      // locFavicon: json['loc_favicon'],
+      // displayOrder: json['display_order'],
+      // activeStatus: json['active_status'],
+      // activeEmailStatus: json['active_email_status'],
+      // deactiveEmailStatus: json['deactive_email_status'],
+      // website: json['website'],
+      // businessId: json['businessid'],
+      // locationType: json['location_type'],
+      // websiteType: json['website_type'],
+      // siteUrl: json['site_url'],
     );
   }
 
@@ -159,19 +159,19 @@ class LocationMaster {
     return {
       'loc_name': locName,
       'dis_name': disName,
-      'loc_address': locAddress,
-      'loc_image': locImage,
+      // 'loc_address': locAddress,
+      // 'loc_image': locImage,
       'loc_logo': locLogo,
-      'loc_favicon': locFavicon,
-      'display_order': displayOrder,
-      'active_status': activeStatus,
-      'active_email_status': activeEmailStatus,
-      'deactive_email_status': deactiveEmailStatus,
-      'website': website,
-      'businessid': businessId,
-      'location_type': locationType,
-      'website_type': websiteType,
-      'site_url': siteUrl,
+      // 'loc_favicon': locFavicon,
+      // 'display_order': displayOrder,
+      // 'active_status': activeStatus,
+      // 'active_email_status': activeEmailStatus,
+      // 'deactive_email_status': deactiveEmailStatus,
+      // 'website': website,
+      // 'businessid': businessId,
+      // 'location_type': locationType,
+      // 'website_type': websiteType,
+      // 'site_url': siteUrl,
     };
   }
 
@@ -180,19 +180,19 @@ class LocationMaster {
     return LocationMaster(
       locName: '',
       disName: '',
-      locAddress: '',
-      locImage: '',
+      // locAddress: '',
+      // locImage: '',
       locLogo: '',
-      locFavicon: '',
-      displayOrder: 0,
-      activeStatus: 0,
-      activeEmailStatus: 0,
-      deactiveEmailStatus: 0,
-      website: '',
-      businessId: '',
-      locationType: '',
-      websiteType: 0,
-      siteUrl: '',
+      // locFavicon: '',
+      // displayOrder: 0,
+      // activeStatus: 0,
+      // activeEmailStatus: 0,
+      // deactiveEmailStatus: 0,
+      // website: '',
+      // businessId: '',
+      // locationType: '',
+      // websiteType: 0,
+      // siteUrl: '',
     );
   }
 }

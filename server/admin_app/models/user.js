@@ -19,11 +19,11 @@ module.exports = (superSequelize, DataTypes,enc_key) => {
     allowNull: false,
     field: 'qr_code_id'
   },
-  customerRandCode: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    field: 'customer_rand_code'
-  },
+  // customerRandCode: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  //   field: 'customer_rand_code'
+  // },
   firstName: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -52,20 +52,20 @@ module.exports = (superSequelize, DataTypes,enc_key) => {
         return encryptedPhone ? utils.decryptPassWithKey(encryptedPhone,enc_key) : encryptedPhone;
       }
   },
-  userPassword: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    field: 'user_password',
-      get() {
-        const encryptedPassword = this.getDataValue('userPassword');
-        return encryptedPassword ? utils.decryptPassWithKey(encryptedPassword,enc_key) : encryptedPassword;
-      }
-  },
-  userStatus: {
-    type: DataTypes.TINYINT,
-    allowNull: false,
-    field: 'user_status'
-  },
+  // userPassword: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  //   field: 'user_password',
+  //     get() {
+  //       const encryptedPassword = this.getDataValue('userPassword');
+  //       return encryptedPassword ? utils.decryptPassWithKey(encryptedPassword,enc_key) : encryptedPassword;
+  //     }
+  // },
+  // userStatus: {
+  //   type: DataTypes.TINYINT,
+  //   allowNull: false,
+  //   field: 'user_status'
+  // },
   userAddress: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -102,67 +102,67 @@ module.exports = (superSequelize, DataTypes,enc_key) => {
         return encryptedZipcode ? utils.decryptPassWithKey(encryptedZipcode,enc_key) : encryptedZipcode;
       }
   },
-  registrationDate: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    field: 'registration_date'
-  },
-  regiVerificationCode: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    field: 'regi_verification_code'
-  },
-  isMobileVerified: {
-    type: DataTypes.TINYINT,
-    allowNull: false,
-    field: 'is_mobile_verified'
-  },
-  accountDeleteDateTime: {
-    type: DataTypes.DATE,
-    allowNull: true,
-    field: 'accountdelete_datetime'
-  },
-  userRegiFrom: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    field: 'user_regi_from'
-  },
-  sendRegistrationEmail: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_registration_email'
-  },
-  sendRegistrationSms: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_registration_sms'
-  },
-  sendForgetPassEmail: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_forget_pass_email'
-  },
-  sendForgetPassSms: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_forget_pass_sms'
-  },
-  sendAccountDelEmail: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_account_del_email'
-  },
-  sendAccountDelSms: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    field: 'send_account_del_sms'
-  },
-  createdOn: {
-    type: DataTypes.DATE,
-    allowNull: false,
-    defaultValue: DataTypes.NOW,
-    field: 'created_on'
-  }
+  // registrationDate: {
+  //   type: DataTypes.DATE,
+  //   allowNull: false,
+  //   field: 'registration_date'
+  // },
+  // regiVerificationCode: {
+  //   type: DataTypes.STRING,
+  //   allowNull: true,
+  //   field: 'regi_verification_code'
+  // },
+  // isMobileVerified: {
+  //   type: DataTypes.TINYINT,
+  //   allowNull: false,
+  //   field: 'is_mobile_verified'
+  // },
+  // accountDeleteDateTime: {
+  //   type: DataTypes.DATE,
+  //   allowNull: true,
+  //   field: 'accountdelete_datetime'
+  // },
+  // userRegiFrom: {
+  //   type: DataTypes.STRING,
+  //   allowNull: true,
+  //   field: 'user_regi_from'
+  // },
+  // sendRegistrationEmail: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_registration_email'
+  // },
+  // sendRegistrationSms: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_registration_sms'
+  // },
+  // sendForgetPassEmail: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_forget_pass_email'
+  // },
+  // sendForgetPassSms: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_forget_pass_sms'
+  // },
+  // sendAccountDelEmail: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_account_del_email'
+  // },
+  // sendAccountDelSms: {
+  //   type: DataTypes.INTEGER,
+  //   allowNull: false,
+  //   field: 'send_account_del_sms'
+  // },
+  // createdOn: {
+  //   type: DataTypes.DATE,
+  //   allowNull: false,
+  //   defaultValue: DataTypes.NOW,
+  //   field: 'created_on'
+  // }
 },
 
   {

@@ -10,7 +10,7 @@ class Order {
   final String userNote;
   final String firstName;
   final String lastName;
-  final String userFullName;
+  // final String userFullName;
   final int orderId;
   final DateTime orderDateTime;
   final int waiterId;
@@ -26,12 +26,12 @@ class Order {
   final int paymentStatusId;
   final int ordersStatusId;
   final int preOrderBooking;
-  final int sendEmailOrderSetTime;
-  final int sendSmsOrderSetTime;
-  final int sendEmailOrderOntheway;
-  final int sendSmsOrderOntheway;
-  final int sendEmailOrderCancel;
-  final int sendSmsOrderCancel;
+  // final int sendEmailOrderSetTime;
+  // final int sendSmsOrderSetTime;
+  // final int sendEmailOrderOntheway;
+  // final int sendSmsOrderOntheway;
+  // final int sendEmailOrderCancel;
+  // final int sendSmsOrderCancel;
   final int orderLanguageId;
   final DateTime? orderTimerStartTime;
   final String? setOrderMinutTime;
@@ -44,7 +44,7 @@ class Order {
   final double minimumOrderPrice;
   final double grandTotal;
   final double finalPayableAmount;
-  final String orderFrom;
+  // final String orderFrom;
   final String qrcodeOrderLabel;
   final double bonusValueUsed;
   final double bonusValueGet;
@@ -52,7 +52,7 @@ class Order {
   final int doneStatus;
   final double orderUserDistance;
   final int preOrderResponseAlertTime;
-  final String? fcmToken;
+  // final String? fcmToken;
   final double deliveryCouponAmt;
   final double couponDiscount;
   final int comboOfferApplied;
@@ -65,7 +65,7 @@ class Order {
     required this.userCity,
     required this.userBuildingNo,
     required this.userNote,
-    required this.userFullName,
+    // required this.userFullName,
     required this.firstName,
     required this.lastName,
     required this.orderId,
@@ -83,12 +83,12 @@ class Order {
     required this.paymentStatusId,
     required this.ordersStatusId,
     required this.preOrderBooking,
-    required this.sendEmailOrderSetTime,
-    required this.sendSmsOrderSetTime,
-    required this.sendEmailOrderOntheway,
-    required this.sendSmsOrderOntheway,
-    required this.sendEmailOrderCancel,
-    required this.sendSmsOrderCancel,
+    // required this.sendEmailOrderSetTime,
+    // required this.sendSmsOrderSetTime,
+    // required this.sendEmailOrderOntheway,
+    // required this.sendSmsOrderOntheway,
+    // required this.sendEmailOrderCancel,
+    // required this.sendSmsOrderCancel,
     required this.orderLanguageId,
     required this.orderTimerStartTime,
     required this.setOrderMinutTime,
@@ -101,7 +101,7 @@ class Order {
     required dynamic minimumOrderPrice,
     required dynamic grandTotal,
     required dynamic finalPayableAmount,
-    required this.orderFrom,
+    // required this.orderFrom,
     required this.qrcodeOrderLabel,
     required dynamic bonusValueUsed,
     required dynamic bonusValueGet,
@@ -109,7 +109,7 @@ class Order {
     required this.doneStatus,
     required dynamic orderUserDistance,
     required this.preOrderResponseAlertTime,
-    required this.fcmToken,
+    // required this.fcmToken,
     required dynamic deliveryCouponAmt,
     required dynamic couponDiscount,
     required this.comboOfferApplied,
@@ -153,7 +153,7 @@ Order copyWith({
     String? userNote,
     String? firstName,
     String? lastName,
-    String? userFullName,
+    // String? userFullName,
     int? orderId,
     DateTime? orderDateTime,
     int? waiterId,
@@ -172,12 +172,12 @@ Order copyWith({
     // bool? tableBooking,
     // int? tableBookingDuration,
     // int? tableBookingPeople,
-    int? sendEmailOrderSetTime,
-    int? sendSmsOrderSetTime,
-    int? sendEmailOrderOntheway,
-    int? sendSmsOrderOntheway,
-    int? sendEmailOrderCancel,
-    int? sendSmsOrderCancel,
+    // int? sendEmailOrderSetTime,
+    // int? sendSmsOrderSetTime,
+    // int? sendEmailOrderOntheway,
+    // int? sendSmsOrderOntheway,
+    // int? sendEmailOrderCancel,
+    // int? sendSmsOrderCancel,
     int? orderLanguageId,
     DateTime? orderTimerStartTime,
     String? setOrderMinutTime,
@@ -190,7 +190,7 @@ Order copyWith({
     double? minimumOrderPrice,
     double? grandTotal,
     double? finalPayableAmount,
-    String? orderFrom,
+    // String? orderFrom,
     String? qrcodeOrderLabel,
     double? bonusValueUsed,
     double? bonusValueGet,
@@ -199,7 +199,7 @@ Order copyWith({
     double? orderUserDistance,
     int? preOrderResponseAlertTime,
     // String? tableBookingResponseAlertTime,
-    String? fcmToken,
+    // String? fcmToken,
   }) {
     return Order(
       userEmail: userEmail ?? this.userEmail,
@@ -211,7 +211,7 @@ Order copyWith({
       userNote: userNote ?? this.userNote,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
-      userFullName: userFullName ?? this.userFullName,
+      // userFullName: userFullName ?? this.userFullName,
       orderId: orderId ?? this.orderId,
       orderDateTime: orderDateTime ?? this.orderDateTime,
       waiterId: waiterId ?? this.waiterId,
@@ -231,14 +231,14 @@ Order copyWith({
       // tableBooking: tableBooking ?? this.tableBooking,
       // tableBookingDuration: tableBookingDuration ?? this.tableBookingDuration,
       // tableBookingPeople: tableBookingPeople ?? this.tableBookingPeople,
-      sendEmailOrderSetTime:
-          sendEmailOrderSetTime ?? this.sendEmailOrderSetTime,
-      sendSmsOrderSetTime: sendSmsOrderSetTime ?? this.sendSmsOrderSetTime,
-      sendEmailOrderOntheway:
-          sendEmailOrderOntheway ?? this.sendEmailOrderOntheway,
-      sendSmsOrderOntheway: sendSmsOrderOntheway ?? this.sendSmsOrderOntheway,
-      sendEmailOrderCancel: sendEmailOrderCancel ?? this.sendEmailOrderCancel,
-      sendSmsOrderCancel: sendSmsOrderCancel ?? this.sendSmsOrderCancel,
+      // sendEmailOrderSetTime:
+      //     sendEmailOrderSetTime ?? this.sendEmailOrderSetTime,
+      // sendSmsOrderSetTime: sendSmsOrderSetTime ?? this.sendSmsOrderSetTime,
+      // sendEmailOrderOntheway:
+      //     sendEmailOrderOntheway ?? this.sendEmailOrderOntheway,
+      // sendSmsOrderOntheway: sendSmsOrderOntheway ?? this.sendSmsOrderOntheway,
+      // sendEmailOrderCancel: sendEmailOrderCancel ?? this.sendEmailOrderCancel,
+      // sendSmsOrderCancel: sendSmsOrderCancel ?? this.sendSmsOrderCancel,
       orderLanguageId: orderLanguageId ?? this.orderLanguageId,
       orderTimerStartTime: orderTimerStartTime ?? this.orderTimerStartTime,
       setOrderMinutTime: setOrderMinutTime ?? this.setOrderMinutTime,
@@ -251,7 +251,7 @@ Order copyWith({
       minimumOrderPrice: minimumOrderPrice ?? this.minimumOrderPrice,
       grandTotal: grandTotal ?? this.grandTotal,
       finalPayableAmount: finalPayableAmount ?? this.finalPayableAmount,
-      orderFrom: orderFrom ?? this.orderFrom,
+      // orderFrom: orderFrom ?? this.orderFrom,
       qrcodeOrderLabel: qrcodeOrderLabel ?? this.qrcodeOrderLabel,
       bonusValueUsed: bonusValueUsed ?? this.bonusValueUsed,
       bonusValueGet: bonusValueGet ?? this.bonusValueGet,
@@ -261,7 +261,7 @@ Order copyWith({
       preOrderResponseAlertTime:
           preOrderResponseAlertTime ?? this.preOrderResponseAlertTime,
       // tableBookingResponseAlertTime: tableBookingResponseAlertTime ?? this.tableBookingResponseAlertTime,
-      fcmToken: fcmToken ?? this.fcmToken,
+      // fcmToken: fcmToken ?? this.fcmToken,
       deliveryCouponAmt: deliveryCouponAmt ?? this.deliveryCouponAmt,
       couponDiscount: couponDiscount ?? this.couponDiscount,
       comboOfferApplied: comboOfferApplied ?? this.comboOfferApplied,
@@ -284,7 +284,7 @@ Order copyWith({
       userCity: json['userCity'],
       userBuildingNo: json['userBuildingNo'],
       userNote: json['userNote'],
-      userFullName: json['userFullName'],
+      // userFullName: json['userFullName'],
       firstName: json['User']['firstName'],
       lastName: json['User']['lastName'],
       orderId: json['orderId'],
@@ -302,12 +302,12 @@ Order copyWith({
       paymentStatusId: json['paymentStatusId'],
       ordersStatusId: json['ordersStatusId'],
       preOrderBooking: json['preOrderBooking'],
-      sendEmailOrderSetTime: json['sendEmailOrderSetTime'],
-      sendSmsOrderSetTime: json['sendSmsOrderSetTime'],
-      sendEmailOrderOntheway: json['sendEmailOrderOntheway'],
-      sendSmsOrderOntheway: json['sendSmsOrderOntheway'],
-      sendEmailOrderCancel: json['sendEmailOrderCancel'],
-      sendSmsOrderCancel: json['sendSmsOrderCancel'],
+      // sendEmailOrderSetTime: json['sendEmailOrderSetTime'],
+      // sendSmsOrderSetTime: json['sendSmsOrderSetTime'],
+      // sendEmailOrderOntheway: json['sendEmailOrderOntheway'],
+      // sendSmsOrderOntheway: json['sendSmsOrderOntheway'],
+      // sendEmailOrderCancel: json['sendEmailOrderCancel'],
+      // sendSmsOrderCancel: json['sendSmsOrderCancel'],
       orderLanguageId: json['orderLanguageId'],
       orderTimerStartTime: json['orderTimerStartTime'] != null
           ? DateTime.parse(json['orderTimerStartTime'])
@@ -340,7 +340,7 @@ Order copyWith({
       finalPayableAmount: (json['finalPayableAmount'] is int)
           ? (json['finalPayableAmount'] as int).toDouble()
           : json['finalPayableAmount'],
-      orderFrom: json['orderFrom'],
+      // orderFrom: json['orderFrom'],
       qrcodeOrderLabel: json['qrcodeOrderLabel'],
       bonusValueUsed: (json['bonusValueUsed'] is int)
           ? (json['bonusValueUsed'] as int).toDouble()
@@ -354,7 +354,7 @@ Order copyWith({
           ? (json['orderUserDistance'] as int).toDouble()
           : json['orderUserDistance'],
       preOrderResponseAlertTime: json['preOrderResponseAlertTime'],
-      fcmToken: json['fcmToken'],
+      // fcmToken: json['fcmToken'],
       deliveryCouponAmt: json['deliveryCouponAmt'],
       couponDiscount: json['couponDiscount'],
       comboOfferApplied: json['comboOfferApplied'],
@@ -370,7 +370,7 @@ Order copyWith({
       'userCity': userCity,
       'userBuildingNo': userBuildingNo,
       'userNote': userNote,
-      'userFullName': userFullName,
+      // 'userFullName': userFullName,
       'firstName': firstName,
       'lastName': lastName,
       'orderId': orderId,
@@ -388,12 +388,12 @@ Order copyWith({
       'paymentStatusId': paymentStatusId,
       'ordersStatusId': ordersStatusId,
       'preOrderBooking': preOrderBooking,
-      'sendEmailOrderSetTime': sendEmailOrderSetTime,
-      'sendSmsOrderSetTime': sendSmsOrderSetTime,
-      'sendEmailOrderOntheway': sendEmailOrderOntheway,
-      'sendSmsOrderOntheway': sendSmsOrderOntheway,
-      'sendEmailOrderCancel': sendEmailOrderCancel,
-      'sendSmsOrderCancel': sendSmsOrderCancel,
+      // 'sendEmailOrderSetTime': sendEmailOrderSetTime,
+      // 'sendSmsOrderSetTime': sendSmsOrderSetTime,
+      // 'sendEmailOrderOntheway': sendEmailOrderOntheway,
+      // 'sendSmsOrderOntheway': sendSmsOrderOntheway,
+      // 'sendEmailOrderCancel': sendEmailOrderCancel,
+      // 'sendSmsOrderCancel': sendSmsOrderCancel,
       'orderLanguageId': orderLanguageId,
       'orderTimerStartTime': orderTimerStartTime?.toIso8601String(),
       'setOrderMinutTime': setOrderMinutTime,
@@ -406,7 +406,7 @@ Order copyWith({
       'minimumOrderPrice': minimumOrderPrice,
       'grandTotal': grandTotal,
       'finalPayableAmount': finalPayableAmount,
-      'orderFrom': orderFrom,
+      // 'orderFrom': orderFrom,
       'qrcodeOrderLabel': qrcodeOrderLabel,
       'bonusValueUsed': bonusValueUsed,
       'bonusValueGet': bonusValueGet,
@@ -414,7 +414,7 @@ Order copyWith({
       'doneStatus': doneStatus,
       'orderUserDistance': orderUserDistance,
       'preOrderResponseAlertTime': preOrderResponseAlertTime,
-      'fcmToken': fcmToken,
+      // 'fcmToken': fcmToken,
       'deliveryCouponAmt': deliveryCouponAmt,
       'couponDiscount': couponDiscount,
       'comboOfferApplied': comboOfferApplied,
