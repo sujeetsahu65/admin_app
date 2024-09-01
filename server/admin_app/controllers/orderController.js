@@ -143,7 +143,7 @@ exports.getReceivedOrders = async (req, res) =>
         loc_id: loc_id,
         ordersStatusId: 6,
         order_date: {
-          [Op.lte]: yesterday,
+          [Op.gte]: yesterday,
         }
       },
       include: [

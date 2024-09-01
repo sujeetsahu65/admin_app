@@ -240,10 +240,7 @@ class OrderCard extends ConsumerWidget {
                             color: Colors.blue,
                           ),
                           CustomFont(
-                                  text: AppLocalizations.of(context).translate(
-                                      order.deliveryTypeId == 1
-                                          ? 'title_order_type_home'
-                                          : 'title_order_type_pickup'),
+                                  text: order.deliveryType,
                                   fontWeight: FontWeight.bold)
                               .medium()
                         ],
@@ -369,12 +366,7 @@ class OrderCard extends ConsumerWidget {
                           Text(AppLocalizations.of(context)
                               .translate('title_payment_mode')),
                           Text(
-                              AppLocalizations.of(context)
-                                  .translate(order.paymentModeId == 1
-                                      ? 'Cash lable'
-                                      : order.paymentModeId == 2
-                                          ? 'card lable'
-                                          : 'Online_Payment'),
+                              order.paymentMode,
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -427,7 +419,8 @@ class OrderCard extends ConsumerWidget {
                       ),
                       CustomFont(
                               text: isOrderExpanded
-                                  ? 'View Less'
+                                  ? AppLocalizations.of(context)
+                                      .translate('label_view_less')
                                   : AppLocalizations.of(context)
                                       .translate('View Food lable'))
                           .medium()
