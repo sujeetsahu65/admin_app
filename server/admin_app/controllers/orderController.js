@@ -143,7 +143,7 @@ exports.getReceivedOrders = async (req, res) =>
         loc_id: loc_id,
         ordersStatusId: 6,
         order_date: {
-          [Op.gte]: yesterday,
+          [Op.lte]: yesterday,
         }
       },
       include: [
@@ -533,7 +533,7 @@ exports.orderItems = async (req, res) =>
 {
   const { shopSequelize, loc_id, data_entry_type } = req;
   const lang_id = req.lang_id
-
+console.log("llllllllllllll"+lang_id);
   try
   {
 

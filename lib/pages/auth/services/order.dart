@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class OrderService {
-  Future<List<Order>> fetchOrders({mode = 'newOrders'}) async {
+  Future<List<Order>> fetchOrders({mode = 'newOrders', required languageCode}) async {
     try {
       final token = await getLocalToken();
       late final path;
@@ -29,7 +29,7 @@ class OrderService {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': '$token',
-          'lang-id': '$localeId',
+          'lang-code': '$languageCode',
         },
       );
 
@@ -156,7 +156,7 @@ class OrderService {
     }
   }
 
-  Future<Map<String, List>> fetchOrderItems(orderId) async {
+  Future<Map<String, List>> fetchOrderItems({orderId,required languageCode}) async {
     try {
       final token = await getLocalToken();
       final response = await http.get(
@@ -165,7 +165,7 @@ class OrderService {
         headers: {
           'Content-Type': 'application/json',
           'x-auth-token': '$token',
-          'lang-id': '$localeId',
+          'lang-code': '$languageCode',
         },
       );
 

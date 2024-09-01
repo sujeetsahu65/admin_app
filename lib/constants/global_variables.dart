@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
+
 String uri = 'http://localhost:8000/admin-app';
+String defaultLangCode = 'fi';
 int localeId = 2;
 // String uri = 'https://api.foozu3.fi/admin-app';
-Future getLocalToken() async{
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('x-auth-token');
-return token;
+Future getLocalToken() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('x-auth-token');
+  return token;
 }
+
 
 class GlobalVariables {
   // COLORS
@@ -60,7 +63,6 @@ class GlobalVariables {
   ];
 }
 
-
 class FontSizes {
   static const double extraSmall = 10.0;
   static const double small = 12.0;
@@ -69,14 +71,11 @@ class FontSizes {
   static const double extraLarge = 24.0;
 }
 
-
-
-
 class TZ {
   static DateTime now() {
-        final now = tz.TZDateTime.now(tz.local);
-        final nowString = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
-        DateTime.parse(nowString);
+    final now = tz.TZDateTime.now(tz.local);
+    final nowString = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
+    DateTime.parse(nowString);
     // return DateTime.parse(nowString);
     return DateTime.now();
   }
@@ -91,5 +90,3 @@ class TZ {
     return DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
   }
 }
-
-

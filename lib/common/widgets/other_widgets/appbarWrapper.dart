@@ -1,4 +1,4 @@
-import 'package:admin_app/common/widgets/other_widgets/languageSwitcher.dart';
+import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
 import 'package:admin_app/common/widgets/other_widgets/sidebarPanel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

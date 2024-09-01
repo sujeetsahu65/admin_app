@@ -1,4 +1,4 @@
-import 'package:admin_app/common/widgets/other_widgets/languageSwitcher.dart';
+import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/basic.dart';
 import 'package:flutter/material.dart';

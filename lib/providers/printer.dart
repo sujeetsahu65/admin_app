@@ -6,6 +6,7 @@ import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/models/printer.dart';
 import 'package:admin_app/models/toppings_model.dart';
 import 'package:admin_app/providers/basic.dart';
+import 'package:admin_app/providers/language.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:blue_print_pos/models/blue_device.dart';
 import 'package:blue_print_pos/models/connection_status.dart';
@@ -158,8 +159,8 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     // final ReceiptSectionText receiptHeadText = ReceiptSectionText();
 
 //  final orderItemsData = ref.watch(orderItemsProvider(order.orderId));
-
-final orderItemsData = await orderService.fetchOrderItems(order.orderId);
+final languageCode = ref.watch(localizationProvider).languageCode;
+final orderItemsData = await orderService.fetchOrderItems(orderId: order.orderId,languageCode: languageCode);
 
       List<OrderItem> orderItems =
             List<OrderItem>.from(orderItemsData['orderItems'] ?? []);

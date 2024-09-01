@@ -12,7 +12,7 @@ final localizationProvider =
 );
 
 class LocalizationNotifier extends StateNotifier<Locale> {
-  LocalizationNotifier() : super(Locale('en'));
+  LocalizationNotifier() : super(Locale(defaultLangCode));
 
   void changeLanguage(String languageCode) async {
     // final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,5 +28,13 @@ class LocalizationNotifier extends StateNotifier<Locale> {
         localeId = 3;
     }
     state = Locale(languageCode);
+  }
+
+  void setCachedLanguage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final langCode =  prefs.getString('language-code');
+    if (langCode != null) {
+      changeLanguage(langCode);
+    }
   }
 }

@@ -1,9 +1,8 @@
-
 // import 'package:admin_app/providers/basic_provider.dart';
 import 'package:admin_app/providers/language.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Sample language code to flag asset mapping
 Map<String, String> languageFlags = {
@@ -14,29 +13,32 @@ Map<String, String> languageFlags = {
 };
 
 class LanguageSwitcher extends ConsumerWidget {
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final langNotifier = ref.read(localizationProvider.notifier);
 
     final locale = ref.watch(localizationProvider);
     final currentLanguageCode = locale.languageCode;
-    final languageCodes = ['en','fi'];
+    final languageCodes = ['en', 'fi'];
 
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
         if (languageCodes.length == 2) {
           // Toggle between two languages
           final newLanguageCode = languageCodes.firstWhere(
             (code) => code != currentLanguageCode,
-          ); 
+          );
           langNotifier.changeLanguage(newLanguageCode);
+         await prefs.setString('language-code', newLanguageCode);
         }
+
       },
       child: languageCodes.length == 2
-          ? _buildFlag(languageFlags[languageCodes.firstWhere(
-            (code) => code != currentLanguageCode)]!)
-          : _buildDropdown(context, langNotifier,currentLanguageCode,languageCodes),
+          ? _buildFlag(languageFlags[
+              languageCodes.firstWhere((code) => code == currentLanguageCode)]!)
+          : _buildDropdown(
+              context, langNotifier, currentLanguageCode, languageCodes),
     );
   }
 
@@ -48,7 +50,11 @@ class LanguageSwitcher extends ConsumerWidget {
     );
   }
 
-  Widget _buildDropdown(BuildContext context, LocalizationNotifier localizationNotifier,currentLanguageCode,languageCodes) {
+  Widget _buildDropdown(
+      BuildContext context,
+      LocalizationNotifier localizationNotifier,
+      currentLanguageCode,
+      languageCodes) {
     return DropdownButton<String>(
       value: currentLanguageCode,
       icon: Icon(Icons.arrow_drop_down),
