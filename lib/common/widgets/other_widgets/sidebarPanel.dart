@@ -53,7 +53,7 @@ class SideBarPanel extends ConsumerWidget {
     // final currentRoute2 = GoRouter.of(context).routerDelegate.;
       // GoRouter _router = GoRouter;
       //            final Uri location = _router.routerDelegate.currentConfiguration.uri;
-        print("location is: $location");
+        // print("location is: $location");
     final currentRoute = location;
 
     return Padding(

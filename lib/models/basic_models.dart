@@ -3,6 +3,7 @@ class ContactUs {
   String address;
   String emailId;
   String phone;
+  String businessId;
   int onlineOrdering;
   int onlineOrderingFeature;
   int preBooking;
@@ -21,6 +22,7 @@ class ContactUs {
     required this.address,
     required this.emailId,
     required this.phone,
+    required this.businessId,
     required this.onlineOrdering,
     required this.onlineOrderingFeature,
     required this.preBooking,
@@ -41,6 +43,7 @@ class ContactUs {
       address: json['address'],
       emailId: json['email_id'],
       phone: json['phone'],
+      businessId: json['businessid'],
       onlineOrdering: json['online_ordering'],
       onlineOrderingFeature: json['online_ordering_feature'],
       preBooking: json['pre_booking'],
@@ -62,6 +65,7 @@ class ContactUs {
       'address': address,
       'email_id': emailId,
       'phone': phone,
+      'businessid': businessId,
       'online_ordering': onlineOrdering,
       'online_ordering_feature': onlineOrderingFeature,
       'pre_booking': preBooking,
@@ -84,6 +88,7 @@ class ContactUs {
       address: '',
       emailId: '',
       phone: '',
+      businessId: '',
       onlineOrdering: 0,
       onlineOrderingFeature: 0,
       preBooking: 0,
@@ -111,7 +116,7 @@ class LocationMaster {
   // int activeStatus;
   // int activeEmailStatus;
   // int deactiveEmailStatus;
-  // String website;
+  String website;
   // String businessId;
   // String locationType;
   // int websiteType;
@@ -128,7 +133,7 @@ class LocationMaster {
     // required this.activeStatus,
     // required this.activeEmailStatus,
     // required this.deactiveEmailStatus,
-    // required this.website,
+    required this.website,
     // required this.businessId,
     // required this.locationType,
     // required this.websiteType,
@@ -147,7 +152,7 @@ class LocationMaster {
       // activeStatus: json['active_status'],
       // activeEmailStatus: json['active_email_status'],
       // deactiveEmailStatus: json['deactive_email_status'],
-      // website: json['website'],
+      website: json['website'],
       // businessId: json['businessid'],
       // locationType: json['location_type'],
       // websiteType: json['website_type'],
@@ -167,7 +172,7 @@ class LocationMaster {
       // 'active_status': activeStatus,
       // 'active_email_status': activeEmailStatus,
       // 'deactive_email_status': deactiveEmailStatus,
-      // 'website': website,
+      'website': website,
       // 'businessid': businessId,
       // 'location_type': locationType,
       // 'website_type': websiteType,
@@ -188,7 +193,7 @@ class LocationMaster {
       // activeStatus: 0,
       // activeEmailStatus: 0,
       // deactiveEmailStatus: 0,
-      // website: '',
+      website: '',
       // businessId: '',
       // locationType: '',
       // websiteType: 0,

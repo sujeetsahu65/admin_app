@@ -1,5 +1,7 @@
 // import 'package:flutter/material.dart';
 
+import 'package:intl/intl.dart';
+
 class Order {
   final String userEmail;
   final String userMobileNo;
@@ -12,7 +14,7 @@ class Order {
   final String lastName;
   // final String userFullName;
   final int orderId;
-  final DateTime orderDateTime;
+  final String orderDateTime;
   final int waiterId;
   final double deliveryPartnerCost;
   final int deliveryStatusInformation;
@@ -156,7 +158,7 @@ Order copyWith({
     String? lastName,
     // String? userFullName,
     int? orderId,
-    DateTime? orderDateTime,
+    String? orderDateTime,
     int? waiterId,
     double? deliveryPartnerCost,
     int? deliveryStatusInformation,
@@ -289,7 +291,7 @@ Order copyWith({
       firstName: json['User']['firstName'],
       lastName: json['User']['lastName'],
       orderId: json['orderId'],
-      orderDateTime: DateTime.parse(json['orderDateTime']),
+      orderDateTime: DateFormat('dd-MM-yyyy HH:mm:ss').format(DateTime.parse(json['orderDateTime'])),
       waiterId: json['waiterId'],
       deliveryPartnerCost: json['deliveryPartnerCost'],
       deliveryStatusInformation: json['deliveryStatusInformation'],
@@ -375,7 +377,7 @@ Order copyWith({
       'firstName': firstName,
       'lastName': lastName,
       'orderId': orderId,
-      'orderDateTime': orderDateTime.toIso8601String(),
+      'orderDateTime': orderDateTime,
       'waiterId': waiterId,
       'deliveryPartnerCost': deliveryPartnerCost,
       'deliveryStatusInformation': deliveryStatusInformation,

@@ -52,7 +52,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
     ],
     redirect: (BuildContext context, GoRouterState state) {
       final isLoggedIn = authState.isLoggedIn;
-      print(state.uri);
+      // print(state.uri);
       // print(state.path);
       final goingToLogin = state.uri == '/login';
       if (!isLoggedIn && !goingToLogin) {

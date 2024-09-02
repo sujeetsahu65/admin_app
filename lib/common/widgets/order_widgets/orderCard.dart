@@ -160,7 +160,6 @@ class OrderCard extends ConsumerWidget {
     final isOrderExpanded = ref.watch(orderExpansionProvider(order.orderId));
     //  final printerState = ref.watch(printerProvider);
     final printerNotifier = ref.read(printerProvider.notifier);
-    final basicDatatProvider = ref.watch(generalDataProvider);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -204,7 +203,7 @@ class OrderCard extends ConsumerWidget {
                       ),
                       // onTap: () => _printOrder(context,ref,order,printerState),
                       onTap: () => printerNotifier.printReceipt(
-                          order, basicDatatProvider),
+                          order,context),
                     ),
                   ],
                 ),

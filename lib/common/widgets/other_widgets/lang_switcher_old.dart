@@ -14,7 +14,7 @@ class LanguageSwitcher extends ConsumerWidget {
     return GestureDetector(
       onTap: () {
         final triggered_lang_id = languageId == 1 ? 2 : 1;
-        print("triggered_lang_id:${languageId}");
+        // print("triggered_lang_id:${languageId}");
 // ref.read(languageContentProvider.notifier).loadLanguageContent(1);
         ref.read(languageIdProvider.notifier).state = triggered_lang_id;
         ref

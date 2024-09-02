@@ -186,10 +186,10 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.DOUBLE,
       field: 'final_payable_amount'
     },
-    // orderFrom: {
-    //   type: DataTypes.STRING,
-    //   field: 'order_from'
-    // },
+    orderFrom: {
+      type: DataTypes.STRING,
+      field: 'order_from'
+    },
     qrcodeOrderLabel: {
       type: DataTypes.STRING,
       field: 'qrcode_order_label'

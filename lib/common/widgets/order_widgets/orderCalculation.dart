@@ -39,7 +39,7 @@ class OrderCalculation extends ConsumerWidget {
                     '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryCharges}€'),
               if (order.extraDeliveryCharges > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.extraDeliveryCharges}€'),
+                    '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryCharges}€'),
 
               ],
                 if (order.minimumOrderPrice > 0)

@@ -44,9 +44,9 @@ class BluetoothPermissionHandler {
 await FlutterBluePlus.turnOn();
     var subscription = FlutterBluePlus.adapterState
         .listen((BluetoothAdapterState state) async {
-      print(state);
+      // print(state);
       if (state == BluetoothAdapterState.on) {
-        print("bllllllll_is on");
+        // print("bllllllll_is on");
         // usually start scanning, connecting, etc
         // await FlutterBluePlus.turnOn();
       } else {

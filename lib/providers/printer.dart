@@ -5,15 +5,18 @@ import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/models/printer.dart';
 import 'package:admin_app/models/toppings_model.dart';
+import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/basic.dart';
 import 'package:admin_app/providers/language.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:blue_print_pos/models/blue_device.dart';
 import 'package:blue_print_pos/models/connection_status.dart';
+import 'package:blue_print_pos/receipt/receipt_alignment.dart';
 import 'package:blue_print_pos/receipt/receipt_section_text.dart';
 import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
 import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod/riverpod.dart';
@@ -28,27 +31,25 @@ final bluePrintPosProvider = Provider<BluePrintPos>((ref) {
 final printerProvider =
     StateNotifierProvider<PrinterNotifier, PrinterState>((ref) {
   final bluePrintPos = ref.read(bluePrintPosProvider);
-  return PrinterNotifier(bluePrintPos,ref);
+  return PrinterNotifier(bluePrintPos, ref);
 });
 
 class PrinterNotifier extends StateNotifier<PrinterState> {
   final BluetoothPermissionHandler _bluetoothPermissionHandler =
       BluetoothPermissionHandler();
 
-        final Ref ref;
-
+  final Ref ref;
 
   final BluePrintPos _bluePrintPos;
 
   PrinterState printerState = PrinterState();
   // final BluePrintPos _bluePrintPos = printerState.bluePrintPos;
 //  final BluePrintPos _bluePrintPos = BluePrintPos.instance;
-  PrinterNotifier(this._bluePrintPos,this.ref) : super(PrinterState());
+  PrinterNotifier(this._bluePrintPos, this.ref) : super(PrinterState());
 
   Future<void> connectToStoredDevice() async {
     await _bluePrintPos.disconnect();
     await _bluetoothPermissionHandler.requestAndEnsureBluetooth();
-    print('jhnskjfnkshgjhgbjbhjhb');
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? storedAddress = prefs.getString('printer_address');
 
@@ -150,8 +151,7 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     }
   }
 
-  Future<void> printReceipt(Order order, BasicModels basicDataProvider) async {
-
+  Future<void> printReceipt(Order order, context) async {
     ref.read(loadingProvider.notifier).showLoader();
 // await _bluetoothPermissionHandler.requestAndEnsureBluetooth();
     final ReceiptSectionText receiptHeadText = ReceiptSectionText();
@@ -159,20 +159,22 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     // final ReceiptSectionText receiptHeadText = ReceiptSectionText();
 
 //  final orderItemsData = ref.watch(orderItemsProvider(order.orderId));
-final languageCode = ref.watch(localizationProvider).languageCode;
-final orderItemsData = await orderService.fetchOrderItems(orderId: order.orderId,languageCode: languageCode);
+    final basicDataProvider = ref.watch(generalDataProvider);
+    final locationContact = basicDataProvider.contactUs;
+    final locationDetails = basicDataProvider.locationMaster;
+    final languageCode = ref.watch(localizationProvider).languageCode;
+    final orderItemsData = await orderService.fetchOrderItems(
+        orderId: order.orderId, languageCode: languageCode);
 
-      List<OrderItem> orderItems =
-            List<OrderItem>.from(orderItemsData['orderItems'] ?? []);
-        List<ComboOfferItem> comboOfferItems =
-            List<ComboOfferItem>.from(orderItemsData['comboOfferItems'] ?? []);
+    List<OrderItem> orderItems =
+        List<OrderItem>.from(orderItemsData['orderItems'] ?? []);
+    List<ComboOfferItem> comboOfferItems =
+        List<ComboOfferItem>.from(orderItemsData['comboOfferItems'] ?? []);
 
-
-
-// ==============
+// ==============LOCATION DETAILS========
 
     receiptHeadText.addText(
-      basicDataProvider.locationMaster.disName.toUpperCase(),
+      locationDetails.disName.toUpperCase(),
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
     );
@@ -195,11 +197,13 @@ final orderItemsData = await orderService.fetchOrderItems(orderId: order.orderId
     // receiptHeadText.addSpacer(useDashed: true);
     // receiptHeadText.;
 
-      receiptHeadText.addText(
+    receiptHeadText.addText(
       '----------------------',
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
     );
+
+    // ==============CUSTOMER DETAILS========
 
     receiptHeadText.addText(
       '${order.firstName} ${order.lastName}',
@@ -211,164 +215,270 @@ final orderItemsData = await orderService.fetchOrderItems(orderId: order.orderId
       size: ReceiptTextSizeType.large,
       style: ReceiptTextStyleType.bold,
     );
-    if(order.deliveryTypeId ==1){
-
-    receiptHeadText.addText(
-      // "${order.userAddress} ${order.userBuildingNo.isNotEmpty?', '+order.userBuildingNo:','}",
-      "${order.userAddress}${order.userBuildingNo.isNotEmpty ? ', ${order.userBuildingNo}' : ','}",
-      size: ReceiptTextSizeType.large,
-      style: ReceiptTextStyleType.bold,
-    );
-
-    receiptHeadText.addText(
-      order.userZipcode+', '+order.userCity,
-      size: ReceiptTextSizeType.large,
-      style: ReceiptTextStyleType.bold,
-    );
-
-    }
-// ===============
-
-  for (int i = 0; i < orderItems.length; i++) {
-    final item = orderItems[i];
-    
-    // Print item quantity, name, and size
-    receiptHeadText.addLeftRightText(
-      '${item.itemOrderQty} x ${item.foodItemName}(${item.itemSizeName})',
-      '${item.totalBasicPrice}€',
-   leftStyle: ReceiptTextStyleType.bold,
-          rightStyle: ReceiptTextStyleType.bold,
-          leftSize: ReceiptTextSizeType.medium,
-          rightSize: ReceiptTextSizeType.medium,
-    );
-
-    // Print extra comment if available
-    if (item.foodExtratext.isNotEmpty) {
+    if (order.deliveryTypeId == 1) {
       receiptHeadText.addText(
-        'Extra Comment:',
+        // "${order.userAddress} ${order.userBuildingNo.isNotEmpty?', '+order.userBuildingNo:','}",
+        "${order.userAddress}${order.userBuildingNo.isNotEmpty ? ', ${order.userBuildingNo}' : ','}",
+        size: ReceiptTextSizeType.large,
         style: ReceiptTextStyleType.bold,
-        size: ReceiptTextSizeType.medium,
       );
-      receiptHeadText.addText(item.foodExtratext, size: ReceiptTextSizeType.medium);
-    }
 
-    // Print toppings
-    for (var entry in item.toppingsByVariantOption.entries) {
       receiptHeadText.addText(
-        entry.key,
+        order.userZipcode + ', ' + order.userCity,
+        size: ReceiptTextSizeType.large,
         style: ReceiptTextStyleType.bold,
-        size: ReceiptTextSizeType.medium,
       );
-      for (var topping in entry.value) {
-        receiptHeadText.addLeftRightText(
-          topping.toppingslistname,
-          '${topping.foodVariantOptionPrice}€',
-          leftStyle: ReceiptTextStyleType.normal,
-          rightStyle: ReceiptTextStyleType.normal,
-          leftSize: ReceiptTextSizeType.medium,
-          rightSize: ReceiptTextSizeType.medium,
-        );
-      }
     }
-
-    // Add a divider if there are more items and not a combo offer
-    // if (i < orderItems.length - 1 && !isComboOffer) {
-    //   receiptHeadText.addSpacer(useDashed: true);
-    // }
-    if(i<(orderItems.length-1)){
-      receiptHeadText.addText(
+    receiptHeadText.addText(
       '----------------------',
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
     );
 
+// ==============ORDER ITEMS========
+
+    for (int i = 0; i < orderItems.length; i++) {
+      final item = orderItems[i];
+
+      // Print item quantity, name, and size
+      receiptHeadText.addLeftRightText(
+        '${item.itemOrderQty} x ${item.foodItemName}(${item.itemSizeName})',
+        '${item.totalBasicPrice}€',
+        leftStyle: ReceiptTextStyleType.bold,
+        rightStyle: ReceiptTextStyleType.bold,
+        leftSize: ReceiptTextSizeType.medium,
+        rightSize: ReceiptTextSizeType.medium,
+      );
+
+      // Print extra comment if available
+      if (item.foodExtratext.isNotEmpty) {
+        receiptHeadText.addText(
+          'Extra Comment:',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.medium,
+        );
+        receiptHeadText.addText(item.foodExtratext,
+            size: ReceiptTextSizeType.medium);
+      }
+
+      // Print toppings
+      for (var entry in item.toppingsByVariantOption.entries) {
+        receiptHeadText.addText(entry.key,
+            style: ReceiptTextStyleType.bold,
+            size: ReceiptTextSizeType.medium,
+            alignment: ReceiptAlignment.left);
+        for (var topping in entry.value) {
+          receiptHeadText.addLeftRightText(
+            topping.toppingslistname,
+            '${topping.foodVariantOptionPrice}€',
+            leftStyle: ReceiptTextStyleType.normal,
+            rightStyle: ReceiptTextStyleType.normal,
+            leftSize: ReceiptTextSizeType.medium,
+            rightSize: ReceiptTextSizeType.medium,
+          );
+        }
+      }
+
+      // Add a divider if there are more items and not a combo offer
+      // if (i < orderItems.length - 1 && !isComboOffer) {
+      //   receiptHeadText.addSpacer(useDashed: true);
+      // }
+      // if (i < (orderItems.length - 1)) {
+      receiptHeadText.addText(
+        '----------------------',
+        size: ReceiptTextSizeType.extraLarge,
+        style: ReceiptTextStyleType.bold,
+      );
+      // }
     }
-  }
 
-
-  // ===========Combooffers==========
-if(comboOfferItems.isNotEmpty){
-   receiptHeadText.addText(
+// ==============COMBO ITEMS========
+    if (comboOfferItems.isNotEmpty) {
+      receiptHeadText.addText(
         'Combo Offer',
         style: ReceiptTextStyleType.bold,
         size: ReceiptTextSizeType.large,
       );
-}
-
-for (int j = 0; j< comboOfferItems.length; j++) {
-final comboItem = comboOfferItems[j];
-
-    receiptHeadText.addLeftRightText(
-      '${comboItem.comboName}',
-      '${comboItem.totalPrice}€',
-   leftStyle: ReceiptTextStyleType.bold,
-          rightStyle: ReceiptTextStyleType.bold,
-          leftSize: ReceiptTextSizeType.medium,
-          rightSize: ReceiptTextSizeType.medium,
-    );
-
-
-
-for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
-    final comboFooditem = comboOfferItems[j].orderItems[k];
-    
-    // Print comboFooditem quantity, name, and size
-    receiptHeadText.addText(
-      '${comboFooditem.itemOrderQty} x ${comboFooditem.foodItemName}(${comboFooditem.itemSizeName})',
-      // style: ReceiptTextStyleType.bold,
-        size: ReceiptTextSizeType.medium,
-    );
-
-    // Print extra comment if available
-    if (comboFooditem.foodExtratext.isNotEmpty) {
-      receiptHeadText.addText(
-        'Extra Comment:',
-        style: ReceiptTextStyleType.bold,
-        size: ReceiptTextSizeType.medium,
-      );
-      receiptHeadText.addText(comboFooditem.foodExtratext, size: ReceiptTextSizeType.medium);
     }
 
-    // Print toppings
-    for (var tentry in comboFooditem.toppingsByVariantOption.entries) {
-      receiptHeadText.addText(
-        tentry.key,
-        style: ReceiptTextStyleType.bold,
-        size: ReceiptTextSizeType.medium,
+    for (int j = 0; j < comboOfferItems.length; j++) {
+      final comboItem = comboOfferItems[j];
+
+      receiptHeadText.addLeftRightText(
+        '${comboItem.comboName}',
+        '${comboItem.totalPrice}€',
+        leftStyle: ReceiptTextStyleType.bold,
+        rightStyle: ReceiptTextStyleType.bold,
+        leftSize: ReceiptTextSizeType.medium,
+        rightSize: ReceiptTextSizeType.medium,
       );
-      for (var topping in tentry.value) {
-        receiptHeadText.addLeftRightText(
-          topping.toppingslistname,
-          '${topping.foodVariantOptionPrice}€',
-          leftStyle: ReceiptTextStyleType.normal,
-          rightStyle: ReceiptTextStyleType.normal,
-          leftSize: ReceiptTextSizeType.medium,
-          rightSize: ReceiptTextSizeType.medium,
-        );
+
+      for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
+        final comboFooditem = comboOfferItems[j].orderItems[k];
+
+        // Print comboFooditem quantity, name, and size
+        receiptHeadText.addText(
+            '${comboFooditem.itemOrderQty} x ${comboFooditem.foodItemName}(${comboFooditem.itemSizeName})',
+            // style: ReceiptTextStyleType.bold,
+            size: ReceiptTextSizeType.medium,
+            alignment: ReceiptAlignment.left);
+
+        // Print extra comment if available
+        if (comboFooditem.foodExtratext.isNotEmpty) {
+          receiptHeadText.addText('Extra Comment:',
+              style: ReceiptTextStyleType.bold,
+              size: ReceiptTextSizeType.medium,
+              alignment: ReceiptAlignment.left);
+          receiptHeadText.addText(comboFooditem.foodExtratext,
+              size: ReceiptTextSizeType.medium,
+              alignment: ReceiptAlignment.left);
+        }
+
+        // Print toppings
+        for (var entry in comboFooditem.toppingsByVariantOption.entries) {
+          receiptHeadText.addText(entry.key,
+              style: ReceiptTextStyleType.bold,
+              size: ReceiptTextSizeType.medium,
+              alignment: ReceiptAlignment.left);
+          for (var topping in entry.value) {
+            receiptHeadText.addLeftRightText(
+              topping.toppingslistname,
+              '${topping.foodVariantOptionPrice}€',
+              leftStyle: ReceiptTextStyleType.normal,
+              rightStyle: ReceiptTextStyleType.normal,
+              leftSize: ReceiptTextSizeType.medium,
+              rightSize: ReceiptTextSizeType.medium,
+            );
+          }
+        }
+      }
+
+      // if (j < (comboOfferItems.length - 1)) {
+      receiptHeadText.addText(
+        '----------------------',
+        size: ReceiptTextSizeType.extraLarge,
+        style: ReceiptTextStyleType.bold,
+      );
+      // }
+    }
+
+// ==============CALCULATIONS========
+
+    receiptHeadText.addText(
+        '${AppLocalizations.of(context).translate('sub total label')} : ${order.foodItemSubtotalAmt}€',
+        style: ReceiptTextStyleType.bold,
+        size: ReceiptTextSizeType.large,
+        alignment: ReceiptAlignment.right);
+
+    receiptHeadText.addText(
+        '${AppLocalizations.of(context).translate('tax label')} : ${order.totalItemTaxAmt}€',
+        style: ReceiptTextStyleType.bold,
+        size: ReceiptTextSizeType.large,
+        alignment: ReceiptAlignment.right);
+    receiptHeadText.addText(
+        '${AppLocalizations.of(context).translate('discount label')} : ${order.discountAmt}€',
+        style: ReceiptTextStyleType.bold,
+        size: ReceiptTextSizeType.large,
+        alignment: ReceiptAlignment.right);
+
+    if (order.regOfferAmount > 0) {
+      receiptHeadText.addText(
+          '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.regOfferAmount}€',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+    }
+
+    if (order.deliveryTypeId == 1) {
+      receiptHeadText.addText(
+          '${AppLocalizations.of(context).translate('title_distance')} : ${order.orderUserDistance}Km',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+
+      receiptHeadText.addText(
+          '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryCharges}€',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+
+      if (order.extraDeliveryCharges > 0) {
+        receiptHeadText.addText(
+            '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryCharges}€',
+            style: ReceiptTextStyleType.bold,
+            size: ReceiptTextSizeType.large,
+            alignment: ReceiptAlignment.right);
       }
     }
 
-
-
-    
-
-  }
-
-      if(j<(comboOfferItems.length-1)){
+    if (order.minimumOrderPrice > 0) {
       receiptHeadText.addText(
-      '----------------------',
+          '${AppLocalizations.of(context).translate('title_Minimum_order_price')} : ${order.minimumOrderPrice}€',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+    }
+    if (order.deliveryCouponAmt > 0) {
+      receiptHeadText.addText(
+          '${AppLocalizations.of(context).translate('delivery_coupon_discount_title')} : ${order.deliveryCouponAmt}€',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+    }
+    if (order.couponDiscount > 0) {
+      receiptHeadText.addText(
+          '${AppLocalizations.of(context).translate('coupon discount title')} : ${order.couponDiscount}€',
+          style: ReceiptTextStyleType.bold,
+          size: ReceiptTextSizeType.large,
+          alignment: ReceiptAlignment.right);
+    }
+
+    receiptHeadText.addText(
+        '${AppLocalizations.of(context).translate('title_Grand_Total')} : ${order.grandTotal}€',
+        style: ReceiptTextStyleType.bold,
+        size: ReceiptTextSizeType.large,
+        alignment: ReceiptAlignment.right);
+
+    receiptHeadText.addText(
+        '${AppLocalizations.of(context).translate('total label')} : ${order.finalPayableAmount}€',
+        style: ReceiptTextStyleType.bold,
+        size: ReceiptTextSizeType.large,
+        alignment: ReceiptAlignment.right);
+
+            receiptHeadText.addText(
+      // '----------------------',
+      '____________________',
       size: ReceiptTextSizeType.extraLarge,
       style: ReceiptTextStyleType.bold,
     );
 
-    }
+// ==============FOOTER========
 
-}
-   
-
-  
-
-
+    receiptHeadText.addText(
+      locationContact.address,
+      size: ReceiptTextSizeType.medium,
+      style: ReceiptTextStyleType.bold,
+    );
+    receiptHeadText.addText(
+      locationContact.phone,
+      size: ReceiptTextSizeType.medium,
+         style: ReceiptTextStyleType.bold,
+    );
+    receiptHeadText.addText(
+      locationContact.emailId,
+      size: ReceiptTextSizeType.medium,
+         style: ReceiptTextStyleType.bold,
+    );
+    receiptHeadText.addText(
+      locationContact.businessId,
+      size: ReceiptTextSizeType.medium,
+         style: ReceiptTextStyleType.bold,
+    );
+    receiptHeadText.addText(
+      locationDetails.website,
+      size: ReceiptTextSizeType.medium,
+         style: ReceiptTextStyleType.bold,
+    );
 
 // ==============
 // final List byteBuffer = await _getBytes(
@@ -394,7 +504,6 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
       // useRaster: true,
     );
 
-   
     // await _bluePrintPos.printReceiptText(
     //   receiptHeadText,
     //   feedCount: 0,
@@ -425,11 +534,7 @@ for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
 // cancel to prevent duplicate listeners
 // subscription.cancel();
   }
-
-
-  
 }
-
 
 extension on OrderItem {
   Map<String, List<Topping>> get toppingsByVariantOption {

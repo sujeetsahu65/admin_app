@@ -8,7 +8,7 @@ exports.getGeneralData = async (req, res) =>
   try
   {
 
-    const contactUs = await shopSequelize.query(`SELECT org_name_${lang_id} as org_name,address_lang_${lang_id} as address,email_id,phone,online_ordering,online_ordering_feature,pre_booking,pre_booking_feature,print_no_of_copy,print_style,device_type_print,orientation,org_city,org_zipcode,latitude,longitude FROM contact_us where loc_id =${loc_id} `, {
+    const contactUs = await shopSequelize.query(`SELECT org_name_${lang_id} as org_name,address_lang_${lang_id} as address,email_id,phone,businessid,online_ordering,online_ordering_feature,pre_booking,pre_booking_feature,print_no_of_copy,print_style,device_type_print,orientation,org_city,org_zipcode,latitude,longitude FROM contact_us where loc_id =${loc_id} `, {
       type: shopSequelize.QueryTypes.SELECT
     });
 

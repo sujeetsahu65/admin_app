@@ -77,12 +77,12 @@ class _GaugeClockState extends State<GaugeClock> {
         // print(currentTime);
         // print(_remainingMinutes);
         // print(_remainingSeconds);
-        print(_remainingPercentile);
-        print(_remainingMinutes);
-        print(_remainingSeconds);
-        print(currentTime);
-        print(inputDateTime);
-        print(inputMinute);
+        // print(_remainingPercentile);
+        // print(_remainingMinutes);
+        // print(_remainingSeconds);
+        // print(currentTime);
+        // print(inputDateTime);
+        // print(inputMinute);
       });
     });
   }
