@@ -8,6 +8,7 @@ router.get('/new-orders',authMiddleware,shopDbMiddleware, orderController.getNew
 router.get('/cancelled-orders',authMiddleware,shopDbMiddleware, orderController.getCancelledOrders);
 router.get('/received-orders',authMiddleware,shopDbMiddleware, orderController.getReceivedOrders);
 router.get('/failed-orders',authMiddleware,shopDbMiddleware, orderController.getFailedOrders);
+router.get('/pre-orders',authMiddleware,shopDbMiddleware, orderController.getPreOrders);
 router.get('/order-details',authMiddleware,shopDbMiddleware, orderController.getOrderDetails);
 router.put('/pre-order/alert-time',authMiddleware,shopDbMiddleware, orderController.setPreOrderResponseAlertTime);
 // router.put('/pre-order/to-current-order',authMiddleware,shopDbMiddleware, orderController.setPreOrderToCurrentOrder);

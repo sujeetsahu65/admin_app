@@ -1,3 +1,4 @@
+import 'package:admin_app/constants/global_variables.dart';
 import 'package:admin_app/models/basic_models.dart';
 import 'package:admin_app/models/bluetooth.dart';
 import 'package:admin_app/models/combo_offer_model.dart';
@@ -67,6 +68,7 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
         if (device != null) {
           final ConnectionStatus status = await _bluePrintPos.connect(device);
           if (status == ConnectionStatus.connected) {
+            testPrint();
             state = state.copyWith(
               connectedDevice: device,
               isConnected: true,
@@ -126,6 +128,7 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     state = state.copyWith(isLoading: true);
     final ConnectionStatus status = await _bluePrintPos.connect(device);
     if (status == ConnectionStatus.connected) {
+      testPrint();
       print('connecttttttttttttttttttt');
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('printer_address', device.address);
@@ -149,6 +152,24 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
       print('not connecttttttttttttttttttt');
       state = state.copyWith(isLoading: false, isConnected: false);
     }
+  }
+
+  Future<void> testPrint() async {
+    ref.read(loadingProvider.notifier).showLoader();
+    final ReceiptSectionText receiptHeadText = ReceiptSectionText();
+    DateTime currentTime = TZ.now();
+    receiptHeadText.addText(
+      currentTime.toIso8601String(),
+      size: ReceiptTextSizeType.extraLarge,
+      style: ReceiptTextStyleType.bold,
+    );
+
+    await _bluePrintPos.printReceiptText(
+      receiptHeadText,
+      feedCount: 0,
+      // useRaster: true,
+    );
+    ref.read(loadingProvider.notifier).hideLoader();
   }
 
   Future<void> printReceipt(Order order, context) async {
@@ -445,7 +466,7 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
         size: ReceiptTextSizeType.large,
         alignment: ReceiptAlignment.right);
 
-            receiptHeadText.addText(
+    receiptHeadText.addText(
       // '----------------------',
       '____________________',
       size: ReceiptTextSizeType.extraLarge,
@@ -462,22 +483,22 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     receiptHeadText.addText(
       locationContact.phone,
       size: ReceiptTextSizeType.medium,
-         style: ReceiptTextStyleType.bold,
+      style: ReceiptTextStyleType.bold,
     );
     receiptHeadText.addText(
       locationContact.emailId,
       size: ReceiptTextSizeType.medium,
-         style: ReceiptTextStyleType.bold,
+      style: ReceiptTextStyleType.bold,
     );
     receiptHeadText.addText(
       locationContact.businessId,
       size: ReceiptTextSizeType.medium,
-         style: ReceiptTextStyleType.bold,
+      style: ReceiptTextStyleType.bold,
     );
     receiptHeadText.addText(
       locationDetails.website,
       size: ReceiptTextSizeType.medium,
-         style: ReceiptTextStyleType.bold,
+      style: ReceiptTextStyleType.bold,
     );
 
 // ==============

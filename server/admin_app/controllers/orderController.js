@@ -203,7 +203,7 @@ exports.getFailedOrders = async (req, res) =>
         ordersStatusId: 7,
         paymentStatusId: [2, 3],
         order_date: {
-          [Op.gte]: yesterday,
+          [Op.lte]: yesterday,
         }
       },
       include: [
@@ -246,11 +246,73 @@ exports.getFailedOrders = async (req, res) =>
   }
 };
 
+
+// ========PRE-ORDERS=========
+exports.getPreOrders = async (req, res) =>
+{
+
+  // const {Op, loc_id } = req;
+  const {loc_id } = req;
+  const { User, Order, DeliveryType, PaymentMode } = req.models;
+  // const now = new Date()
+  // const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
+
+  try
+  {
+
+    const pre_orders = await Order.findAll({
+      where: {
+        loc_id: loc_id,
+        ordersStatusId: 3,
+        paymentStatusId: 5,
+        preOrderBooking: 2,
+        // order_date: {
+        //   [Op.gte]: yesterday,
+        // }
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'userEmail']
+        },
+        {
+          model: DeliveryType,
+          attributes: [
+            'deliveryType',
+            'deliveryTypeImg'
+          ]
+        },
+        {
+          model: PaymentMode,
+          attributes: [
+            'paymentMode', 'paymentModeIcon'
+          ]
+        }
+      ],
+      order: [['order_id', 'DESC']],
+    });
+
+
+
+    if (pre_orders.length > 0)
+    {
+
+      return res.json({ status_code: 200, status: true, data: { pre_orders } });
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Orders not found" });
+    }
+
+  } catch (error)
+  {
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+
 // ========ORDER DETAILS=========
 exports.getOrderDetails = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
-  const lang_id = req.lang_id
 
   try
   {
@@ -262,7 +324,7 @@ exports.getOrderDetails = async (req, res) =>
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID or order number" });
     }
 
-    let order_details = await utils.getOrderDetails({ sequelize: shopSequelize, loc_id, order_id, order_number, lang_id });
+    let order_details = await utils.getOrderDetails({ req });
 
     return res.status(order_details.status_code).json({ ...order_details });
 
@@ -323,7 +385,6 @@ exports.setPreOrderResponseAlertTime = async (req, res) =>
 exports.setOrderDeliveryTime = async (req, res) =>
 {
   const { shopSequelize, loc_id } = req;
-  const lang_id = req.lang_id
   const mail_type = "set_delivery_time"
   const now = new Date()
   const current_date_time = format(now, 'yyyy-MM-dd HH:mm:ss');
@@ -358,7 +419,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
     else
     {
 
-      let order_details = await utils.getOrderDetails({ sequelize: shopSequelize, loc_id, order_id, lang_id });
+      let order_details = await utils.getOrderDetails({ req});
 
       // return res.status(order_details.status_code).json({ ...order_details });
 
@@ -428,7 +489,7 @@ exports.concludeOrder = async (req, res) =>
     else
     {
 
-      let order_details = await utils.getOrderDetails({ sequelize: shopSequelize, loc_id, order_id, lang_id });
+      let order_details = await utils.getOrderDetails({ req });
 
       // return res.status(order_details.status_code).json({ ...order_details });
 
@@ -468,8 +529,6 @@ exports.concludeOrder = async (req, res) =>
 exports.cancelOrder = async (req, res) =>
 {
   const { shopSequelize, loc_id } = req;
-  const lang_id = req.lang_id
-  const enc_key = req.enc_key
   const mail_type = "cancel"
   try
   {
@@ -498,7 +557,7 @@ exports.cancelOrder = async (req, res) =>
     else
     {
 
-      let order_details = await utils.getOrderDetails({ sequelize: shopSequelize, loc_id, order_id, lang_id });
+      let order_details = await utils.getOrderDetails({ req });
 
       // return res.status(order_details.status_code).json({ ...order_details });
 

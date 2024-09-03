@@ -1,7 +1,9 @@
 import 'package:admin_app/common/widgets/other_widgets/appbarWrapper.dart';
 import 'package:admin_app/pages/cancelled_orders/screens/cancelled_orders.dart';
+import 'package:admin_app/pages/failed_orders/screens/failed_orders.dart';
 import 'package:admin_app/pages/pre_orders/screens/pre_orders.dart';
 import 'package:admin_app/pages/received_orders/screens/received_orders.dart';
+import 'package:admin_app/pages/settings/screens/set.dart';
 import 'package:admin_app/pages/settings/screens/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -32,7 +34,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (BuildContext context, GoRouterState state) =>
-            AppBarWrapper(child: Settings()),
+            AppBarWrapper(child: SettingsPage()),
       ),
       GoRoute(
         path: '/received-orders',
@@ -43,6 +45,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/pre-orders',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: PreOrders()),
+      ),
+      GoRoute(
+        path: '/failed-orders',
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: FailedOrders()),
       ),
       GoRoute(
         path: '/cancelled-orders',

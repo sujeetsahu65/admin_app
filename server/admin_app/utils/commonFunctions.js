@@ -30,12 +30,11 @@ async function setPreOrderToCurrentOrder (sequelize, loc_id)
                 preorder_datetime = format(new Date(preorder_datetime), 'yyyy-MM-dd HH:mm:ss');
 
 
-                let date1 = parse(current_date_time, dt_format, new Date());
-                let date2 = parse(preorder_datetime, dt_format, new Date());
+                let date1 = parse(preorder_datetime, dt_format, new Date());
+                let date2 = parse(current_date_time, dt_format, new Date());
 
                 let diff_in_minutes = differenceInMinutes(date1, date2);
-
-                diff_in_minutes = Math.abs(diff_in_minutes);
+                // diff_in_minutes = Math.abs(diff_in_minutes);
                 if (diff_in_minutes <= pre_order_response_alert_time)
                 {
 
@@ -133,42 +132,71 @@ async function mailTo (sequelize, loc_id, order_data, mail_type)
 
 
 
-async function getOrderDetails ({ sequelize, loc_id, order_id, order_number, lang_id })
+async function getOrderDetails ({ req })
 {
+
+
+    const { loc_id } = req;
+    const { User, Order, DeliveryType, PaymentMode } = req.models;
+    const { order_id, order_number } = req.query;
 
     try
     {
-        let query = `SELECT users.first_name,users.last_name,users.user_email,orders.user_fullname,orders.waiter_id,orders.user_mobile_no,orders.order_id,orders.delivery_partner_cost,orders.partner_statusInformation,orders.rand_order_no,orders.delivery_boy_name,orders.delivery_boy_mob_no,orders.order_datetime,orders.address,orders.zipcode,orders.city,orders.building_no,orders.additional_info,orders.delivery_type_id,orders.delivery_partner_id,delivery_type_master.delivery_type_${lang_id} as delivery_type_title,delivery_type_master.delivery_type_img,payment_mode_master.payment_mode_lang_${lang_id} as payment_mode_lang_title,orders.payment_mode_id,orders.payment_status_id,orders.orders_status_id,orders.pre_order_booking,orders.table_booking,orders.table_booking_duration,orders.table_booking_people,orders.send_email_order_set_time,orders.send_sms_order_set_time,orders.send_email_order_ontheway,orders.send_sms_order_ontheway,orders.send_email_order_cancel,orders.send_sms_order_cancel,orders.order_language_id,orders.order_timer_start_time,orders.set_order_minut_time,orders.food_item_subtotal_amt,orders.total_item_tax_amt,orders.discount_amt,orders.reg_offer_amount,orders.delivery_charges,orders.extra_delivery_charges,orders.Minimum_order_price,orders.grand_total,orders.final_payable_amount,orders.order_from,orders.qrcode_order_label,orders.bonus_value_used,orders.bonus_value_get,orders.user_id,orders.done_status,orders.distance as order_user_distance,orders.pre_order_response_alert_time,orders.table_booking_response_alert_time,orders.fcm_token  FROM orders INNER JOIN users ON orders.user_id=users.user_id INNER JOIN delivery_type_master ON orders.delivery_type_id=delivery_type_master.delivery_type_id INNER JOIN payment_mode_master ON orders.payment_mode_id=payment_mode_master.payment_mode_id WHERE orders.loc_id = ${loc_id}`;
 
         let replacements = {};
 
         if (order_id)
         {
-            query += ' and orders.order_id = :order_id';
+            // query += ' and orders.order_id = :order_id';
             replacements.order_id = order_id;
         } else if (order_number)
         {
-            query += ' and orders.rand_order_no = :rand_order_no';
+            // query += ' and orders.rand_order_no = :rand_order_no';
             replacements.rand_order_no = order_number;
         }
 
-        const order_details = await sequelize.query(query, {
-            replacements,
-            type: sequelize.QueryTypes.SELECT
+
+        const order_details = await Order.findAll({
+            where: {
+                loc_id: loc_id,
+                ...replacements
+                // order_date: {
+                //   [Op.gte]: yesterday,
+                // }
+            },
+            include: [
+                {
+                    model: User,
+                    attributes: ['firstName', 'lastName', 'userEmail']
+                },
+                {
+                    model: DeliveryType,
+                    attributes: [
+                        'deliveryType',
+                        'deliveryTypeImg'
+                    ]
+                },
+                {
+                    model: PaymentMode,
+                    attributes: [
+                        'paymentMode', 'paymentModeIcon'
+                    ]
+                }
+            ],
+            order: [['order_id', 'DESC']],
         });
 
-        const decrypted_order_details = await order_details.map((row) =>
-        {
-            return {
-                ...row,
-                // user_email: await decryptWithKey(row.user_email, enc_key)
-                // user_email: "test"
-            }
-        })
 
-        if (decrypted_order_details.length > 0)
+
+
+
+        // let query = `SELECT users.first_name,users.last_name,users.user_email,orders.user_fullname,orders.waiter_id,orders.user_mobile_no,orders.order_id,orders.delivery_partner_cost,orders.partner_statusInformation,orders.rand_order_no,orders.delivery_boy_name,orders.delivery_boy_mob_no,orders.order_datetime,orders.address,orders.zipcode,orders.city,orders.building_no,orders.additional_info,orders.delivery_type_id,orders.delivery_partner_id,delivery_type_master.delivery_type_${lang_id} as delivery_type_title,delivery_type_master.delivery_type_img,payment_mode_master.payment_mode_lang_${lang_id} as payment_mode_lang_title,orders.payment_mode_id,orders.payment_status_id,orders.orders_status_id,orders.pre_order_booking,orders.table_booking,orders.table_booking_duration,orders.table_booking_people,orders.send_email_order_set_time,orders.send_sms_order_set_time,orders.send_email_order_ontheway,orders.send_sms_order_ontheway,orders.send_email_order_cancel,orders.send_sms_order_cancel,orders.order_language_id,orders.order_timer_start_time,orders.set_order_minut_time,orders.food_item_subtotal_amt,orders.total_item_tax_amt,orders.discount_amt,orders.reg_offer_amount,orders.delivery_charges,orders.extra_delivery_charges,orders.Minimum_order_price,orders.grand_total,orders.final_payable_amount,orders.order_from,orders.qrcode_order_label,orders.bonus_value_used,orders.bonus_value_get,orders.user_id,orders.done_status,orders.distance as order_user_distance,orders.pre_order_response_alert_time,orders.table_booking_response_alert_time,orders.fcm_token  FROM orders INNER JOIN users ON orders.user_id=users.user_id INNER JOIN delivery_type_master ON orders.delivery_type_id=delivery_type_master.delivery_type_id INNER JOIN payment_mode_master ON orders.payment_mode_id=payment_mode_master.payment_mode_id WHERE orders.loc_id = ${loc_id}`;
+
+
+
+        if (order_details.length > 0)
         {
-            return { status_code: 200, status: true, decrypted_order_details };
+            return { status_code: 200, status: true, order_details };
         }
         else
         {

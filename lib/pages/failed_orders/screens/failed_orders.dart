@@ -5,11 +5,11 @@ import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PreOrders extends ConsumerWidget {
-  final String page = 'pre-orders';
+class FailedOrders extends ConsumerWidget {
+  final String page = 'failed-orders';
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Order> orders = ref.watch(preOrderProvider);
+    final List<Order> orders = ref.watch(failedOrderProvider);
 
 
     return Stack(

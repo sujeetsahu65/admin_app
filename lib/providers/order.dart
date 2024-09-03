@@ -120,3 +120,51 @@ class CancelledOrderNotifier extends StateNotifier<List<Order>> {
     }
   }
 }
+
+
+
+// =============== PRE-ORDER PROVIDER=========
+final preOrderProvider =
+    StateNotifierProvider.autoDispose<PreOrderNotifier, List<Order>>((ref) {
+  return PreOrderNotifier(ref);
+});
+class PreOrderNotifier extends StateNotifier<List<Order>> {
+  PreOrderNotifier(this.ref) : super([]) {
+    _loadOrders();
+  }
+  Ref ref;
+  Future<void> _loadOrders() async {
+    while (mounted) {
+            final languageCode = ref.watch(localizationProvider).languageCode;
+      final List<Order> orderList =
+          await orderService.fetchOrders(mode: "preOrders",languageCode: languageCode);
+      // print(List);
+      // state = orderJson.map((json) => json).toList();
+      state = orderList;
+      await Future.delayed(Duration(seconds: 30));
+    }
+  }
+}
+
+// =============== FAILED-ORDER PROVIDER=========
+final failedOrderProvider =
+    StateNotifierProvider.autoDispose<FailedOrderNotifier, List<Order>>((ref) {
+  return FailedOrderNotifier(ref);
+});
+class FailedOrderNotifier extends StateNotifier<List<Order>> {
+  FailedOrderNotifier(this.ref) : super([]) {
+    _loadOrders();
+  }
+  Ref ref;
+  Future<void> _loadOrders() async {
+    while (mounted) {
+            final languageCode = ref.watch(localizationProvider).languageCode;
+      final List<Order> orderList =
+          await orderService.fetchOrders(mode: "failedOrders",languageCode: languageCode);
+      // print(List);
+      // state = orderJson.map((json) => json).toList();
+      state = orderList;
+      await Future.delayed(Duration(seconds: 30));
+    }
+  }
+}

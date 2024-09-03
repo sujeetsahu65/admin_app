@@ -17,6 +17,9 @@ class OrderService {
       } else if (mode == 'preOrders') {
         path = 'pre-orders';
         dataKey = 'pre_orders';
+      } else if (mode == 'failedOrders') {
+        path = 'failed-orders';
+        dataKey = 'failed_orders';
       } else if (mode == 'cancelledOrders') {
         path = 'cancelled-orders';
         dataKey = 'cancelled_orders';

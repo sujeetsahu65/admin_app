@@ -47,7 +47,7 @@ class SideBarPanel extends ConsumerWidget {
   }
 
   Widget buildMenuItems(BuildContext context, ref) {
-    final languageContent = ref.watch(languageContentProvider);
+    // final languageContent = ref.watch(languageContentProvider);
     final String location = GoRouter.of(context).routerDelegate.currentConfiguration.uri.toString();
     //     final bool isLoginRoute = goRouterState?.location == '/login';
     // final currentRoute2 = GoRouter.of(context).routerDelegate.;

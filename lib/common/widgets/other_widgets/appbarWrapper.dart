@@ -1,5 +1,5 @@
 import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
-import 'package:admin_app/common/widgets/other_widgets/sidebarPanel.dart';
+import 'package:admin_app/common/widgets/other_widgets/sidebar_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,14 +31,6 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
         actions: 1 == 1
             ? <Widget>[
                 IconButton(onPressed: () {}, icon: Icon(Icons.local_shipping)),
-                IconButton(
-                  icon: Icon(Icons.logout),
-                  onPressed: () async {
-                    
-                    // await authNotifier.logout();
-                    // context.go('/login');
-                  },
-                )
               ]
             : null,
         // leading:  IconButton(onPressed: (){},
