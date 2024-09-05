@@ -7,5 +7,6 @@ const basicDataController = require('../controllers/basicDataController');
 router.get('/general-data',authMiddleware,shopDbMiddleware, basicDataController.getGeneralData);
 router.get('/language-data', basicDataController.getLanguageData);
 router.get('/version', basicDataController.getAppVersion);
+router.get('/food-display-data',authMiddleware,shopDbMiddleware, basicDataController.getFoodDisplayData);
 
 module.exports = router;

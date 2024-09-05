@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes,Op } = require('sequelize');
 const adminModel = require('./admin');
 const adminLoginModel = require('./adminLogin');
-const config = require('../config/config').development;
+const config = require('../../config/config').development;
 // const abcModel = require('./abc');
 
 // const superSequelize = new Sequelize(

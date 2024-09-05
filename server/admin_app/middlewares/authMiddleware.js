@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { AdminLogin } = require('../models');
+const { AdminLogin } = require('../models/super_admin');
 const validator = require('validator');
 
 module.exports = async (req, res, next) =>

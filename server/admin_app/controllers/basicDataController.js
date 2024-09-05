@@ -1,10 +1,10 @@
-const { superSequelize } = require('../models');
+const { superSequelize } = require('../models/super_admin');
 const validator = require('validator');
 exports.getGeneralData = async (req, res) =>
 {
 
   const { shopSequelize, loc_id } = req;
-    const lang_id = req.lang_id
+  const lang_id = req.lang_id
   try
   {
 
@@ -21,12 +21,12 @@ exports.getGeneralData = async (req, res) =>
     });
 
 
-    return res.json({status_code:200, status: true, data: { "contact_us": contactUs[0], "location_master":locationInfo[0], "order_response_time":orderResponseTime[0] } });
+    return res.json({ status_code: 200, status: true, data: { "contact_us": contactUs[0], "location_master": locationInfo[0], "order_response_time": orderResponseTime[0] } });
 
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({status_code:500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
 };
 
@@ -35,12 +35,13 @@ exports.getLanguageData = async (req, res) =>
   let lang_id = req.header('lang-id');
   if (!lang_id)
   {
-   lang_id = 2;
-  } 
-  else{
+    lang_id = 2;
+  }
+  else
+  {
     const sanitized_lang_id = validator.escape(lang_id);
-console.log("sanitizedInput:"+sanitized_lang_id); 
-    
+    console.log("sanitizedInput:" + sanitized_lang_id);
+
   }
   try
   {
@@ -48,18 +49,20 @@ console.log("sanitizedInput:"+sanitized_lang_id);
       type: superSequelize.QueryTypes.SELECT,
     });
 
-     // Transform the results into the desired JSON format
-    const language_data = language_master.reduce((acc, row) => {
-       const typeKey = `type${row.type}`;
+    // Transform the results into the desired JSON format
+    const language_data = language_master.reduce((acc, row) =>
+    {
+      const typeKey = `type${row.type}`;
       // acc[row['header']] = row['title'];
 
-   // Initialize the type key if it doesn't exist
-    if (!acc[typeKey]) {
-      acc[typeKey] = {};
-    }
+      // Initialize the type key if it doesn't exist
+      if (!acc[typeKey])
+      {
+        acc[typeKey] = {};
+      }
 
-    // Add the key-value pair to the appropriate type object
-    acc[typeKey][row.header] = row.title;
+      // Add the key-value pair to the appropriate type object
+      acc[typeKey][row.header] = row.title;
 
 
 
@@ -69,12 +72,12 @@ console.log("sanitizedInput:"+sanitized_lang_id);
 
 
 
-    return res.json({status_code:200, status: true, data: { language_data } });
+    return res.json({ status_code: 200, status: true, data: { language_data } });
 
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({status_code:500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
 };
 
@@ -86,11 +89,59 @@ exports.getAppVersion = async (req, res) =>
   try
   {
 
-    return res.json({status_code:200, status: true, data: { version:"1.0", update_url:"https://play.google.com/store/apps/details?id=com.foozu3.admin" } });
+    return res.json({ status_code: 200, status: true, data: { version: "1.0", update_url: "https://play.google.com/store/apps/details?id=com.foozu3.admin" } });
 
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({status_code:500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+
+
+exports.getFoodDisplayData = async (req, res) =>
+{
+
+  const { loc_id } = req;
+  const { CategoryVariantType, MasterFoodCategory, MasterFoodItems } = req.models;
+
+  try
+  {
+    const food_display_data = await CategoryVariantType.findAll({
+      where: {
+        loc_id: loc_id,
+        // hide_status: 1
+      },
+      include: [
+        {
+          model: MasterFoodCategory,
+          where: {
+            loc_id: loc_id,
+            category_display: 1,
+            is_category_deleted: 1
+          },
+          include:[
+
+        {
+          model: MasterFoodItems,
+          where: {
+            loc_id: loc_id,
+            is_active: 1
+          },
+        }
+
+          ]
+        },
+
+      ],
+      // order: [['catgVariantTypeId', 'ASC']],
+    });
+
+    return res.json({ status_code: 200, status: true, data: food_display_data });
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
 };

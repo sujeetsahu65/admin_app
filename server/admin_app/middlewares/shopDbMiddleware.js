@@ -1,9 +1,6 @@
-const { superSequelize, Sequelize, DataTypes,Op } = require('../models');
-const utils = require('../utils');
-const order = require('../models/order');
-const user = require('../models/user');
-const deliveryType = require('../models/deliveryType');
-const paymentMode = require('../models/paymentMode');
+const { superSequelize, Sequelize, DataTypes, Op, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems } = require('../models/shop');
+// const utils = require('../utils');
+
 
 module.exports = async (req, res, next) =>
 {
@@ -11,7 +8,6 @@ module.exports = async (req, res, next) =>
     const { lang_id } = req;
     try
     {
-
 
         const shopDb = await superSequelize.query(`SELECT * FROM client_restaurant_detail where client_id =${client_id} `, {
             type: superSequelize.QueryTypes.SELECT
@@ -59,9 +55,35 @@ module.exports = async (req, res, next) =>
                 const User = user(shopSequelize, DataTypes, enc_key);
                 const DeliveryType = deliveryType(shopSequelize, DataTypes, lang_id);
                 const PaymentMode = paymentMode(shopSequelize, DataTypes, lang_id);
-                Order.belongsTo(User, { foreignKey: 'user_id' });
-                Order.belongsTo(DeliveryType, { foreignKey: 'delivery_type_id' });
-                Order.belongsTo(PaymentMode, { foreignKey: 'payment_mode_id' });
+                const CategoryVariantType = categoryVariantType(shopSequelize, DataTypes, lang_id);
+                const MasterFoodCategory = masterFoodCategory(shopSequelize, DataTypes, lang_id);
+                const MasterFoodItems = masterFoodItems(shopSequelize, DataTypes, lang_id);
+                Order.belongsTo(User, { foreignKey: 'userId' });
+                Order.belongsTo(DeliveryType, { foreignKey: 'deliveryTypeId' });
+                Order.belongsTo(PaymentMode, { foreignKey: 'paymentModeId' });
+
+                // CategoryVariantType.hasMany(MasterFoodCategory, { foreignKey: 'catgVariantTypeId' });
+                CategoryVariantType.hasMany(MasterFoodCategory, {
+                    foreignKey: 'catgVariantTypeId',
+                    sourceKey: 'catgVariantTypeId',//you have to define expicitly in case where your table does not have foreign or primary key defined.
+                });
+                MasterFoodCategory.hasMany(MasterFoodItems, { foreignKey: 'foodItemCategoryId' });//here we didn't use source key as the both tables has a defined foreign key
+                // MasterFoodCategory.belongsTo(CategoryVariantType, { foreignKey: 'catgVariantTypeId', targetKey: 'catgVariantTypeId' });
+
+                // MasterFoodItems.belongsTo(MasterFoodCategory, { foreignKey: 'foodItemCategoryId', targetKey: 'foodItemCategoryId' });
+
+                // MasterFoodCategory.belongsTo(CategoryVariantType, { 
+                //   foreignKey: 'catgVariantTypeId',
+                //   targetKey: 'catgVariantTypeId',
+                //   scope: { locId: shopSequelize.col('CategoryVariantType.loc_id') },
+                // });
+
+                // MasterFoodItems.belongsTo(MasterFoodCategory, { 
+                //   foreignKey: 'foodItemCategoryId',
+                //   targetKey: 'foodItemCategoryId',
+                //   scope: { locId: shopSequelize.col('MasterFoodCategory.loc_id') },
+                // });
+
                 console.log('Connection has been established successfully.');
                 req.shopSequelize = shopSequelize;
                 req.loc_id = loc_id;
@@ -73,7 +95,10 @@ module.exports = async (req, res, next) =>
                     User,
                     Order,
                     DeliveryType,
-                    PaymentMode
+                    PaymentMode,
+                    CategoryVariantType,
+                    MasterFoodCategory,
+                    MasterFoodItems,
                 }
                 next();
             })
