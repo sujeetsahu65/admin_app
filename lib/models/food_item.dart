@@ -22,4 +22,18 @@ class FoodItem {
       isActive: json['isActive'],
     );
   }
+
+
+    // Add a copyWith method to easily update display status
+  FoodItem copyWith({int? display}) {
+    return FoodItem(
+      foodItemId: this.foodItemId,
+      foodItemName: this.foodItemName,
+      displayOrder: this.displayOrder,
+      isActive: this.isActive,
+      display: display ?? this.display,
+    );
+  }
+
+
 }

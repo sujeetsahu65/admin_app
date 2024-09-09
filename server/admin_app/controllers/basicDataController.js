@@ -110,7 +110,7 @@ exports.getFoodDisplayData = async (req, res) =>
     const food_display_data = await CategoryVariantType.findAll({
       where: {
         loc_id: loc_id,
-        // hide_status: 1
+        hide_status: 1
       },
       include: [
         {
@@ -120,15 +120,15 @@ exports.getFoodDisplayData = async (req, res) =>
             category_display: 1,
             is_category_deleted: 1
           },
-          include:[
+          include: [
 
-        {
-          model: MasterFoodItems,
-          where: {
-            loc_id: loc_id,
-            is_active: 1
-          },
-        }
+            {
+              model: MasterFoodItems,
+              where: {
+                loc_id: loc_id,
+                is_active: 1
+              },
+            }
 
           ]
         },
@@ -138,6 +138,182 @@ exports.getFoodDisplayData = async (req, res) =>
     });
 
     return res.json({ status_code: 200, status: true, data: food_display_data });
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+
+exports.getMenuCategories = async (req, res) =>
+{
+
+  const { loc_id } = req;
+  const { CategoryVariantType } = req.models;
+
+
+
+
+  try
+  {
+    const menu_categories = await CategoryVariantType.findAll({
+      where: {
+        loc_id: loc_id,
+        hide_status: 1
+      },
+      // order: [['catgVariantTypeId', 'ASC']],
+    });
+
+
+    if (menu_categories.length > 0)
+    {
+
+      return res.json({ status_code: 200, status: true, data: { menu_categories } });
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Menu categories not found" });
+    }
+
+
+
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+exports.getFoodCategories = async (req, res) =>
+{
+
+  const { loc_id } = req;
+  const { menu_category_id } = req.query;
+  const { MasterFoodCategory } = req.models;
+
+
+  if (!menu_category_id)
+  {
+    return res.status(400).json({ status_code: 400, status: false, message: "Missing menu category id" });
+  }
+
+  try
+  {
+    const food_categories = await MasterFoodCategory.findAll({
+      where: {
+        loc_id: loc_id,
+        // hide_status: 1
+        catg_variant_type_id: menu_category_id
+      },
+      // order: [['catgVariantTypeId', 'ASC']],
+    });
+
+    if (food_categories.length > 0)
+    {
+
+      return res.json({ status_code: 200, status: true, data: { food_categories } });
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Food categories not found" });
+    }
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+exports.getFoodItems = async (req, res) =>
+{
+
+  const { loc_id } = req;
+  const { food_category_id } = req.query;
+  const { MasterFoodItems } = req.models;
+
+
+  if (!food_category_id)
+  {
+    return res.status(400).json({ status_code: 400, status: false, message: "Missing food category id" });
+  }
+
+  try
+  {
+    const food_items = await MasterFoodItems.findAll({
+      where: {
+        loc_id: loc_id,
+        food_item_category_id: food_category_id
+      },
+      // order: [['catgVariantTypeId', 'ASC']],
+    });
+
+    if (food_items.length > 0)
+    {
+
+      return res.json({ status_code: 200, status: true, data: { food_items } });
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Food items not found" });
+    }
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
+
+
+exports.updateFoodItemDisplayStatus = async (req, res) =>
+{
+
+  const { loc_id } = req;
+  const { food_item_id, display_status } = req.query;
+  const { MasterFoodItems } = req.models;
+
+
+  if (!food_item_id)
+  {
+    return res.status(400).json({ status_code: 400, status: false, message: "Missing food item id" });
+  }
+  else if (!display_status || display_status <0 || display_status >1)
+  {
+    return res.status(400).json({ status_code: 400, status: false, message: "Missing or incorrect food item display status" });
+  }
+
+  try
+  {
+    const food_item = await MasterFoodItems.findOne({
+      where: {
+        loc_id: loc_id,
+        food_item_id: food_item_id
+      },
+    });
+
+    if (!food_item)
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Food item not found" });
+
+    }
+    else
+    {
+
+
+      await MasterFoodItems.update(
+        { display: display_status },
+        {
+          where: {
+            loc_id: loc_id,
+            food_item_id: food_item_id
+          },
+        });
+
+
+      return res.json({ status_code: 200, status: true });
+
+    }
 
   } catch (error)
   {
