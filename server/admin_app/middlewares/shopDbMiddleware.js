@@ -1,4 +1,4 @@
-const { superSequelize, Sequelize, DataTypes, Op, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems } = require('../models/shop');
+const { superSequelize, Sequelize, DataTypes, Op, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems,visitingTiming,lunchTiming,deliveryTiming } = require('../models/shop');
 // const utils = require('../utils');
 
 
@@ -58,6 +58,9 @@ module.exports = async (req, res, next) =>
                 const CategoryVariantType = categoryVariantType(shopSequelize, DataTypes, lang_id);
                 const MasterFoodCategory = masterFoodCategory(shopSequelize, DataTypes, lang_id);
                 const MasterFoodItems = masterFoodItems(shopSequelize, DataTypes, lang_id);
+                const VisitingTiming = visitingTiming(shopSequelize, DataTypes);
+                const LunchTiming = lunchTiming(shopSequelize, DataTypes);
+                const DeliveryTiming = deliveryTiming(shopSequelize, DataTypes);
                 Order.belongsTo(User, { foreignKey: 'userId' });
                 Order.belongsTo(DeliveryType, { foreignKey: 'deliveryTypeId' });
                 Order.belongsTo(PaymentMode, { foreignKey: 'paymentModeId' });
@@ -99,6 +102,9 @@ module.exports = async (req, res, next) =>
                     CategoryVariantType,
                     MasterFoodCategory,
                     MasterFoodItems,
+                    VisitingTiming,
+                    LunchTiming,
+                    DeliveryTiming,
                 }
                 next();
             })

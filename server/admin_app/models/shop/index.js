@@ -7,6 +7,9 @@ const paymentMode = require('./paymentMode');
 const categoryVariantType = require('./categoryVariantType');
 const masterFoodCategory = require('./masterFoodCategory');
 const masterFoodItems = require('./masterFoodItems');
+const visitingTiming = require('./visitingTiming');
+const lunchTiming = require('./lunchTiming');
+const deliveryTiming = require('./deliveryTiming');
 // const config = require('../../config/config').development;
 
 
@@ -22,5 +25,8 @@ module.exports = {
   categoryVariantType,
   masterFoodCategory,
   masterFoodItems,
+  visitingTiming,
+  lunchTiming,
+  deliveryTiming
   //   Abc
 };

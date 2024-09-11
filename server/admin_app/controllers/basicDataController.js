@@ -321,3 +321,51 @@ exports.updateFoodItemDisplayStatus = async (req, res) =>
     return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
 };
+
+
+
+
+// Fetch Visiting Timings
+exports.getVisitingTimings = async (req, res) => {
+  const { loc_id } = req;
+    const { VisitingTiming } = req.models;
+  try {
+    const visting_timings = await VisitingTiming.findAll({
+      where: { loc_id },
+    });
+  return res.json({ status_code: 200, status: true, data: { visting_timings } });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error fetching visiting timings' });
+  }
+};
+
+// Fetch Lunch Timings
+exports.getLunchTimings = async (req, res) => {
+ const { loc_id } = req;
+    const { LunchTiming } = req.models;
+  try {
+    const lunch_timings = await LunchTiming.findAll({
+      where: { loc_id },
+    });
+       return res.json({ status_code: 200, status: true, data: { lunch_timings } });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching lunch timings' });
+  }
+};
+
+// Fetch Delivery Timings
+exports.getDeliveryTimings = async (req, res) => {
+  const { loc_id } = req;
+    const { DeliveryTiming } = req.models;
+  try {
+    const delivery_timings = await DeliveryTiming.findAll({
+      where: { loc_id },
+    });
+   return res.json({ status_code: 200, status: true, data: {delivery_timings } });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching delivery timings' });
+  }
+};
+
+
