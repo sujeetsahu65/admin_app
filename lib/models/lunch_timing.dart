@@ -1,4 +1,6 @@
-class LunchTiming {
+import 'package:admin_app/common/functions/common_class.dart';
+
+class LunchTiming implements TimingModelTest{
   final int dayNumber;
   final String fromTime;
   final String toTime;
@@ -20,6 +22,22 @@ class LunchTiming {
       toTime: json['toTime'],
       closeStatus: json['closeStatus'] == 1,
       tableName: json['tableName'],
+    );
+  }
+
+
+    @override
+  LunchTiming copyWith({
+    String? fromTime,
+    String? toTime,
+    bool? closeStatus,
+  }) {
+    return LunchTiming(
+      dayNumber: dayNumber,
+      fromTime: fromTime ?? this.fromTime,
+      toTime: toTime ?? this.toTime,
+      closeStatus: closeStatus ?? this.closeStatus,
+      tableName: tableName,
     );
   }
 }

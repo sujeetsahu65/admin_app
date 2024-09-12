@@ -1,4 +1,5 @@
 import 'package:admin_app/common/widgets/other_widgets/time_picker.dart';
+import 'package:admin_app/models/timing.dart';
 import 'package:admin_app/pages/settings/services/shop_schedule.dart';
 import 'package:admin_app/providers/shop_schedule.dart';
 import 'package:flutter/material.dart';
@@ -11,16 +12,13 @@ class ShopTimingsPage extends ConsumerStatefulWidget {
 
 class _ShopTimingsPageState extends ConsumerState<ShopTimingsPage> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<String> tabs = [
-    'Visiting Timings',
-    'Lunch Timings',
-    'Delivery Timings'
-  ];
+  List<String> tabs = ['Visiting_Timings', 'Lunch_Timings', 'Delivery_Timings'];
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: tabs.length, vsync: this);
+    ref.read(timingsNotifierProvider.notifier).fetchTimings('visiting_timings');
   }
 
   @override
@@ -29,38 +27,41 @@ class _ShopTimingsPageState extends ConsumerState<ShopTimingsPage> with SingleTi
     super.dispose();
   }
 
+  void onTabChanged(int index) {
+    // final timingType = tabs[index].split(' ')[0].toLowerCase();
+    final timingType = tabs[index].toLowerCase();
+    print(timingType);
+    ref.read(timingsNotifierProvider.notifier).fetchTimings(timingType);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Shop Timings'),
-      ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Column(
         children: [
-          // Visiting Timings Tab
-          ref.watch(visitingTimingsProvider).when(
-            data: (timings) => TimingsTableWidget(timings: timings),
-            loading: () => CircularProgressIndicator(),
-            error: (err, stack) => Text('Error: $err'),
-          ),
-          // Lunch Timings Tab
-          ref.watch(lunchTimingsProvider).when(
-            data: (timings) => TimingsTableWidget(timings: timings),
-            loading: () => CircularProgressIndicator(),
-            error: (err, stack) => Text('Error: $err'),
-          ),
-          // Delivery Timings Tab
-          ref.watch(deliveryTimingsProvider).when(
-            data: (timings) => TimingsTableWidget(timings: timings),
-            loading: () => CircularProgressIndicator(),
-            error: (err, stack) => Text('Error: $err'),
+          // TabBar(
+          //   controller: _tabController,
+          //   tabs: tabs.map((tab) => Tab(text: tab)).toList(),
+          //   onTap: onTabChanged,
+          // ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                for (final tab in tabs)
+                  ref.watch(timingsNotifierProvider).isEmpty
+                      ? Center(child: CircularProgressIndicator())
+                      : TimingsTableWidget(timings: ref.watch(timingsNotifierProvider)),
+              ],
+            ),
+            
           ),
         ],
       ),
-      bottomNavigationBar: Material(
+          bottomNavigationBar: Material(
         color: Theme.of(context).primaryColor, // Match AppBar color
         child: TabBar(
+          onTap: onTabChanged,
           controller: _tabController,
           tabs: tabs.map((tab) => Tab(text: tab)).toList(),
           labelColor: Theme.of(context).cardColor,
@@ -69,27 +70,20 @@ class _ShopTimingsPageState extends ConsumerState<ShopTimingsPage> with SingleTi
           indicatorPadding: EdgeInsets.all(5.0),
           indicatorColor: Theme.of(context).cardColor,
         ),
-      ),
+      )
     );
   }
 }
 
-class TimingsTableWidget extends StatelessWidget {
-  final List<dynamic> timings;
-
-  final scheduleService = ScheduleService();
+class TimingsTableWidget extends ConsumerWidget {
+  final List<TimingModel> timings;
 
   TimingsTableWidget({required this.timings});
 
-  void updateScheduleData(String field, TimeOfDay newValue, dynamic tableData) {
-    // You might need to adjust this method to fit the actual data update mechanism
-    scheduleService.updateScheduleData(field, newValue, tableData);
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return DataTable(
-      columns: [
+      columns: const [
         DataColumn(label: Text('Day')),
         DataColumn(label: Text('Open Time')),
         DataColumn(label: Text('Close Time')),
@@ -101,19 +95,19 @@ class TimingsTableWidget extends StatelessWidget {
           DataCell(TimePickerWidget(
             initialTime: stringToTimeOfDay(timing.fromTime),
             onTimeChanged: (newTime) {
-              updateScheduleData('fromTime', newTime, timing);
+              ref.read(timingsNotifierProvider.notifier).updateTiming('fromTime', newTime, timing);
             },
           )),
           DataCell(TimePickerWidget(
             initialTime: stringToTimeOfDay(timing.toTime),
             onTimeChanged: (newTime) {
-              updateScheduleData('toTime', newTime, timing);
+              ref.read(timingsNotifierProvider.notifier).updateTiming('toTime', newTime, timing);
             },
           )),
           DataCell(Checkbox(
             value: timing.closeStatus,
-            onChanged: (bool? value) {
-              // Implementation needed for what happens when the checkbox is toggled
+            onChanged: (value) {
+              ref.read(timingsNotifierProvider.notifier).updateClosedStatus(value!, timing);
             },
           )),
         ]);
@@ -122,7 +116,7 @@ class TimingsTableWidget extends StatelessWidget {
   }
 
   String getDayNumber(int day) {
-    List<String> days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     return days[day - 1];
   }
 
@@ -133,3 +127,4 @@ class TimingsTableWidget extends StatelessWidget {
     return TimeOfDay(hour: hour, minute: minute);
   }
 }
+

@@ -1,4 +1,6 @@
-class VisitingTiming {
+import 'package:admin_app/common/functions/common_class.dart';
+
+class VisitingTiming implements TimingModelTest {
   final int dayNumber;
   final String fromTime;
   final String toTime;
@@ -15,14 +17,19 @@ class VisitingTiming {
     required this.tableName,
   });
 
-  factory VisitingTiming.fromJson(Map<String, dynamic> json) {
+  @override
+  VisitingTiming copyWith({
+    String? fromTime,
+    String? toTime,
+    bool? closeStatus,
+  }) {
     return VisitingTiming(
-      dayNumber: json['dayNumber'],
-      fromTime: json['fromTime'],
-      toTime: json['toTime'],
-      nextDay: json['nextDay'] == 1,
-      closeStatus: json['closeStatus'] == 1,
-      tableName: json['tableName'],
+      dayNumber: dayNumber,
+      fromTime: fromTime ?? this.fromTime,
+      toTime: toTime ?? this.toTime,
+      nextDay: nextDay,
+      closeStatus: closeStatus ?? this.closeStatus,
+      tableName: tableName,
     );
   }
 }

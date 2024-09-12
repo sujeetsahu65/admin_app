@@ -1,5 +1,6 @@
 const { superSequelize } = require('../models/super_admin');
 const validator = require('validator');
+const { body, validationResult } = require('express-validator');
 exports.getGeneralData = async (req, res) =>
 {
 
@@ -278,7 +279,7 @@ exports.updateFoodItemDisplayStatus = async (req, res) =>
   {
     return res.status(400).json({ status_code: 400, status: false, message: "Missing food item id" });
   }
-  else if (!display_status || display_status <0 || display_status >1)
+  else if (!display_status || display_status < 0 || display_status > 1)
   {
     return res.status(400).json({ status_code: 400, status: false, message: "Missing or incorrect food item display status" });
   }
@@ -326,46 +327,176 @@ exports.updateFoodItemDisplayStatus = async (req, res) =>
 
 
 // Fetch Visiting Timings
-exports.getVisitingTimings = async (req, res) => {
+exports.getVisitingTimings = async (req, res) =>
+{
   const { loc_id } = req;
-    const { VisitingTiming } = req.models;
-  try {
-    const visting_timings = await VisitingTiming.findAll({
+  const { VisitingTiming } = req.models;
+  try
+  {
+    const visiting_timings = await VisitingTiming.findAll({
       where: { loc_id },
     });
-  return res.json({ status_code: 200, status: true, data: { visting_timings } });
-  } catch (error) {
+    return res.json({ status_code: 200, status: true, data: { visiting_timings } });
+  } catch (error)
+  {
     console.log(error);
     res.status(500).json({ error: 'Error fetching visiting timings' });
   }
 };
 
 // Fetch Lunch Timings
-exports.getLunchTimings = async (req, res) => {
- const { loc_id } = req;
-    const { LunchTiming } = req.models;
-  try {
+exports.getLunchTimings = async (req, res) =>
+{
+  const { loc_id } = req;
+  const { LunchTiming } = req.models;
+  try
+  {
     const lunch_timings = await LunchTiming.findAll({
       where: { loc_id },
     });
-       return res.json({ status_code: 200, status: true, data: { lunch_timings } });
-  } catch (error) {
+    return res.json({ status_code: 200, status: true, data: { lunch_timings } });
+  } catch (error)
+  {
     res.status(500).json({ error: 'Error fetching lunch timings' });
   }
 };
 
 // Fetch Delivery Timings
-exports.getDeliveryTimings = async (req, res) => {
+exports.getDeliveryTimings = async (req, res) =>
+{
   const { loc_id } = req;
-    const { DeliveryTiming } = req.models;
-  try {
+  const { DeliveryTiming, } = req.models;
+  try
+  {
     const delivery_timings = await DeliveryTiming.findAll({
       where: { loc_id },
     });
-   return res.json({ status_code: 200, status: true, data: {delivery_timings } });
-  } catch (error) {
+    return res.json({ status_code: 200, status: true, data: { delivery_timings } });
+  } catch (error)
+  {
     res.status(500).json({ error: 'Error fetching delivery timings' });
   }
 };
+
+
+
+
+exports.updateShopTimings = [
+  // Validation middleware
+  body('table_name')
+    .isIn(['visiting_timings', 'lunch_timings', 'delivery_timings'])
+    .withMessage('Invalid table name'),
+  body('day_number')
+    .isInt({ min: 0, max: 6 })
+    .withMessage('day_number must be an integer between 0 and 6'),
+  body('field')
+    .isIn(['fromTime', 'toTime', 'closeStatus'])
+    .withMessage('Invalid field name'),
+  body('new_value')
+    .custom((value, { req }) =>
+    {
+      if (req.body.field === 'closeStatus')
+      {
+        if (typeof value !== 'boolean')
+        {
+          throw new Error('closeStatus must be a boolean');
+        }
+      } else
+      {
+        // Allow both HH:mm and HH:mm:ss formats
+        const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+        if (!timeRegex.test(value))
+        {
+          throw new Error('Invalid time format, expected HH:mm or HH:mm:ss');
+        }
+      }
+      return true;
+    }),
+
+  // Route handler
+  async (req, res) =>
+  {
+    // Check validation result
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+    {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { loc_id } = req;
+    const { table_name, day_number, field, new_value } = req.body;
+    const { DeliveryTiming, VisitingTiming, LunchTiming } = req.models;
+
+    try
+    {
+      let model;
+
+      // Determine the model based on the table_name
+      if (table_name === 'visiting_timings')
+      {
+        model = VisitingTiming;
+      } else if (table_name === 'lunch_timings')
+      {
+        model = LunchTiming;
+      } else if (table_name === 'delivery_timings')
+      {
+        model = DeliveryTiming;
+      } else
+      {
+        return res.status(400).json({ error: 'Invalid table name' });
+      }
+
+      // Find the timing record by dayNumber and loc_id
+      const timing = await model.findOne({ where: { dayNumber: day_number, loc_id } });
+
+      if (!timing)
+      {
+        return res.status(404).json({ error: 'Timing record not found' });
+      }
+
+      // Normalize the time to HH:mm:ss
+      let normalizedTime = new_value;
+      if (field === 'fromTime' || field === 'toTime')
+      {
+        if (/^\d{2}:\d{2}$/.test(new_value))
+        {
+          normalizedTime = `${new_value}:00`; // Convert HH:mm to HH:mm:ss
+        }
+      }
+
+      // Update the relevant field based on input
+      if (field === 'fromTime')
+      {
+        timing.fromTime = normalizedTime;
+      } else if (field === 'toTime')
+      {
+        timing.toTime = normalizedTime;
+
+        // Check if toTime is between 00:00:00 and 06:00:00, then update nextDay
+        const toTimeHour = parseInt(normalizedTime.split(':')[0], 10); // Get hour part of toTime
+        if (toTimeHour >= 0 && toTimeHour < 6)
+        {
+          timing.nextDay = 1; // Set nextDay to true
+        } else
+        {
+          timing.nextDay = 0; // Otherwise, set nextDay to false
+        }
+      } else if (field === 'closeStatus')
+      {
+        timing.closeStatus = new_value ? 1 : 0; // Convert boolean to int (1 for true, 0 for false)
+      }
+
+      await timing.save(); // Save changes to the database
+
+      return res.json({ status_code: 200, status: true });
+    } catch (error)
+    {
+      console.error(error);
+      return res.status(500).json({ error: 'Error updating timings' });
+    }
+  }
+];
+
+
 
 
