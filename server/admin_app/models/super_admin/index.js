@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes,Op } = require('sequelize');
+const { Sequelize, DataTypes,Op,fn,col,literal } = require('sequelize');
 const adminModel = require('./admin');
 const adminLoginModel = require('./adminLogin');
 const config = require('../../config/config').development;
@@ -72,6 +72,9 @@ const AdminLogin = adminLoginModel(superSequelize, DataTypes);
 module.exports = {
   DataTypes,
   Op,
+  fn,
+  col,
+  literal,
   Admin,
   AdminLogin,
   superSequelize,

@@ -1,5 +1,6 @@
 const utils = require('../utils');
 const { format, subDays } = require('date-fns');
+const { query, body, validationResult } = require('express-validator');
 // ========NEW ORDERS=========
 
 
@@ -189,7 +190,7 @@ exports.getReceivedOrders = async (req, res) =>
 exports.getFailedOrders = async (req, res) =>
 {
 
-  const {Op, loc_id } = req;
+  const { Op, loc_id } = req;
   const { User, Order, DeliveryType, PaymentMode } = req.models;
   const now = new Date()
   const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
@@ -252,7 +253,7 @@ exports.getPreOrders = async (req, res) =>
 {
 
   // const {Op, loc_id } = req;
-  const {loc_id } = req;
+  const { loc_id } = req;
   const { User, Order, DeliveryType, PaymentMode } = req.models;
   // const now = new Date()
   // const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
@@ -419,7 +420,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
     else
     {
 
-      let order_details = await utils.getOrderDetails({ req});
+      let order_details = await utils.getOrderDetails({ req });
 
       // return res.status(order_details.status_code).json({ ...order_details });
 
@@ -592,7 +593,7 @@ exports.orderItems = async (req, res) =>
 {
   const { shopSequelize, loc_id, data_entry_type } = req;
   const lang_id = req.lang_id
-console.log("llllllllllllll"+lang_id);
+  console.log("llllllllllllll" + lang_id);
   try
   {
 
@@ -617,27 +618,30 @@ console.log("llllllllllllll"+lang_id);
     });
 
 
-    if (include_toppings)
+    // if (include_toppings)
+    // {
+
+    // Fetch toppings for each order item and add to the order item object
+    order_items = await Promise.all(order_items.map(async (item) =>
     {
 
-      // Fetch toppings for each order item and add to the order item object
-      order_items = await Promise.all(order_items.map(async (item) =>
-      {
+      const toppings = await utils.getOrderItemToppings({ sequelize: shopSequelize, loc_id, order_food_item_id: item.order_food_item_id, lang_id });
+      return {
+        ...item,
+        item_size_name: await utils.getItemSizeName({ sequelize: shopSequelize, loc_id: menu_loc_id, item_size_id: item.size_id, lang_id }),
+        toppings
+      };
+    }));
 
-        const toppings = await utils.getOrderItemToppings({ sequelize: shopSequelize, loc_id, order_food_item_id: item.order_food_item_id, lang_id });
-        return {
-          ...item,
-          item_size_name: await utils.getItemSizeName({ sequelize: shopSequelize, loc_id: menu_loc_id, item_size_id: item.size_id, lang_id }),
-          toppings
-        };
-      }));
+    // }
 
 
-      combo_offer_items = await utils.getOrderComboOfferItems({ sequelize: shopSequelize, loc_id, order_id, lang_id });
+    combo_offer_items = await utils.getOrderComboOfferItems({ sequelize: shopSequelize, loc_id, order_id, lang_id });
 
-
-
-    }
+    // if (combo_offer_items.length == 0)
+    // {
+    //   combo_offer_items = [];
+    // }
     // let order_details = await utils.getOrderDetails({ sequelize: shopSequelize, loc_id, item.order_food_item_id, lang_id });
 
 
@@ -680,8 +684,22 @@ exports.orderItemToppings = async (req, res) =>
 
 
 // ========GET ORDERED COMBO OFFER ITEMS=========
-exports.orderComboOfferItems = async (req, res) =>
+exports.orderComboOfferItems = [query('order_id')
+  .isInt().withMessage('Missing order ID'),
+
+async (req, res) =>
 {
+
+
+
+  // Check validation result
+  const errors = validationResult(req);
+  if (!errors.isEmpty())
+  {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+
   const { shopSequelize, loc_id } = req;
   const lang_id = req.lang_id
   const enc_key = req.enc_key
@@ -692,21 +710,33 @@ exports.orderComboOfferItems = async (req, res) =>
 
     const { order_id } = req.query;
 
-    if (!order_id)
-    {
-      return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
-    }
+    // if (!order_id)
+    // {
+    //   return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
+    // }
 
     const combo_offer_items = await utils.getOrderComboOfferItems({ sequelize: shopSequelize, loc_id, order_id, lang_id });
 
-    return res.status(200).json({ status_code: 200, status: true, data: { combo_offer_items } });
+
+
+    if (combo_offer_items.length > 0)
+    {
+
+      return res.status(200).json({ status_code: 200, status: true, data: { combo_offer_items } });
+
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 200, status: false, message: "No Combo offer items found" });
+
+    }
 
   } catch (error)
   {
     console.log(error);
     return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
-};
+}];
 
 
 
@@ -727,7 +757,7 @@ exports.comboOfferById = async (req, res) =>
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
     }
 
-    let query = `SELECT combo_offer_id, combo_offer_name_${lang_id} AS combo_offer_name, total_price, total_product_count, active_status FROM combo_offers WHERE loc_id = ${loc_id} AND active_status = 1 AND combo_offer_id = :combo_offer_id ORDER BY combo_offer_id`;
+    let query = `SELECT combo_offer_id, combo_offer_name_${lang_id} AS combo_offer_name, total_price, total_product_count, active_status FROM combo_offers WHERE loc_id = ${loc_id} AND combo_offer_id = :combo_offer_id ORDER BY combo_offer_id`;
 
     let replacements = { combo_offer_id };
 
@@ -736,7 +766,18 @@ exports.comboOfferById = async (req, res) =>
       type: shopSequelize.QueryTypes.SELECT
     });
 
-    return res.status(200).json({ status_code: 200, status: true, data: { combo_offer } });
+    if (combo_offer.length > 0)
+    {
+
+      return res.status(200).json({ status_code: 200, status: true, data: { combo_offer } });
+
+    }
+    else
+    {
+      return res.status(404).json({ status_code: 200, status: false, message: "Combo offer not found" });
+
+    }
+
 
   } catch (error)
   {
@@ -746,4 +787,162 @@ exports.comboOfferById = async (req, res) =>
 };
 
 
+
+
+exports.getReports = [
+  query('start_date')
+    .isDate({ format: 'yyyy-MM-dd' })
+    .withMessage('Start date must be in yyyy-MM-dd format'),
+  query('end_date')
+    .isDate({ format: 'yyyy-MM-dd' })
+    .withMessage('End date must be in yyyy-MM-dd format'),
+
+  async (req, res) =>
+  {
+
+    // Check validation result
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+    {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+
+    const { Op, fn, col, literal, loc_id } = req;
+    const { start_date, end_date } = req.params;
+    const { Order, DeliveryType, PaymentMode } = req.models;
+
+    // if (!start_date || !end_date)
+    // {
+    //   return res.status(500).json({ status_code: 400, status: false, message: 'missing date parameters(start_date or end_date)' });
+    // }
+    try
+    {
+      // Query 1: Total success order report
+      const successOrders = await Order.findOne({
+        attributes: [
+          [fn('COUNT', col('order_id')), 'tatalOrders'],
+          [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'totalAmount'],
+          [fn('COALESCE', fn('SUM', col('total_item_tax_amt')), 0), 'totalOrderTax'],
+          [fn('COALESCE', fn('SUM', col('home_del_charges_tax_amount')), 0), 'totalHomeDeliveryTax'],
+          [fn('COALESCE', fn('SUM', literal('total_item_tax_amt + home_del_charges_tax_amount')), 0), 'totalTax']
+        ],
+        where: {
+          loc_id
+          , ordersStatusId: 6,
+
+        }
+      });
+
+      // Query 2: Total discount success order report
+      const discountedOrders = await Order.findOne({
+        attributes: [
+          [fn('COALESCE', fn('SUM', literal('discount_amt + pickup_offer_amount + reg_offer_amount')), 0), 'totalDiscount'],
+          [fn('COUNT', col('order_id')), 'tatalOrders']
+        ],
+        where: {
+          loc_id,
+          ordersStatusId: 6,
+
+          [Op.or]: [
+            { discount_amt: { [Op.gt]: 0 } },
+            { pickup_offer_amount: { [Op.gt]: 0 } },
+            { reg_offer_amount: { [Op.gt]: 0 } }
+          ]
+        }
+      });
+
+      // Query 3: Total bonus success order report
+      const bonusOrders = await Order.findOne({
+        attributes: [
+          [fn('COALESCE', fn('SUM', col('bonus_value_used')), 0), 'totalBonus'],
+          [fn('COUNT', col('order_id')), 'tatalOrders']
+        ],
+        where: {
+          loc_id,
+          ordersStatusId: 6,
+
+          bonus_value_used: { [Op.gt]: 0 }
+        },
+
+      });
+
+      // Query 4: Total coupon success order report
+      const couponOrders = await Order.findOne({
+        attributes: [
+          [fn('COALESCE', fn('SUM', col('coupon_discount')), 0), 'totalCouponDiscount'],
+          [fn('COUNT', col('order_id')), 'tatalOrders']
+        ],
+        where: {
+          loc_id,
+          ordersStatusId: 6,
+
+          coupon_discount: { [Op.gt]: 0 }
+        }
+      });
+
+      // Query 5: Payment mode with total order report
+      const ordersByPaymentMode = await Order.findAll({
+        attributes: [
+          [fn('COUNT', col('order_id')), 'tatalOrders'],
+          [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'totalAmount'],
+          'payment_mode_id'
+        ],
+        include: [
+          {
+            model: PaymentMode,
+            attributes: ['paymentMode']
+          }
+        ],
+        where: {
+          loc_id
+          , ordersStatusId: 6,
+
+        },
+        group: ['payment_mode_id'],
+        logging: console.log
+      });
+
+      // Query 6: Delivery type with total order report
+      const ordersByDeliveryType = await Order.findAll({
+        attributes: [
+          [fn('COUNT', col('order_id')), 'tatalOrders'],
+          [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'total_final_payable_amount'],
+          'delivery_type_id'
+        ],
+        include: [
+          {
+            model: DeliveryType,
+            attributes: ['deliveryType']
+          }
+        ],
+        where: {
+          loc_id,
+          ordersStatusId: 6,
+          ordersStatusId: 6
+        },
+        group: ['delivery_type_id']
+      });
+
+      // Combine all results into a single response
+      return res.json({
+        status_code: 200,
+        status: true,
+        data: {
+          successOrders,
+          discountedOrders,
+          bonusOrders,
+          couponOrders,
+          ordersByPaymentMode,
+          ordersByDeliveryType
+        }
+      });
+
+    } catch (error)
+    {
+      console.error(error);
+      return res.status(500).json({ error: 'Error fetching reports' });
+    }
+  }
+]
 

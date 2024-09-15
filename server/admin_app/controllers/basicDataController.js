@@ -386,9 +386,162 @@ exports.updateShopTimings = [
   body('table_name')
     .isIn(['visiting_timings', 'lunch_timings', 'delivery_timings'])
     .withMessage('Invalid table name'),
+  
   body('day_number')
-    .isInt({ min: 0, max: 6 })
-    .withMessage('day_number must be an integer between 0 and 6'),
+    .isInt({ min: 1, max: 7 })
+    .withMessage('day_number must be an integer between 1 and 7'),
+  
+  body('field')
+    .isIn(['fromTime', 'toTime', 'closeStatus'])
+    .withMessage('Invalid field name'),
+  
+  body('new_value')
+    .custom(async (value, { req }) => {
+      const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
+      const { field, day_number, table_name } = req.body;
+      
+      // Validate time format or boolean for closeStatus
+      if (field === 'closeStatus') {
+        if (typeof value !== 'boolean') {
+          throw new Error('closeStatus must be a boolean');
+        }
+      } else if (!timeRegex.test(value)) {
+        throw new Error('Invalid time format, expected HH:mm or HH:mm:ss');
+      } else {
+        // Get models
+           const { loc_id } = req;
+        const { VisitingTiming, LunchTiming, DeliveryTiming } = req.models;
+        let model;
+        
+        if (table_name === 'visiting_timings') {
+          model = VisitingTiming;
+        } else if (table_name === 'lunch_timings') {
+          model = LunchTiming;
+        } else if (table_name === 'delivery_timings') {
+          model = DeliveryTiming;
+        } else {
+          throw new Error('Invalid table name');
+        }
+
+        // Fetch the current timing record from the database
+        const timing = await model.findOne({ where: { dayNumber: day_number, loc_id } });
+        if (!timing) {
+          throw new Error('Timing record not found');
+        }
+
+        const currentFromTime = timing.fromTime;
+        const currentToTime = timing.toTime;
+
+        // Compare new_value with current values based on field
+        const fromTime = field === 'fromTime' ? value : currentFromTime;
+        const toTime = field === 'toTime' ? value : currentToTime;
+
+        // Convert time to minutes for easier comparison
+        const timeToMinutes = (time) => {
+          const [hours, minutes] = time.split(':').map(Number);
+          return hours * 60 + minutes;
+        };
+
+        const fromTimeMinutes = timeToMinutes(fromTime);
+        const toTimeMinutes = timeToMinutes(toTime);
+
+        // Validate fromTime (must not be before 06:00)
+        if (field === 'fromTime' && fromTimeMinutes < 360) {
+          throw new Error('fromTime cannot be before 06:00');
+        }
+
+        // Validate toTime (must not be before fromTime, unless it's allowed for next-day closure)
+        if (field === 'toTime') {
+          if (toTimeMinutes < fromTimeMinutes && toTimeMinutes >= 360) {
+            throw new Error('toTime cannot be earlier than fromTime within the same day.');
+          }
+          if (toTimeMinutes >= 360 && fromTimeMinutes >= 360 && toTimeMinutes < fromTimeMinutes) {
+            throw new Error('toTime cannot be earlier than fromTime.');
+          }
+        }
+      }
+      return true;
+    }),
+
+  // Route handler
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { loc_id } = req;
+    const { table_name, day_number, field, new_value } = req.body;
+    const { DeliveryTiming, VisitingTiming, LunchTiming } = req.models;
+
+    try {
+      let model;
+
+      // Determine the model based on the table_name
+      if (table_name === 'visiting_timings') {
+        model = VisitingTiming;
+      } else if (table_name === 'lunch_timings') {
+        model = LunchTiming;
+      } else if (table_name === 'delivery_timings') {
+        model = DeliveryTiming;
+      } else {
+        return res.status(400).json({ error: 'Invalid table name' });
+      }
+
+      // Find the timing record by dayNumber and loc_id
+      const timing = await model.findOne({ where: { dayNumber: day_number, loc_id } });
+
+      if (!timing) {
+        return res.status(404).json({ error: 'Timing record not found' });
+      }
+
+      // Normalize the time to HH:mm:ss
+      let normalizedTime = new_value;
+      if (field === 'fromTime' || field === 'toTime') {
+        if (/^\d{2}:\d{2}$/.test(new_value)) {
+          normalizedTime = `${new_value}:00`; // Convert HH:mm to HH:mm:ss
+        }
+      }
+
+      // Update the relevant field based on input
+      if (field === 'fromTime') {
+        timing.fromTime = normalizedTime;
+      } else if (field === 'toTime') {
+        timing.toTime = normalizedTime;
+
+        // Check if toTime is between 00:00:00 and 06:00:00, then update nextDay
+        const toTimeHour = parseInt(normalizedTime.split(':')[0], 10); // Get hour part of toTime
+        if (toTimeHour >= 0 && toTimeHour < 6) {
+          timing.nextDay = 1; // Set nextDay to true
+        } else {
+          timing.nextDay = 0; // Otherwise, set nextDay to false
+        }
+      } else if (field === 'closeStatus') {
+        timing.closeStatus = new_value ? 1 : 0; // Convert boolean to int (1 for true, 0 for false)
+      }
+
+      await timing.save(); // Save changes to the database
+
+      return res.json({ status_code: 200, status: true });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Error updating timings' });
+    }
+  }
+];
+
+
+
+
+
+exports.updateShopTimingsbk = [
+  // Validation middleware
+  body('table_name')
+    .isIn(['visiting_timings', 'lunch_timings', 'delivery_timings'])
+    .withMessage('Invalid table name'),
+  body('day_number')
+    .isInt({ min: 1, max: 7 })
+    .withMessage('day_number must be an integer between 1 and 7'),
   body('field')
     .isIn(['fromTime', 'toTime', 'closeStatus'])
     .withMessage('Invalid field name'),
@@ -496,6 +649,12 @@ exports.updateShopTimings = [
     }
   }
 ];
+
+
+
+
+
+
 
 
 

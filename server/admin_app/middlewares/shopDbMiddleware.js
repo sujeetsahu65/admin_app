@@ -1,4 +1,4 @@
-const { superSequelize, Sequelize, DataTypes, Op, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems,visitingTiming,lunchTiming,deliveryTiming } = require('../models/shop');
+const { superSequelize, Sequelize, DataTypes, Op,fn,col,literal, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems,visitingTiming,lunchTiming,deliveryTiming } = require('../models/shop');
 // const utils = require('../utils');
 
 
@@ -91,6 +91,9 @@ module.exports = async (req, res, next) =>
                 req.shopSequelize = shopSequelize;
                 req.loc_id = loc_id;
                 req.Op = Op;
+                req.fn = fn;
+                req.col = col;
+                req.literal = literal;
                 req.enc_key = enc_key;
                 req.data_entry_type = shopDb[0].dataentryType;
                 req.superSequelize = superSequelize;

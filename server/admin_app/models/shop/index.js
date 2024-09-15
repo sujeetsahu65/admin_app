@@ -1,5 +1,5 @@
 // const { Sequelize, DataTypes,Op } = require('sequelize');
-const { superSequelize, Sequelize, DataTypes,Op } = require('../super_admin');
+const { superSequelize, Sequelize, DataTypes,Op,fn,col,literal } = require('../super_admin');
 const order = require('./order');
 const user = require('./user');
 const deliveryType = require('./deliveryType');
@@ -16,6 +16,9 @@ const deliveryTiming = require('./deliveryTiming');
 module.exports = {
   DataTypes,
   Op,
+  fn,
+  col,
+  literal,
   superSequelize,
   Sequelize,
   order,

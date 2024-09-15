@@ -77,7 +77,7 @@ class ScheduleService {
   Future<void> updateScheduleData(
       String field, dynamic newValue, tableData) async {
     final token = await getLocalToken();
-    final response = await http.post(
+    final response = await http.put(
       Uri.parse('$uri/basic/timing/schedule-update'),
       headers: {
         'Content-Type': 'application/json',

@@ -252,7 +252,7 @@ async function getComboOffersbyid ({ sequelize, loc_id, combo_offer_id, lang_id 
     {
 
         let query = `SELECT combo_offer_id, combo_offer_name_${lang_id} AS combo_offer_name, total_price, total_product_count, active_status 
-FROM combo_offers WHERE loc_id = ${loc_id} AND active_status = 1 AND combo_offer_id = ${combo_offer_id} ORDER BY combo_offer_id`;
+FROM combo_offers WHERE loc_id = ${loc_id}  AND combo_offer_id = ${combo_offer_id} ORDER BY combo_offer_id`;
 
         let replacements = {};
 
@@ -360,6 +360,10 @@ async function getOrderComboOfferItems ({ sequelize, loc_id, order_id, lang_id, 
                             order_items: []
                         };
 
+                    }
+                    else{
+
+                        return [];
                     }
                 }
 
