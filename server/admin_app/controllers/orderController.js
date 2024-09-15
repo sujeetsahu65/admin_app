@@ -808,7 +808,7 @@ exports.getReports = [
     }
 
 
-    const { Op, fn, col, literal, loc_id } = req;
+    const { Op, fn, col, literal, loc_id,lang_id } = req;
     const { start_date, end_date } = req.params;
     const { Order, DeliveryType, PaymentMode } = req.models;
 
@@ -886,34 +886,39 @@ exports.getReports = [
         attributes: [
           [fn('COUNT', col('order_id')), 'tatalOrders'],
           [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'totalAmount'],
-          'payment_mode_id'
+          'paymentModeId',
+          [col(`PaymentMode.payment_mode_lang_${lang_id}`), 'paymentMode'],
         ],
         include: [
           {
             model: PaymentMode,
-            attributes: ['paymentMode']
+            attributes: []
           }
+          
         ],
         where: {
           loc_id
           , ordersStatusId: 6,
 
         },
-        group: ['payment_mode_id'],
-        logging: console.log
+        group: ['paymentModeId'],
+        //  group: ['paymentModeId', 'PaymentMode.paymentMode'],
+        logging: console.log,
+        // raw: true 
       });
 
       // Query 6: Delivery type with total order report
       const ordersByDeliveryType = await Order.findAll({
         attributes: [
           [fn('COUNT', col('order_id')), 'tatalOrders'],
-          [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'total_final_payable_amount'],
-          'delivery_type_id'
+          [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'totalAmount'],
+          'deliveryTypeId',
+            [col(`DeliveryType.delivery_type_${lang_id}`), 'deliveryType'],
         ],
         include: [
           {
             model: DeliveryType,
-            attributes: ['deliveryType']
+            attributes: []
           }
         ],
         where: {
@@ -921,7 +926,7 @@ exports.getReports = [
           ordersStatusId: 6,
           ordersStatusId: 6
         },
-        group: ['delivery_type_id']
+        group: ['deliveryTypeId']
       });
 
       // Combine all results into a single response

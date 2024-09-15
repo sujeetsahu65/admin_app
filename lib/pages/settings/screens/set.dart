@@ -1,130 +1,203 @@
-import 'package:admin_app/common/widgets/other_widgets/time_picker.dart';
-import 'package:admin_app/models/timing.dart';
-import 'package:admin_app/pages/settings/services/shop_schedule.dart';
-import 'package:admin_app/providers/shop_schedule.dart';
+import 'package:admin_app/providers/report.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:admin_app/models/report.dart';
+import 'package:admin_app/pages/settings/services/report.dart';
 
-class ShopTimingsPage extends ConsumerStatefulWidget {
+class ReportPage extends ConsumerStatefulWidget {
   @override
-  _ShopTimingsPageState createState() => _ShopTimingsPageState();
+  _ReportPageState createState() => _ReportPageState();
 }
 
-class _ShopTimingsPageState extends ConsumerState<ShopTimingsPage> with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  List<String> tabs = ['Visiting_Timings', 'Lunch_Timings', 'Delivery_Timings'];
+class _ReportPageState extends ConsumerState<ReportPage> {
+  DateTimeRange? _selectedDateRange;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: tabs.length, vsync: this);
-    ref.read(timingsNotifierProvider.notifier).fetchTimings('visiting_timings');
+
+    // Set default date range to today
+    DateTime today = DateTime.now();
+    _selectedDateRange = DateTimeRange(
+      start: DateTime(today.year, today.month, today.day), // Start of today
+      end: DateTime(today.year, today.month, today.day), // End of today
+    );
+
+    // Fetch the report immediately after initializing the state
+    ref.read(reportNotifierProvider.notifier).fetchReport(_selectedDateRange);
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void onTabChanged(int index) {
-    // final timingType = tabs[index].split(' ')[0].toLowerCase();
-    final timingType = tabs[index].toLowerCase();
-    print(timingType);
-    ref.read(timingsNotifierProvider.notifier).fetchTimings(timingType);
+  // Function to open date range picker
+  Future<void> _selectDateRange() async {
+    final DateTimeRange? picked = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      initialDateRange: _selectedDateRange,
+    );
+    if (picked != null && picked != _selectedDateRange) {
+      setState(() {
+        _selectedDateRange = picked;
+      });
+      ref.read(reportNotifierProvider.notifier).fetchReport(_selectedDateRange);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final reportState = ref.watch(reportNotifierProvider);
+
     return Scaffold(
       body: Column(
         children: [
-          // TabBar(
-          //   controller: _tabController,
-          //   tabs: tabs.map((tab) => Tab(text: tab)).toList(),
-          //   onTap: onTabChanged,
-          // ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
+            child: reportState.isLoading
+                ? Center(child: CircularProgressIndicator())
+                : reportState.report != null
+                    ? _buildReportTables(reportState.report!)
+                    : Center(
+                        child: Text(reportState.errorMessage ??
+                            'Select a date range to see the report'),
+                      ),
+          ),
+          _buildBottomSheetButton(context), // Bottom sheet trigger
+        ],
+      ),
+    );
+  }
+
+  // Bottom sheet button
+  Widget _buildBottomSheetButton(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(16),
+      child: ElevatedButton(
+        onPressed: () => _selectDateRange(),
+        child: Text('Select Date'),
+      ),
+    );
+  }
+
+  // Build the report tables
+  Widget _buildReportTables(Report report) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Card(
+            child: Column(
               children: [
-                for (final tab in tabs)
-                  ref.watch(timingsNotifierProvider).isEmpty
-                      ? Center(child: CircularProgressIndicator())
-                      : TimingsTableWidget(timings: ref.watch(timingsNotifierProvider)),
+                Text(
+                  "Order Summary",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  // textAlign: TextAlign.center,
+                ),
+                _buildOrderSummaryTable(report),
               ],
             ),
-            
+          ),
+          SizedBox(height: 10),
+        Card(
+            child: Column(
+              children: [
+            Text(
+            "Summary by Payment Mode",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            // textAlign: TextAlign.center,
+          ),
+          _buildPaymentModeTable(report)
+              ],
+            ),
+          ),
+          SizedBox(height: 10),
+        Card(
+            child: Column(
+              children: [
+            Text(
+            "Summary by Delivery Type",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            // textAlign: TextAlign.center,
+          ),
+          _buildDeliveryTypeTable(report),
+              ],
+            ),
           ),
         ],
       ),
-          bottomNavigationBar: Material(
-        color: Theme.of(context).primaryColor, // Match AppBar color
-        child: TabBar(
-          onTap: onTabChanged,
-          controller: _tabController,
-          tabs: tabs.map((tab) => Tab(text: tab)).toList(),
-          labelColor: Theme.of(context).cardColor,
-          unselectedLabelColor: Colors.white,
-          indicatorSize: TabBarIndicatorSize.label,
-          indicatorPadding: EdgeInsets.all(5.0),
-          indicatorColor: Theme.of(context).cardColor,
-        ),
-      )
     );
   }
-}
 
-class TimingsTableWidget extends ConsumerWidget {
-  final List<TimingModel> timings;
+  // Table for Order Summary
+  Widget _buildOrderSummaryTable(Report report) {
+    return DataTable(columns: [
+      DataColumn(label: Text('Order Type')),
+      DataColumn(label: Text('Orders')),
+      DataColumn(label: Text('Amount')),
+    ], rows: [
+      DataRow(cells: [
+        DataCell(Text('Success Orders')),
+        DataCell(Text('${report.successOrders.totalOrders}')),
+        DataCell(
+            Text('\$${report.successOrders.totalAmount.toStringAsFixed(2)}')),
+      ]),
+      DataRow(cells: [
+        DataCell(Text('Bonus Orders')),
+        DataCell(Text('${report.bonusOrders.totalOrders}')),
+        DataCell(Text('\$${report.bonusOrders.totalBonus.toStringAsFixed(2)}')),
+      ]),
+      DataRow(cells: [
+        DataCell(Text('Discounted Orders')),
+        DataCell(Text('${report.discountedOrders.totalOrders}')),
+        DataCell(Text(
+            '\$${report.discountedOrders.totalDiscount.toStringAsFixed(2)}')),
+      ]),
+      DataRow(cells: [
+        DataCell(Text('Coupon Orders')),
+        DataCell(Text('${report.couponOrders.totalOrders}')),
+        DataCell(Text(
+            '\$${report.couponOrders.totalCouponDiscount.toStringAsFixed(2)}')),
+      ]),
+    ]);
+  }
 
-  TimingsTableWidget({required this.timings});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  // Table for Payment Mode Summary
+  Widget _buildPaymentModeTable(Report report) {
     return DataTable(
-      columns: const [
-        DataColumn(label: Text('Day')),
-        DataColumn(label: Text('Open Time')),
-        DataColumn(label: Text('Close Time')),
-        DataColumn(label: Text('Closed')),
-      ],
-      rows: timings.map((timing) {
-        return DataRow(cells: [
-          DataCell(Text(getDayNumber(timing.dayNumber))),
-          DataCell(TimePickerWidget(
-            initialTime: stringToTimeOfDay(timing.fromTime),
-            onTimeChanged: (newTime) {
-              ref.read(timingsNotifierProvider.notifier).updateTiming('fromTime', newTime, timing);
-            },
-          )),
-          DataCell(TimePickerWidget(
-            initialTime: stringToTimeOfDay(timing.toTime),
-            onTimeChanged: (newTime) {
-              ref.read(timingsNotifierProvider.notifier).updateTiming('toTime', newTime, timing);
-            },
-          )),
-          DataCell(Checkbox(
-            value: timing.closeStatus,
-            onChanged: (value) {
-              ref.read(timingsNotifierProvider.notifier).updateClosedStatus(value!, timing);
-            },
-          )),
-        ]);
-      }).toList(),
-    );
+        columns: [
+          DataColumn(label: Text('Payment Mode')),
+          DataColumn(label: Text('Orders')),
+          DataColumn(label: Text('Amount')),
+        ],
+        rows: report.ordersByPaymentMode.map((paymentModeOrder) {
+          return DataRow(cells: [
+            DataCell(Text(paymentModeOrder.paymentMode)),
+            DataCell(Text('${paymentModeOrder.totalOrders}')),
+            DataCell(
+                Text('\$${paymentModeOrder.totalAmount.toStringAsFixed(2)}')),
+          ]);
+        }).toList());
   }
 
-  String getDayNumber(int day) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days[day - 1];
-  }
-
-  TimeOfDay stringToTimeOfDay(String time) {
-    final parts = time.split(':');
-    final hour = int.parse(parts[0]);
-    final minute = int.parse(parts[1]);
-    return TimeOfDay(hour: hour, minute: minute);
+  // Table for Delivery Type Summary
+  Widget _buildDeliveryTypeTable(Report report) {
+    return DataTable(
+        columns: [
+          DataColumn(label: Text('Delivery Type')),
+          DataColumn(label: Text('Total Orders')),
+          DataColumn(label: Text('Total Amount')),
+        ],
+        rows: report.ordersByDeliveryType.map((deliveryTypeOrder) {
+          return DataRow(cells: [
+            DataCell(Text(deliveryTypeOrder.deliveryType)),
+            DataCell(Text('${deliveryTypeOrder.totalOrders}')),
+            DataCell(
+                Text('\$${deliveryTypeOrder.totalAmount.toStringAsFixed(2)}')),
+          ]);
+        }).toList());
   }
 }
-

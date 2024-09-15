@@ -34,7 +34,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (BuildContext context, GoRouterState state) =>
-            AppBarWrapper(child: ShopTimingsPage()),
+            AppBarWrapper(child: ReportPage()),
       ),
       GoRoute(
         path: '/received-orders',
