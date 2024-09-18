@@ -12,6 +12,9 @@ exports.getGeneralData = async (req, res) =>
     const contactUs = await shopSequelize.query(`SELECT org_name_${lang_id} as org_name,address_lang_${lang_id} as address,email_id,phone,businessid,online_ordering,online_ordering_feature,pre_booking,pre_booking_feature,print_no_of_copy,print_style,device_type_print,orientation,org_city,org_zipcode,latitude,longitude FROM contact_us where loc_id =${loc_id} `, {
       type: shopSequelize.QueryTypes.SELECT
     });
+    const generalSettings = await shopSequelize.query(`SELECT home_delivery_feature,online_ordering_feature FROM general_settings where loc_id =${loc_id} `, {
+      type: shopSequelize.QueryTypes.SELECT
+    });
 
     const locationInfo = await shopSequelize.query(`SELECT loc_name,dis_name,loc_address,loc_image,loc_logo,loc_favicon,display_order,active_status,active_email_status,deactive_email_status,website,businessid,location_type,website_type,site_url FROM location_master where loc_id =${loc_id} `, {
       type: shopSequelize.QueryTypes.SELECT
@@ -22,7 +25,7 @@ exports.getGeneralData = async (req, res) =>
     });
 
 
-    return res.json({ status_code: 200, status: true, data: { "contact_us": contactUs[0], "location_master": locationInfo[0], "order_response_time": orderResponseTime[0] } });
+    return res.json({ status_code: 200, status: true, data: { "contact_us": contactUs[0], "location_master": locationInfo[0], "order_response_time": orderResponseTime[0], "general_settings":generalSettings[0] } });
 
   } catch (error)
   {
@@ -651,7 +654,26 @@ exports.updateShopTimingsbk = [
 ];
 
 
+exports.getGeneralSettings = async (req, res) =>
+{
 
+  const { shopSequelize, loc_id } = req;
+  try
+  {
+
+
+    const generalSettings = await shopSequelize.query(`SELECT general_settings.home_delivery_feature,general_settings.online_ordering_feature, contact_us.print_no_of_copy,contact_us.print_style,contact_us.orientation FROM general_settings inner join contact_us on general_settings.loc_id = contact_us.loc_id where general_settings.loc_id =${loc_id} `, {
+      type: shopSequelize.QueryTypes.SELECT
+    });
+
+    return res.json({ status_code: 200, status: true, data: { "general_settings":generalSettings[0] } });
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+  }
+};
 
 
 

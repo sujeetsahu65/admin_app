@@ -16,5 +16,6 @@ router.get('/timing/visiting-timing',authMiddleware,shopDbMiddleware, basicDataC
 router.get('/timing/delivery-timing',authMiddleware,shopDbMiddleware, basicDataController.getDeliveryTimings);
 router.get('/timing/lunch-timing',authMiddleware,shopDbMiddleware, basicDataController.getLunchTimings);
 router.put('/timing/schedule-update',authMiddleware,shopDbMiddleware, basicDataController.updateShopTimings);
+router.get('/general-settings',authMiddleware,shopDbMiddleware, basicDataController.getGeneralSettings);
 
 module.exports = router;

@@ -87,9 +87,9 @@ exports.getCancelledOrders = async (req, res) =>
       where: {
         loc_id: loc_id,
         ordersStatusId: 4,
-        order_date: {
-          [Op.gte]: current_date,
-        }
+        // order_date: {
+        //   [Op.gte]: current_date,
+        // }
       },
       include: [
         {
@@ -143,9 +143,9 @@ exports.getReceivedOrders = async (req, res) =>
       where: {
         loc_id: loc_id,
         ordersStatusId: 6,
-        order_date: {
-          [Op.gte]: yesterday,
-        }
+        // order_date: {
+        //   [Op.gte]: yesterday,
+        // }
       },
       include: [
         {
@@ -203,9 +203,9 @@ exports.getFailedOrders = async (req, res) =>
         loc_id: loc_id,
         ordersStatusId: 7,
         paymentStatusId: [2, 3],
-        order_date: {
-          [Op.lte]: yesterday,
-        }
+        // order_date: {
+        //   [Op.lte]: yesterday,
+        // }
       },
       include: [
         {
@@ -326,8 +326,13 @@ exports.getOrderDetails = async (req, res) =>
     }
 
     let order_details = await utils.getOrderDetails({ req });
+if(order_details.status_code ==200){
+    return res.status(order_details.status_code).json({ status_code: 200, status: true, data: { order_details: order_details.order_details }});
 
-    return res.status(order_details.status_code).json({ ...order_details });
+}
+
+    return res.status(order_details.status_code).json({ status_code: order_details.status_code, status: order_details.status, message:order_details.message});
+    //  return res.status(200).json({ status_code: 200, status: true, data: { order_details } });
 
   } catch (error)
   {
@@ -808,8 +813,8 @@ exports.getReports = [
     }
 
 
-    const { Op, fn, col, literal, loc_id,lang_id } = req;
-    const { start_date, end_date } = req.params;
+    const { Op, fn, col, literal, loc_id, lang_id } = req;
+    const { start_date, end_date } = req.query;
     const { Order, DeliveryType, PaymentMode } = req.models;
 
     // if (!start_date || !end_date)
@@ -828,10 +833,14 @@ exports.getReports = [
           [fn('COALESCE', fn('SUM', literal('total_item_tax_amt + home_del_charges_tax_amount')), 0), 'totalTax']
         ],
         where: {
-          loc_id
-          , ordersStatusId: 6,
+          loc_id,
+          ordersStatusId: 6,
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          }
 
-        }
+        },
+        // logging: console.log,
       });
 
       // Query 2: Total discount success order report
@@ -843,6 +852,9 @@ exports.getReports = [
         where: {
           loc_id,
           ordersStatusId: 6,
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          },
 
           [Op.or]: [
             { discount_amt: { [Op.gt]: 0 } },
@@ -861,6 +873,9 @@ exports.getReports = [
         where: {
           loc_id,
           ordersStatusId: 6,
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          },
 
           bonus_value_used: { [Op.gt]: 0 }
         },
@@ -876,6 +891,9 @@ exports.getReports = [
         where: {
           loc_id,
           ordersStatusId: 6,
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          },
 
           coupon_discount: { [Op.gt]: 0 }
         }
@@ -894,16 +912,19 @@ exports.getReports = [
             model: PaymentMode,
             attributes: []
           }
-          
+
         ],
         where: {
-          loc_id
-          , ordersStatusId: 6,
+          loc_id,
+          ordersStatusId: 6,
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          }
 
         },
         group: ['paymentModeId'],
         //  group: ['paymentModeId', 'PaymentMode.paymentMode'],
-        logging: console.log,
+        // logging: console.log,
         // raw: true 
       });
 
@@ -913,7 +934,7 @@ exports.getReports = [
           [fn('COUNT', col('order_id')), 'tatalOrders'],
           [fn('COALESCE', fn('SUM', col('final_payable_amount')), 0), 'totalAmount'],
           'deliveryTypeId',
-            [col(`DeliveryType.delivery_type_${lang_id}`), 'deliveryType'],
+          [col(`DeliveryType.delivery_type_${lang_id}`), 'deliveryType'],
         ],
         include: [
           {
@@ -924,7 +945,9 @@ exports.getReports = [
         where: {
           loc_id,
           ordersStatusId: 6,
-          ordersStatusId: 6
+          order_date: {
+            [Op.between]: [start_date, end_date],
+          }
         },
         group: ['deliveryTypeId']
       });

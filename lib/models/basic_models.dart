@@ -234,15 +234,44 @@ class OrderResponseTime {
   }
 }
 
+class Settings {
+  int onlineOrderingStatus;
+  int homeDeliveryStatus;
+
+  Settings({
+    required this.onlineOrderingStatus,
+    required this.homeDeliveryStatus,
+  });
+
+  factory Settings.fromJson(Map<String, dynamic> json) {
+    return Settings(
+      onlineOrderingStatus: json['online_ordering_feature'],
+      homeDeliveryStatus: json['home_delivery_feature'],
+    );
+  }
+
+
+
+  // Factory method for initial default state
+  factory Settings.initial() {
+    return Settings(
+      onlineOrderingStatus: 0,
+      homeDeliveryStatus: 0,
+    );
+  }
+}
+
 class BasicModels {
   ContactUs contactUs;
   LocationMaster locationMaster;
   OrderResponseTime orderResponseTime;
+  Settings settings;
 
   BasicModels({
     required this.contactUs,
     required this.locationMaster,
     required this.orderResponseTime,
+    required this.settings,
   });
 
   factory BasicModels.fromJson(Map<String, dynamic> json) {
@@ -250,16 +279,10 @@ class BasicModels {
       contactUs: ContactUs.fromJson(json['contact_us']),
       locationMaster: LocationMaster.fromJson(json['location_master']),
       orderResponseTime: OrderResponseTime.fromJson(json['order_response_time']),
+      settings: Settings.fromJson(json['general_settings']),
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'contact_us': contactUs.toJson(),
-      'location_master': locationMaster.toJson(),
-      'order_response_time': orderResponseTime.toJson(),
-    };
-  }
 
   // Factory method for initial default state
   factory BasicModels.initial() {
@@ -267,6 +290,7 @@ class BasicModels {
       contactUs: ContactUs.initial(),
       locationMaster: LocationMaster.initial(),
       orderResponseTime: OrderResponseTime.initial(),
+      settings: Settings.initial(),
     );
   }
 }

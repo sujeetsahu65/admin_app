@@ -5,12 +5,12 @@ import 'package:admin_app/providers/shop_schedule.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ShopTimingsPage extends ConsumerStatefulWidget {
+class ShopTimings extends ConsumerStatefulWidget {
   @override
-  _ShopTimingsPageState createState() => _ShopTimingsPageState();
+  _ShopTimingsState createState() => _ShopTimingsState();
 }
 
-class _ShopTimingsPageState extends ConsumerState<ShopTimingsPage> with SingleTickerProviderStateMixin {
+class _ShopTimingsState extends ConsumerState<ShopTimings> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   List<String> tabs = ['Visiting_Timings', 'Lunch_Timings', 'Delivery_Timings'];
 

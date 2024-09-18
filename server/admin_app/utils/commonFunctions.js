@@ -156,9 +156,10 @@ async function getOrderDetails ({ req })
         }
 
 
-        const order_details = await Order.findAll({
+        const order_details = await Order.findOne({
             where: {
                 loc_id: loc_id,
+                ordersStatusId:[3,4,5,6,7],
                 ...replacements
                 // order_date: {
                 //   [Op.gte]: yesterday,
@@ -194,7 +195,7 @@ async function getOrderDetails ({ req })
 
 
 
-        if (order_details.length > 0)
+        if (order_details)
         {
             return { status_code: 200, status: true, order_details };
         }

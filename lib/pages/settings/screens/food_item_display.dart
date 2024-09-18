@@ -3,12 +3,12 @@ import 'package:admin_app/providers/food_item_display.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SettingsPage extends ConsumerStatefulWidget {
+class FoodItemDisplay extends ConsumerStatefulWidget {
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  _FoodItemDisplayState createState() => _FoodItemDisplayState();
 }
 
-class _SettingsPageState extends ConsumerState<SettingsPage>
+class _FoodItemDisplayState extends ConsumerState<FoodItemDisplay>
     with SingleTickerProviderStateMixin {
   TabController? _tabController;
 

@@ -1,7 +1,6 @@
 import 'package:admin_app/common/widgets/order_widgets/orderCard.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/pages/home/services/audio.dart';
-import 'package:admin_app/providers/basic.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,11 +10,6 @@ class HomePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-// NOTE: DO NOT COMMENT OUT THE basicDataProvider
-    final basicDataProvider = ref.watch(generalDataProvider);
-    // final languageContent = ref.watch(languageContentProvider);
-    // final authNotifier = ref.read(authProvider.notifier);
-
     // Watch the order provider that returns AsyncValue<List<Order>>
     final orderAsyncValue = ref.watch(orderProvider);
 
@@ -31,13 +25,7 @@ class HomePage extends ConsumerWidget {
                     order.preOrderBooking == 3);
           }).toList();
 
-             if (orders.isEmpty) {
-          return const Center(child: Text('No orders'));
-        } else {
-
-        
-
-          final hasPendingOrders = filteredOrders.any((Order order) =>
+          final hasPendingOrders = orders.any((Order order) =>
               order.ordersStatusId == 3 &&
               (order.preOrderBooking == 0 ||
                   order.preOrderBooking == 1 ||
@@ -50,7 +38,10 @@ class HomePage extends ConsumerWidget {
             AudioService().stopAlarmSound();
           }
 
-      
+          // If no filtered orders, display a message
+          if (filteredOrders.isEmpty) {
+            return const Center(child: Text('No new orders'));
+          }
 
           // Display the filtered orders
           return ListView.builder(
@@ -63,7 +54,6 @@ class HomePage extends ConsumerWidget {
               );
             },
           );
-        }
         },
         loading: () => const Center(
           child: CircularProgressIndicator(),

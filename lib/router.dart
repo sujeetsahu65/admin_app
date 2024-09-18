@@ -1,10 +1,14 @@
-import 'package:admin_app/common/widgets/other_widgets/appbarWrapper.dart';
+import 'package:admin_app/common/widgets/other_widgets/appbar_wrapper.dart';
 import 'package:admin_app/pages/cancelled_orders/screens/cancelled_orders.dart';
 import 'package:admin_app/pages/failed_orders/screens/failed_orders.dart';
+import 'package:admin_app/pages/order_report/screens/order_report.dart';
 import 'package:admin_app/pages/pre_orders/screens/pre_orders.dart';
 import 'package:admin_app/pages/received_orders/screens/received_orders.dart';
-import 'package:admin_app/pages/settings/screens/set.dart';
+import 'package:admin_app/pages/settings/screens/food_item_display.dart';
+import 'package:admin_app/pages/settings/screens/order_search.dart';
+import 'package:admin_app/pages/settings/screens/printer_setting.dart';
 import 'package:admin_app/pages/settings/screens/settings.dart';
+import 'package:admin_app/pages/settings/screens/shop_timings.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,10 +35,39 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: HomePage()),
       ),
-      GoRoute(
-        path: '/settings',
-        builder: (BuildContext context, GoRouterState state) =>
-            AppBarWrapper(child: ReportPage()),
+      ShellRoute(
+        builder: (context, state, child) {
+          // Use ShellRoute to wrap all settings-related routes with AppBarWrapper
+          return AppBarWrapper(child: child);
+        },
+        routes: [
+          GoRoute(
+            path: '/settings',
+            builder: (BuildContext context, GoRouterState state) => Settings(),
+            routes: [
+              GoRoute(
+                path: 'printer-setting', // '/settings/printer-setting'
+                builder: (BuildContext context, GoRouterState state) =>
+                    PrinterSetting(),
+              ),
+              GoRoute(
+                path: 'shop-timings', // '/settings/shop-timings'
+                builder: (BuildContext context, GoRouterState state) =>
+                    ShopTimings(),
+              ),
+              GoRoute(
+                path: 'order-search', // '/settings/order-search'
+                builder: (BuildContext context, GoRouterState state) =>
+                    OrderSearch(),
+              ),
+              GoRoute(
+                path: 'food-item-display', // '/settings/food-item-display'
+                builder: (BuildContext context, GoRouterState state) =>
+                    FoodItemDisplay(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: '/received-orders',
@@ -56,11 +89,14 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: CancelledOrders()),
       ),
+      GoRoute(
+        path: '/order-report',
+        builder: (BuildContext context, GoRouterState state) =>
+            AppBarWrapper(child: OrderReport()),
+      ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
       final isLoggedIn = authState.isLoggedIn;
-      // print(state.uri);
-      // print(state.path);
       final goingToLogin = state.uri == '/login';
       if (!isLoggedIn && !goingToLogin) {
         return '/login';

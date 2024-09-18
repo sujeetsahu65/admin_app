@@ -1,3 +1,4 @@
+import 'package:admin_app/providers/language.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:admin_app/models/report.dart';
@@ -30,14 +31,18 @@ class ReportState {
 
 class ReportNotifier extends StateNotifier<ReportState> {
   final ReportDataService _reportDataService;
-
-  ReportNotifier(this._reportDataService) : super(ReportState());
+ final Ref ref;
+  ReportNotifier(this.ref,this._reportDataService) : super(ReportState());
 
   // Function to fetch report data
   Future<void> fetchReport(DateTimeRange? selectedDateRange) async {
     if (selectedDateRange == null) return;
 
-    // state = state.copyWith(isLoading: true);
+// The error you're encountering happens because you're trying to modify a provider state during the widget's build lifecycle, which can lead to inconsistent UI states:Use Future.microtask
+      Future.microtask(() {
+    state = state.copyWith(isLoading: true);
+  });
+
     print('startDate');
 
     try {
@@ -45,9 +50,9 @@ class ReportNotifier extends StateNotifier<ReportState> {
       final endDate = DateFormat('yyyy-MM-dd').format(selectedDateRange.end);
     print(startDate);
     print(endDate);
-
+final languageCode = ref.watch(localizationProvider).languageCode;
       final reportData = await _reportDataService.fetchReportData(
-          startDate: startDate, endDate: endDate, languageCode: 'en');
+          startDate: startDate, endDate: endDate, languageCode: languageCode);
 
       state = state.copyWith(report: reportData, isLoading: false);
     } catch (e) {
@@ -60,5 +65,5 @@ class ReportNotifier extends StateNotifier<ReportState> {
 final reportNotifierProvider =
     StateNotifierProvider<ReportNotifier, ReportState>((ref) {
   final reportDataService = ReportDataService();
-  return ReportNotifier(reportDataService);
+  return ReportNotifier(ref, reportDataService);
 });

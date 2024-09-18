@@ -109,6 +109,15 @@ class SideBarPanel extends ConsumerWidget {
             context,
             ref,
             title: AppLocalizations.of(context)
+                .translate('today order heading'),
+            icon: Icons.calendar_month_outlined,
+            route: '/order-report',
+            currentRoute: currentRoute,
+          ),
+          buildMenuItem(
+            context,
+            ref,
+            title: AppLocalizations.of(context)
                 .translate('setting page title'),
             icon: Icons.settings_outlined,
             route: '/settings',

@@ -6,36 +6,32 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ReceivedOrders extends ConsumerWidget {
+  final String page = 'received-orders';
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<Order> orders = ref.watch(receivedOrderProvider);
-    final String page = 'received-orders';
-    // final filteredOrders = orders.where((order) {
-    //   return (order.ordersStatusId == 6);
-    // }).toList();
-
-    return Stack(
-      children: [
-        Scaffold(
-          body: orders.isEmpty
-              ? const Center(child: Text('No orders'))
-              : ListView.builder(
-                  itemCount: orders.length,
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-                    // return ListTile(
-                    //   title: Text('Order ID: ${order['order_id']}'),
-                    //   // subtitle: Text('Amount: ${order.amount}'),
-                    // );
-                    return OrderCard(
-                      order: order,
-                      page: page,
-                    );
-                  },
-                ),
-        ),
-        GlobalLoader()
-      ],
-    );
+    final AsyncValue<List<Order>> orders = ref.watch(receivedOrderProvider);
+    return Scaffold(
+        body: orders.when(
+      data: (orders) {
+        if (orders.isEmpty) {
+          return const Center(child: Text('No orders'));
+        } else {
+          return ListView.builder(
+            itemCount: orders.length,
+            itemBuilder: (context, index) {
+              final order = orders[index];
+              return OrderCard(
+                order: order,
+                page: page,
+              );
+            },
+          );
+        }
+      },
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stackTrace) => Center(
+        child: Text('Error: $error'),
+      ),
+    ));
   }
 }

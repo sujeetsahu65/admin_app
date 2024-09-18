@@ -1,98 +1,86 @@
-import 'package:admin_app/providers/printer.dart';
+import 'package:admin_app/providers/general_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:blue_print_pos/blue_print_pos.dart';
 
-
-class Settings extends ConsumerStatefulWidget {
-  const Settings({Key? key}) : super(key: key);
-
+class Settings extends ConsumerWidget {
   @override
-  ConsumerState<Settings> createState() => _SettingsState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final generalSettings = ref.watch(generalSettingsProvider);
 
-class _SettingsState extends ConsumerState<Settings> {
-
-  @override
-  void initState() {
-    super.initState();
-    final printerNotifier = ref.read(printerProvider.notifier);
-
-    // printerNotifier.checkPrinterConnection();
-    printerNotifier.connectToStoredDevice();
-  }
-// class Settings extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context) {
-    final printerState = ref.watch(printerProvider);
-    final printerNotifier = ref.read(printerProvider.notifier);
+    if (generalSettings == null) {
+      return Center(child: CircularProgressIndicator());
+    }
 
     return Scaffold(
-      body: SafeArea(
-        child: printerState.isLoading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
-              )
-            : Column(
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            // Print Copies
+            Text('Print Copies:'),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(5.0),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                 ...[
-
-//  Text('${printerState.connectedDevice!.address}')
-                 ],
-                  printerState.connectedDevice != null && printerState.isConnected
-                      ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                // 'Connected to: ${printerState.connectedDevice!.name}',
-                                'Connected to: ${printerState.connectedDevice!.name}',
-                                style: TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
-                              ),
-                              Text(
-                                'Address: ${printerState.connectedDevice!.address}',
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.grey),
-                              ),
-                              ElevatedButton(
-                                onPressed: () =>
-                                    printerNotifier.disconnectDevice(),
-                                child: Text('Disconnect'),
-                              ),
-                            ],
-                          ),
-                        )
-                      : Container(),
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: printerState.scannedDevices.length,
-                      itemBuilder: (context, index) {
-                        final device = printerState.scannedDevices[index];
-                        return ListTile(
-                          title: Text(device.name),
-                          subtitle: Text(device.address),
-                          onTap: () => printerNotifier.selectDevice(device),
-                          trailing: printerState.isLoading &&
-                                  printerState.connectedDevice?.address ==
-                                      device.address
-                              ? CircularProgressIndicator()
-                              : null,
-                        );
-                      },
-                    ),
+                  Text(generalSettings.selectedCopyCount.toString()),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.remove),
+                        onPressed: () {
+                          if (generalSettings.selectedCopyCount > 0) {
+                            final updatedSettings = generalSettings.copyWith(
+                              selectedCopyCount: generalSettings.selectedCopyCount - 1,
+                            );
+                            ref.read(generalSettingsProvider.notifier).updateGeneralSettings(updatedSettings);
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.add),
+                        onPressed: () {
+                          if (generalSettings.selectedCopyCount < generalSettings.maxPrintCopies) {
+                            final updatedSettings = generalSettings.copyWith(
+                              selectedCopyCount: generalSettings.selectedCopyCount + 1,
+                            );
+                            ref.read(generalSettingsProvider.notifier).updateGeneralSettings(updatedSettings);
+                          }
+                        },
+                      ),
+                    ],
                   ),
                 ],
               ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed:
-            printerState.isLoading ? null : () => printerNotifier.scanDevices(),
-        child: const Icon(Icons.search),
-        backgroundColor: printerState.isLoading ? Colors.grey : Colors.blue,
+            ),
+            // Other sections for Print Format, Home Delivery, Online Ordering, etc.
+          ],
+        ),
       ),
     );
+  }
+
+
+
+  // Mock API calls for dropdown data
+  Future<List<String>> fetchPrintFormats() async {
+    // Replace with actual API call
+    return ['Print Fromat(CP)', 'Print Format Normal'];
+  }
+
+  // Mock API calls for dropdown data
+  Future<List<String>> fetchAudios() async {
+    // Replace with actual API call
+    return ['Nice Alarm', 'School Bell'];
+  }
+
+  Future<List<int>> fetchPrintCopies() async {
+    // Replace with actual API call
+    return [0, 1, 2, 3, 4, 5];
   }
 }

@@ -1,16 +1,24 @@
 import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
 import 'package:admin_app/common/widgets/other_widgets/sidebar_panel.dart';
+import 'package:admin_app/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
-  final child;
-  const AppBarWrapper({super.key, required this.child});
+  final Widget child;
+    const AppBarWrapper({Key? key, required this.child}) : super(key: key);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final isAuthenticated = ref.watch(authProvider);
     // final languageId = ref.watch(languageIdProvider);
+     final goRouter = ref.watch(goRouterProvider);
+  final String currentLocation = goRouter.routerDelegate.currentConfiguration.uri.toString();
+  final bool isNestedPage = RegExp(r'^/settings/.*').hasMatch(currentLocation);
+    // final bool isNestedPage = location != '/home' && location != '/settings';
+    print('ppppppppppppppp');
+    print(currentLocation);
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: ThemeColors.primaryColor(),
@@ -18,7 +26,14 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
         // centerTitle: true,
         titleSpacing: 0.0,
         title: LanguageSwitcher(),
-        leading: Builder(
+        leading: isNestedPage
+            ? IconButton(
+                icon: Icon(Icons.arrow_back),
+                onPressed: () {
+                  context.pop(); // Navigate back
+                },
+              )
+            :Builder(
           builder: (context) => IconButton(
             icon: Icon(Icons.menu),
             onPressed: () {
@@ -37,7 +52,7 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
         //    icon: Icon(Icons.menu)),//since we are already using the drawer
       ),
       body: child,
-      drawer: SideBarPanel(),
+      drawer: isNestedPage ? null : SideBarPanel(),
     );
   }
 

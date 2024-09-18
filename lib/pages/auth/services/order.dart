@@ -4,9 +4,22 @@ import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:dio/dio.dart';
 
 class OrderService {
-  Future<List<Order>> fetchOrders({mode = 'newOrders', required languageCode}) async {
+  final Dio _dio = Dio();
+
+// TO DO: =========
+  // final Dio _dio = Dio(BaseOptions(
+  //   baseUrl: 'https://api.example.com',
+  //   headers: {
+  //     'Authorization': 'Bearer your_token',  // Example of Authorization header
+  //     'Content-Type': 'application/json',    // Example of Content-Type
+  //   },
+  // ));
+
+  Future<List<Order>> fetchOrders(
+      {mode = 'newOrders', required languageCode}) async {
     try {
       final token = await getLocalToken();
       late final path;
@@ -25,7 +38,7 @@ class OrderService {
         dataKey = 'cancelled_orders';
       } else {
         path = 'new-orders';
-         dataKey = 'new_orders';
+        dataKey = 'new_orders';
       }
       final response = await http.get(
         Uri.parse('$uri/order/$path'),
@@ -143,7 +156,7 @@ class OrderService {
         }),
         headers: {
           'Content-Type': 'application/json',
-           'x-auth-token': '$token',
+          'x-auth-token': '$token',
           'lang-id': '$localeId',
         },
       );
@@ -159,7 +172,8 @@ class OrderService {
     }
   }
 
-  Future<Map<String, List>> fetchOrderItems({orderId,required languageCode}) async {
+  Future<Map<String, List>> fetchOrderItems(
+      {orderId, required languageCode}) async {
     try {
       final token = await getLocalToken();
       final response = await http.get(
@@ -197,6 +211,36 @@ class OrderService {
     } catch (error) {
       print(error.toString());
       return {};
+    }
+  }
+
+  Future<Order?> fetchOrderDetails(
+      {required String query, required languageCode}) async {
+    try {
+      final token = await getLocalToken();
+
+      final response = await _dio.get('$uri/order/order-details',
+          queryParameters: {
+            'order_id':
+                query.isNotEmpty && query.startsWith('ID') ? query : null,
+            'order_number':
+                query.isNotEmpty && !query.startsWith('ID') ? query : null,
+          },
+          options: Options(headers: {
+            'Content-Type': 'application/json',
+            'x-auth-token': '$token',
+            'lang-code': '$languageCode',
+          }));
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonData =
+            response.data['data']['order_details'];
+        return Order.fromJson(jsonData);
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+  throw e;
     }
   }
 }
