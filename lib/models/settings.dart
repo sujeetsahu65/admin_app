@@ -1,4 +1,4 @@
-class GeneralSettings {
+class Settings {
   final int homeDeliveryFeature;
   final int onlineOrderingFeature;
   final int selectedCopyCount;
@@ -7,7 +7,7 @@ class GeneralSettings {
   final int maxPrintCopies;
   final List<PrintFormat> printFormats;
 
-  GeneralSettings({
+  Settings({
     required this.homeDeliveryFeature,
     required this.onlineOrderingFeature,
     required this.selectedCopyCount,
@@ -18,7 +18,7 @@ class GeneralSettings {
   });
 
     // copyWith method
-  GeneralSettings copyWith({
+  Settings copyWith({
     int? homeDeliveryFeature,
     int? onlineOrderingFeature,
     int? selectedCopyCount,
@@ -27,7 +27,7 @@ class GeneralSettings {
     int? maxPrintCopies,
     List<PrintFormat>? printFormats,
   }) {
-    return GeneralSettings(
+    return Settings(
       homeDeliveryFeature: homeDeliveryFeature ?? this.homeDeliveryFeature,
       onlineOrderingFeature: onlineOrderingFeature ?? this.onlineOrderingFeature,
       selectedCopyCount: selectedCopyCount ?? this.selectedCopyCount,
@@ -38,8 +38,8 @@ class GeneralSettings {
     );
   }
 
-  factory GeneralSettings.fromJson(Map<String, dynamic> json) {
-    return GeneralSettings(
+  factory Settings.fromJson(Map<String, dynamic> json) {
+    return Settings(
       homeDeliveryFeature: json['home_delivery_feature'],
       onlineOrderingFeature: json['online_ordering_feature'],
       selectedCopyCount: json['selected_copy_count'],

@@ -25,7 +25,7 @@ exports.getGeneralData = async (req, res) =>
     });
 
 
-    return res.json({ status_code: 200, status: true, data: { "contact_us": contactUs[0], "location_master": locationInfo[0], "order_response_time": orderResponseTime[0], "general_settings":generalSettings[0] } });
+    return res.json({ status_code: 200, status: true, data: { "contact_us": contactUs[0], "location_master": locationInfo[0], "order_response_time": orderResponseTime[0], "general_settings": generalSettings[0] } });
 
   } catch (error)
   {
@@ -389,46 +389,56 @@ exports.updateShopTimings = [
   body('table_name')
     .isIn(['visiting_timings', 'lunch_timings', 'delivery_timings'])
     .withMessage('Invalid table name'),
-  
+
   body('day_number')
     .isInt({ min: 1, max: 7 })
     .withMessage('day_number must be an integer between 1 and 7'),
-  
+
   body('field')
     .isIn(['fromTime', 'toTime', 'closeStatus'])
     .withMessage('Invalid field name'),
-  
+
   body('new_value')
-    .custom(async (value, { req }) => {
+    .custom(async (value, { req }) =>
+    {
       const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/;
       const { field, day_number, table_name } = req.body;
-      
+
       // Validate time format or boolean for closeStatus
-      if (field === 'closeStatus') {
-        if (typeof value !== 'boolean') {
+      if (field === 'closeStatus')
+      {
+        if (typeof value !== 'boolean')
+        {
           throw new Error('closeStatus must be a boolean');
         }
-      } else if (!timeRegex.test(value)) {
+      } else if (!timeRegex.test(value))
+      {
         throw new Error('Invalid time format, expected HH:mm or HH:mm:ss');
-      } else {
+      } else
+      {
         // Get models
-           const { loc_id } = req;
+        const { loc_id } = req;
         const { VisitingTiming, LunchTiming, DeliveryTiming } = req.models;
         let model;
-        
-        if (table_name === 'visiting_timings') {
+
+        if (table_name === 'visiting_timings')
+        {
           model = VisitingTiming;
-        } else if (table_name === 'lunch_timings') {
+        } else if (table_name === 'lunch_timings')
+        {
           model = LunchTiming;
-        } else if (table_name === 'delivery_timings') {
+        } else if (table_name === 'delivery_timings')
+        {
           model = DeliveryTiming;
-        } else {
+        } else
+        {
           throw new Error('Invalid table name');
         }
 
         // Fetch the current timing record from the database
         const timing = await model.findOne({ where: { dayNumber: day_number, loc_id } });
-        if (!timing) {
+        if (!timing)
+        {
           throw new Error('Timing record not found');
         }
 
@@ -440,7 +450,8 @@ exports.updateShopTimings = [
         const toTime = field === 'toTime' ? value : currentToTime;
 
         // Convert time to minutes for easier comparison
-        const timeToMinutes = (time) => {
+        const timeToMinutes = (time) =>
+        {
           const [hours, minutes] = time.split(':').map(Number);
           return hours * 60 + minutes;
         };
@@ -449,16 +460,20 @@ exports.updateShopTimings = [
         const toTimeMinutes = timeToMinutes(toTime);
 
         // Validate fromTime (must not be before 06:00)
-        if (field === 'fromTime' && fromTimeMinutes < 360) {
+        if (field === 'fromTime' && fromTimeMinutes < 360)
+        {
           throw new Error('fromTime cannot be before 06:00');
         }
 
         // Validate toTime (must not be before fromTime, unless it's allowed for next-day closure)
-        if (field === 'toTime') {
-          if (toTimeMinutes < fromTimeMinutes && toTimeMinutes >= 360) {
+        if (field === 'toTime')
+        {
+          if (toTimeMinutes < fromTimeMinutes && toTimeMinutes >= 360)
+          {
             throw new Error('toTime cannot be earlier than fromTime within the same day.');
           }
-          if (toTimeMinutes >= 360 && fromTimeMinutes >= 360 && toTimeMinutes < fromTimeMinutes) {
+          if (toTimeMinutes >= 360 && fromTimeMinutes >= 360 && toTimeMinutes < fromTimeMinutes)
+          {
             throw new Error('toTime cannot be earlier than fromTime.');
           }
         }
@@ -467,9 +482,11 @@ exports.updateShopTimings = [
     }),
 
   // Route handler
-  async (req, res) => {
+  async (req, res) =>
+  {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) {
+    if (!errors.isEmpty())
+    {
       return res.status(400).json({ errors: errors.array() });
     }
 
@@ -477,56 +494,70 @@ exports.updateShopTimings = [
     const { table_name, day_number, field, new_value } = req.body;
     const { DeliveryTiming, VisitingTiming, LunchTiming } = req.models;
 
-    try {
+    try
+    {
       let model;
 
       // Determine the model based on the table_name
-      if (table_name === 'visiting_timings') {
+      if (table_name === 'visiting_timings')
+      {
         model = VisitingTiming;
-      } else if (table_name === 'lunch_timings') {
+      } else if (table_name === 'lunch_timings')
+      {
         model = LunchTiming;
-      } else if (table_name === 'delivery_timings') {
+      } else if (table_name === 'delivery_timings')
+      {
         model = DeliveryTiming;
-      } else {
+      } else
+      {
         return res.status(400).json({ error: 'Invalid table name' });
       }
 
       // Find the timing record by dayNumber and loc_id
       const timing = await model.findOne({ where: { dayNumber: day_number, loc_id } });
 
-      if (!timing) {
+      if (!timing)
+      {
         return res.status(404).json({ error: 'Timing record not found' });
       }
 
       // Normalize the time to HH:mm:ss
       let normalizedTime = new_value;
-      if (field === 'fromTime' || field === 'toTime') {
-        if (/^\d{2}:\d{2}$/.test(new_value)) {
+      if (field === 'fromTime' || field === 'toTime')
+      {
+        if (/^\d{2}:\d{2}$/.test(new_value))
+        {
           normalizedTime = `${new_value}:00`; // Convert HH:mm to HH:mm:ss
         }
       }
 
       // Update the relevant field based on input
-      if (field === 'fromTime') {
+      if (field === 'fromTime')
+      {
         timing.fromTime = normalizedTime;
-      } else if (field === 'toTime') {
+      } else if (field === 'toTime')
+      {
         timing.toTime = normalizedTime;
 
         // Check if toTime is between 00:00:00 and 06:00:00, then update nextDay
         const toTimeHour = parseInt(normalizedTime.split(':')[0], 10); // Get hour part of toTime
-        if (toTimeHour >= 0 && toTimeHour < 6) {
+        if (toTimeHour >= 0 && toTimeHour < 6)
+        {
           timing.nextDay = 1; // Set nextDay to true
-        } else {
+        } else
+        {
           timing.nextDay = 0; // Otherwise, set nextDay to false
         }
-      } else if (field === 'closeStatus') {
+      } else if (field === 'closeStatus')
+      {
         timing.closeStatus = new_value ? 1 : 0; // Convert boolean to int (1 for true, 0 for false)
       }
 
       await timing.save(); // Save changes to the database
 
       return res.json({ status_code: 200, status: true });
-    } catch (error) {
+    } catch (error)
+    {
       console.error(error);
       return res.status(500).json({ error: 'Error updating timings' });
     }
@@ -662,11 +693,35 @@ exports.getGeneralSettings = async (req, res) =>
   {
 
 
-    const generalSettings = await shopSequelize.query(`SELECT general_settings.home_delivery_feature,general_settings.online_ordering_feature, contact_us.print_no_of_copy,contact_us.print_style,contact_us.orientation FROM general_settings inner join contact_us on general_settings.loc_id = contact_us.loc_id where general_settings.loc_id =${loc_id} `, {
+    const generalSettings = await shopSequelize.query(`SELECT general_settings.home_delivery_feature,general_settings.online_ordering_feature, contact_us.print_no_of_copy as selected_copy_count,contact_us.print_style as selected_print_format,contact_us.orientation, 5 as max_print_copies FROM general_settings inner join contact_us on general_settings.loc_id = contact_us.loc_id where general_settings.loc_id =${loc_id} `, {
       type: shopSequelize.QueryTypes.SELECT
     });
 
-    return res.json({ status_code: 200, status: true, data: { "general_settings":generalSettings[0] } });
+    const print_formats = [{
+      "print_format_id": 1,
+      "print_format_name": "default"
+    },
+    {
+      "print_format_id": 2,
+      "print_format_name": "test1"
+    },
+    {
+      "print_format_id": 3,
+      "print_format_name": "test2"
+    },
+    {
+      "print_format_id": 4,
+      "print_format_name": "test3"
+    },
+    {
+      "print_format_id": 5,
+      "print_format_name": "test4"
+    },
+    ];
+
+    generalSettings[0]['print_formats'] = print_formats;
+
+    return res.json({ status_code: 200, status: true, data: { "general_settings": generalSettings[0] } });
 
   } catch (error)
   {
@@ -674,6 +729,103 @@ exports.getGeneralSettings = async (req, res) =>
     return res.status(500).json({ status_code: 500, status: false, message: error.message });
   }
 };
+
+
+// {
+
+//             "home_delivery_feature": 1,
+//             "online_ordering_feature": 1,
+//             "selected_copy_count": 1,
+//             "selected_print_format": 5,
+//             "orientation": 0
+// }
+exports.updateGeneralSettings = [
+  body('selected_copy_count').optional().isInt({ min: 0, max: 5 }).withMessage('Print copies must be between 0 and 5'),
+  // TO DO:selected_print_format { min: 0, max: 5 }
+  body('selected_print_format').optional().isInt().withMessage('Print format must be an integer'),
+  body('online_ordering_feature').optional().isInt({ min: 0, max: 1 }).withMessage('Online ordering status must be 0 or 1'),
+  body('home_delivery_feature').optional().isInt({ min: 0, max: 1 }).withMessage('Home delivery status must be be 0 or 1'),
+
+  async (req, res) =>
+  {
+    const errors = validationResult(req);
+    if (!errors.isEmpty())
+    {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { shopSequelize, loc_id } = req;
+    const { home_delivery_feature, online_ordering_feature, selected_print_format, selected_copy_count } = req.body;
+
+    if (!home_delivery_feature && !online_ordering_feature && !selected_print_format && !selected_copy_count)
+    {
+      return res.status(400).json({ status_code: 400, status: false, message: 'At least one setting must be provided' });
+    }
+
+    try
+    {
+
+      if (home_delivery_feature)
+      {
+
+        let [results, metadata] = await shopSequelize.query(`UPDATE general_settings set home_delivery_feature = ${home_delivery_feature} where loc_id =${loc_id} `, {
+          type: shopSequelize.QueryTypes.UPDATE
+        });
+
+        if (metadata === 0)
+        {
+          return res.status(404).json({ status_code: 500, status: false, message: "Could not update Home delivery status" });
+        }
+
+      }
+      if (online_ordering_feature)
+      {
+        let [results, metadata] = await shopSequelize.query(`UPDATE general_settings set online_ordering_feature = ${online_ordering_feature} where loc_id =${loc_id} `, {
+          type: shopSequelize.QueryTypes.UPDATE
+        });
+
+        if (metadata === 0)
+        {
+          return res.status(404).json({ status_code: 500, status: false, message: "Online ordering status could not updated" });
+        }
+
+      }
+      if (selected_print_format)
+      {
+
+        let [results, metadata] = await shopSequelize.query(`UPDATE contact_us set print_style = ${selected_print_format} where loc_id =${loc_id} `, {
+          type: shopSequelize.QueryTypes.UPDATE
+        });
+
+        if (metadata === 0)
+        {
+          return res.status(404).json({ status_code: 500, status: false, message: "Could not update print format" });
+        }
+
+
+      }
+      if (selected_copy_count)
+      {
+        let [results, metadata] = await shopSequelize.query(`UPDATE contact_us set print_no_of_copy = ${selected_copy_count} where loc_id =${loc_id} `, {
+          type: shopSequelize.QueryTypes.UPDATE
+        });
+
+        if (metadata === 0)
+        {
+          return res.status(404).json({ status_code: 500, status: false, message: "Could not update print copy count" });
+        }
+
+      }
+
+
+      return res.json({ status_code: 200, status: true });
+
+    } catch (error)
+    {
+      console.log(error);
+      return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    }
+  }];
 
 
 

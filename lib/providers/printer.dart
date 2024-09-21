@@ -160,7 +160,7 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
     DateTime currentTime = TZ.now();
     receiptHeadText.addText(
       currentTime.toIso8601String(),
-      size: ReceiptTextSizeType.extraLarge,
+      size: ReceiptTextSizeType.medium,
       style: ReceiptTextStyleType.bold,
     );
 
