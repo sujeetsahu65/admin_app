@@ -54,7 +54,7 @@ async function setPreOrderToCurrentOrder (sequelize, loc_id)
 
     } catch (error)
     {
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -124,7 +124,7 @@ async function mailTo (sequelize, loc_id, order_data, mail_type)
 
         } catch (error)
         {
-            return { status_code: 500, status: false, message: error.message };
+            return { status_code: 500, status: false, message: 'Server error' };
         }
 
     })
@@ -207,7 +207,7 @@ async function getOrderDetails ({ req })
     } catch (error)
     {
         console.log(error);
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -241,7 +241,7 @@ async function getOrderItemToppings ({ sequelize, loc_id, order_food_item_id, or
     } catch (error)
     {
         console.log(error);
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -276,7 +276,7 @@ FROM combo_offers WHERE loc_id = ${loc_id}  AND combo_offer_id = ${combo_offer_i
     } catch (error)
     {
         console.log(error);
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -312,7 +312,7 @@ async function getItemSizeName ({ sequelize, loc_id, item_size_id, lang_id })
     } catch (error)
     {
         console.log(error);
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -431,7 +431,7 @@ async function getOrderComboOfferItems ({ sequelize, loc_id, order_id, lang_id, 
     } catch (error)
     {
         console.log(error);
-        return { status_code: 500, status: false, message: error.message };
+        return { status_code: 500, status: false, message: 'Server error' };
     }
 }
 
@@ -488,7 +488,7 @@ function decryptPassWithKey16 (encrypted, key)
             return decrypted.toString('utf8');
         } catch (error)
         {
-            return 'Decryption error: ' + error.message;
+            return 'Decryption error: ' + 'Server error';
         }
     }
     else
@@ -530,7 +530,7 @@ function decryptPassWithKey (encrypted, key)
             return decrypted;
         } catch (error)
         {
-            return 'Decryption error: ' + error.message;
+            return 'Decryption error: ' + 'Server error';
         }
     }
     else
@@ -573,7 +573,7 @@ function encryptPassWithKey (string, key)
             return encryptedBuffer.toString('base64');
         } catch (error)
         {
-            return 'Encryption error: ' + error.message;
+            return 'Encryption error: ' + 'Server error';
         }
     }
     else

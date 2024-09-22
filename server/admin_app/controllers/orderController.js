@@ -17,7 +17,7 @@ exports.getNewOrders = async (req, res) =>
 
     if (!pre_orders_update_status.status)
     {
-      return res.status(500).json({ ...pre_orders_update_status });
+      return res.status(500).json({  status_code: 500, status: false,message:'Server error' });
     }
 
     const new_orders = await Order.findAll({
@@ -67,7 +67,7 @@ exports.getNewOrders = async (req, res) =>
   catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 
 }
@@ -124,7 +124,7 @@ exports.getCancelledOrders = async (req, res) =>
 
   } catch (error)
   {
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -181,7 +181,7 @@ exports.getReceivedOrders = async (req, res) =>
 
   } catch (error)
   {
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -243,7 +243,7 @@ exports.getFailedOrders = async (req, res) =>
 
   } catch (error)
   {
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -307,7 +307,7 @@ exports.getPreOrders = async (req, res) =>
 
   } catch (error)
   {
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -337,7 +337,7 @@ if(order_details.status_code ==200){
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -382,7 +382,7 @@ exports.setPreOrderResponseAlertTime = async (req, res) =>
 
   } catch (error)
   {
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -454,7 +454,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -525,7 +525,7 @@ exports.concludeOrder = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -589,7 +589,7 @@ exports.cancelOrder = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -656,7 +656,7 @@ exports.orderItems = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -683,7 +683,7 @@ exports.orderItemToppings = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -701,7 +701,7 @@ async (req, res) =>
   const errors = validationResult(req);
   if (!errors.isEmpty())
   {
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(400).json({ status_code: 400, status: false, message:"Bad request", errors: errors.array() });
   }
 
 
@@ -739,7 +739,7 @@ async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 }];
 
@@ -787,7 +787,7 @@ exports.comboOfferById = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -809,7 +809,7 @@ exports.getReports = [
     const errors = validationResult(req);
     if (!errors.isEmpty())
     {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ status_code: 400, status: false,message:"Bad request", errors: errors.array() });
     }
 
 
@@ -969,7 +969,7 @@ exports.getReports = [
     } catch (error)
     {
       console.error(error);
-      return res.status(500).json({ error: 'Error fetching reports' });
+      return res.status(500).json({ status_code: 500, status: false, error: 'Server error' });
     }
   }
 ]

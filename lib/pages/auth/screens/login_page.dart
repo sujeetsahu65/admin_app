@@ -1,6 +1,7 @@
 import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/basic.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -37,10 +38,25 @@ class _LoginPage extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    
     final authNotifier = ref.read(authProvider.notifier);
 
     // final languageId = ref.watch(languageIdProvider);
     final languageContent = ref.watch(languageContentProvider);
+
+
+    ref.listen<GlobalMessageState?>(globalMessageProvider, (previous, next) {
+      if (next != null && next.message != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message!),
+            backgroundColor: next.isError ? Colors.red : Colors.green,
+          ),
+        );
+        // Clear the message after showing
+        ref.read(globalMessageProvider.notifier).clearMessage();
+      }
+    });
 
     return Scaffold(
       // appBar: AppBar(title: Text("hgj")),

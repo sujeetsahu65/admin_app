@@ -30,7 +30,7 @@ exports.getGeneralData = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -81,7 +81,7 @@ exports.getLanguageData = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -98,7 +98,7 @@ exports.getAppVersion = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -146,7 +146,7 @@ exports.getFoodDisplayData = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -186,7 +186,7 @@ exports.getMenuCategories = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 exports.getFoodCategories = async (req, res) =>
@@ -226,7 +226,7 @@ exports.getFoodCategories = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 exports.getFoodItems = async (req, res) =>
@@ -265,7 +265,7 @@ exports.getFoodItems = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -322,7 +322,7 @@ exports.updateFoodItemDisplayStatus = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -487,7 +487,7 @@ exports.updateShopTimings = [
     const errors = validationResult(req);
     if (!errors.isEmpty())
     {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ status_code: 400, status: false,message:"Bad request", errors: errors.array() });
     }
 
     const { loc_id } = req;
@@ -510,7 +510,7 @@ exports.updateShopTimings = [
         model = DeliveryTiming;
       } else
       {
-        return res.status(400).json({ error: 'Invalid table name' });
+        return res.status(400).json({ status_code: 400, status: false, message: 'Invalid table name' });
       }
 
       // Find the timing record by dayNumber and loc_id
@@ -518,7 +518,7 @@ exports.updateShopTimings = [
 
       if (!timing)
       {
-        return res.status(404).json({ error: 'Timing record not found' });
+        return res.status(404).json({ status_code: 404, status: false, message: 'Timing record not found' });
       }
 
       // Normalize the time to HH:mm:ss
@@ -559,7 +559,7 @@ exports.updateShopTimings = [
     } catch (error)
     {
       console.error(error);
-      return res.status(500).json({ error: 'Error updating timings' });
+      return res.status(500).json({ status_code: 500, status: false, message: 'Error updating timings' });
     }
   }
 ];
@@ -607,7 +607,7 @@ exports.updateShopTimingsbk = [
     const errors = validationResult(req);
     if (!errors.isEmpty())
     {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({ status_code: 400, status: false,message:"Bad request", errors: errors.array() });
     }
 
     const { loc_id } = req;
@@ -630,7 +630,7 @@ exports.updateShopTimingsbk = [
         model = DeliveryTiming;
       } else
       {
-        return res.status(400).json({ error: 'Invalid table name' });
+        return res.status(400).json({ status_code: 400, status: false, message: 'Invalid table name' });
       }
 
       // Find the timing record by dayNumber and loc_id
@@ -638,7 +638,7 @@ exports.updateShopTimingsbk = [
 
       if (!timing)
       {
-        return res.status(404).json({ error: 'Timing record not found' });
+        return res.status(404).json({ status_code: 404, status: false, error: 'Timing record not found' });
       }
 
       // Normalize the time to HH:mm:ss
@@ -679,7 +679,7 @@ exports.updateShopTimingsbk = [
     } catch (error)
     {
       console.error(error);
-      return res.status(500).json({ error: 'Error updating timings' });
+      return res.status(500).json({ status_code: 500, status: false, error: 'Server error' });
     }
   }
 ];
@@ -726,7 +726,7 @@ exports.getGeneralSettings = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -739,93 +739,119 @@ exports.getGeneralSettings = async (req, res) =>
 //             "selected_print_format": 5,
 //             "orientation": 0
 // }
-exports.updateGeneralSettings = [
-  body('selected_copy_count').optional().isInt({ min: 0, max: 5 }).withMessage('Print copies must be between 0 and 5'),
-  // TO DO:selected_print_format { min: 0, max: 5 }
-  body('selected_print_format').optional().isInt().withMessage('Print format must be an integer'),
-  body('online_ordering_feature').optional().isInt({ min: 0, max: 1 }).withMessage('Online ordering status must be 0 or 1'),
-  body('home_delivery_feature').optional().isInt({ min: 0, max: 1 }).withMessage('Home delivery status must be be 0 or 1'),
 
-  async (req, res) =>
-  {
+exports.updateGeneralSettings = [
+  // Validation rules for input fields
+  body('selected_copy_count')
+    .optional()
+    .isInt({ min: 0, max: 5 })
+    .withMessage('Print copies must be between 0 and 5'),
+  
+  body('selected_print_format')
+    .optional()
+    .isInt()
+    .withMessage('Print format must be an integer'),
+
+  body('online_ordering_feature')
+    .optional()
+    .isInt({ min: 0, max: 1 })
+    .withMessage('Online ordering status must be 0 or 1'),
+
+  body('home_delivery_feature')
+    .optional()
+    .isInt({ min: 0, max: 1 })
+    .withMessage('Home delivery status must be 0 or 1'),
+
+  // Main function to handle the update
+  async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty())
-    {
-      return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      return res.status(400).json({status_code: 400,
+        status: false, message:"Bad request", errors: errors.array()});
     }
 
     const { shopSequelize, loc_id } = req;
     const { home_delivery_feature, online_ordering_feature, selected_print_format, selected_copy_count } = req.body;
 
-    if (!home_delivery_feature && !online_ordering_feature && !selected_print_format && !selected_copy_count)
-    {
-      return res.status(400).json({ status_code: 400, status: false, message: 'At least one setting must be provided' });
+    // Ensure at least one field is provided for update
+    if (
+      home_delivery_feature === undefined &&
+      online_ordering_feature === undefined &&
+      selected_print_format === undefined &&
+      selected_copy_count === undefined
+    ) {
+      return res.status(400).json({
+        status_code: 400,
+        status: false,
+        message: 'At least one setting must be provided',
+      });
     }
 
-    try
-    {
-
-      if (home_delivery_feature)
-      {
-
-        let [results, metadata] = await shopSequelize.query(`UPDATE general_settings set home_delivery_feature = ${home_delivery_feature} where loc_id =${loc_id} `, {
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-
-        if (metadata === 0)
-        {
-          return res.status(404).json({ status_code: 500, status: false, message: "Could not update Home delivery status" });
-        }
-
-      }
-      if (online_ordering_feature)
-      {
-        let [results, metadata] = await shopSequelize.query(`UPDATE general_settings set online_ordering_feature = ${online_ordering_feature} where loc_id =${loc_id} `, {
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-
-        if (metadata === 0)
-        {
-          return res.status(404).json({ status_code: 500, status: false, message: "Online ordering status could not updated" });
-        }
-
-      }
-      if (selected_print_format)
-      {
-
-        let [results, metadata] = await shopSequelize.query(`UPDATE contact_us set print_style = ${selected_print_format} where loc_id =${loc_id} `, {
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-
-        if (metadata === 0)
-        {
-          return res.status(404).json({ status_code: 500, status: false, message: "Could not update print format" });
-        }
-
-
-      }
-      if (selected_copy_count)
-      {
-        let [results, metadata] = await shopSequelize.query(`UPDATE contact_us set print_no_of_copy = ${selected_copy_count} where loc_id =${loc_id} `, {
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-
-        if (metadata === 0)
-        {
-          return res.status(404).json({ status_code: 500, status: false, message: "Could not update print copy count" });
-        }
-
+    try {
+      // Prepare updates to avoid multiple database calls
+      const queries = [];
+      
+      if (home_delivery_feature !== undefined) {
+        queries.push(shopSequelize.query(
+          `UPDATE general_settings SET home_delivery_feature = :home_delivery_feature WHERE loc_id = :loc_id`,
+          {
+            replacements: { home_delivery_feature, loc_id },
+            type: shopSequelize.QueryTypes.UPDATE
+          }
+        ));
       }
 
+      if (online_ordering_feature !== undefined) {
+        queries.push(shopSequelize.query(
+          `UPDATE general_settings SET online_ordering_feature = :online_ordering_feature WHERE loc_id = :loc_id`,
+          {
+            replacements: { online_ordering_feature, loc_id },
+            type: shopSequelize.QueryTypes.UPDATE
+          }
+        ));
+      }
 
-      return res.json({ status_code: 200, status: true });
+      if (selected_print_format !== undefined) {
+        queries.push(shopSequelize.query(
+          `UPDATE contact_us SET print_style = :selected_print_format WHERE loc_id = :loc_id`,
+          {
+            replacements: { selected_print_format, loc_id },
+            type: shopSequelize.QueryTypes.UPDATE
+          }
+        ));
+      }
 
-    } catch (error)
-    {
-      console.log(error);
-      return res.status(500).json({ status_code: 500, status: false, message: error.message });
+      if (selected_copy_count !== undefined) {
+        queries.push(shopSequelize.query(
+          `UPDATE contact_us SET print_no_of_copy = :selected_copy_count WHERE loc_id = :loc_id`,
+          {
+            replacements: { selected_copy_count, loc_id },
+            type: shopSequelize.QueryTypes.UPDATE
+          }
+        ));
+      }
+
+      // Execute all update queries
+      await Promise.all(queries);
+
+      // Return success response
+      return res.status(200).json({
+        status_code: 200,
+        status: true,
+        message: 'Settings updated successfully',
+      });
+
+    } catch (error) {
+      console.error('Error updating general settings:', error);
+      return res.status(500).json({
+        status_code: 500,
+        status: false,
+        message: 'Server error',
+      });
     }
-  }];
+  },
+];
+
 
 
 

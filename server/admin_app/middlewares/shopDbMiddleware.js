@@ -114,7 +114,7 @@ module.exports = async (req, res, next) =>
             .catch(err =>
             {
                 console.error('Unable to connect to the database:', err);
-                return res.status(500).json({ status_code: 500, status: false, message: err });
+                return res.status(500).json({ status_code: 500, status: false, message: "Server error" });
             });
 
     } catch (error)

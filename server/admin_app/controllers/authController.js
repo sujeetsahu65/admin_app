@@ -42,7 +42,7 @@ console.log({ login_id: admin.login_id, client_id: admin.client_id, role: admin.
   } catch (error)
   {
     console.log(error);
-    res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
 
@@ -52,7 +52,7 @@ exports.forgotPassword = async (req, res) =>
   // Validate that at least one of email or phone is provided
   if (!email && !phone)
   {
-    return res.status(400).json({ status_code: 400, status: false, error: 'Please provide either email or phone.' });
+    return res.status(400).json({ status_code: 400, status: false, message: 'Please provide either email or phone.' });
   }
 
   try
@@ -77,7 +77,7 @@ exports.forgotPassword = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 
 };
@@ -99,6 +99,6 @@ exports.verifyToken = async (req, res) =>
   } catch (error)
   {
     console.log(error);
-    return res.status(500).json({ status_code: 500, status: false, message: error.message });
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };

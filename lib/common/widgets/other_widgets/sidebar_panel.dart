@@ -2,6 +2,7 @@ import 'package:admin_app/models/basic_models.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/auth.dart';
 import 'package:admin_app/providers/basic.dart';
+import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -134,6 +135,7 @@ class SideBarPanel extends ConsumerWidget {
             title: Text(
                 AppLocalizations.of(context).translate('title_logout')),
             onTap: () async {
+        
               await ref.read(authProvider.notifier).logout();
               context.go('/login');
             },

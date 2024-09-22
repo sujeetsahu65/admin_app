@@ -15,8 +15,15 @@ class _FoodItemDisplayState extends ConsumerState<FoodItemDisplay>
   @override
   void initState() {
     super.initState();
-    final menuCategoryNotifier = ref.read(menuCategoryProvider.notifier);
-    menuCategoryNotifier.loadMenuCategories();
+
+  // Wait until after the first frame has been rendered
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ref.read(menuCategoryProvider.notifier).loadMenuCategories();
+  });
+
+
+    // final menuCategoryNotifier = ref.read(menuCategoryProvider.notifier);
+    // menuCategoryNotifier.loadMenuCategories();
   }
 
   @override

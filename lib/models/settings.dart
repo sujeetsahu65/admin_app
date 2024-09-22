@@ -59,8 +59,8 @@ class Settings {
       'selected_copy_count': selectedCopyCount,
       'selected_print_format': selectedPrintFormat,
       'orientation': orientation,
-      'max_print_copies': maxPrintCopies,
-      'print_formats': printFormats.map((format) => format.toJson()).toList(),
+      // 'max_print_copies': maxPrintCopies,
+      // 'print_formats': printFormats.map((format) => format.toJson()).toList(),
     };
   }
 }

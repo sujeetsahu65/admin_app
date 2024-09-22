@@ -86,7 +86,7 @@ class TimingsNotifier extends StateNotifier<List<TimingModel>> {
 }
 
 // Provider
-final timingsNotifierProvider = StateNotifierProvider<TimingsNotifier, List<TimingModel>>(
+final timingsNotifierProvider = StateNotifierProvider.autoDispose<TimingsNotifier, List<TimingModel>>(
   (ref) => TimingsNotifier(ref.watch(scheduleServiceProvider)),
 );
 

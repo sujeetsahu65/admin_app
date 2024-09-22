@@ -2,6 +2,7 @@ import 'package:admin_app/constants/global_variables.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/pages/auth/services/version.dart';
 import 'package:admin_app/providers/language.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -48,6 +49,11 @@ class _MyApp extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
+
+
+
+
     // final initializeLanguageContent =
     //   ref.watch(initializeLanguageContentProvider);
     final goRouter = ref.watch(goRouterProvider);

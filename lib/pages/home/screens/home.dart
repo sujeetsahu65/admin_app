@@ -6,11 +6,28 @@ import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class HomePage extends ConsumerWidget {
+
+class HomePage extends ConsumerStatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  ConsumerState<HomePage> createState() => _HomePage();
+}
+
+class _HomePage extends ConsumerState<HomePage> {
+
+
   final String page = 'home';
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+
+    ref.read(orderProvider.notifier).loadOrders();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
 // NOTE: DO NOT COMMENT OUT THE basicDataProvider
     final basicDataProvider = ref.watch(generalDataProvider);
     // final languageContent = ref.watch(languageContentProvider);

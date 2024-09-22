@@ -63,7 +63,7 @@ final languageCode = ref.watch(localizationProvider).languageCode;
 
 // Provider for the ReportNotifier
 final reportNotifierProvider =
-    StateNotifierProvider<ReportNotifier, ReportState>((ref) {
+    StateNotifierProvider.autoDispose<ReportNotifier, ReportState>((ref) {
   final reportDataService = ReportDataService();
   return ReportNotifier(ref, reportDataService);
 });

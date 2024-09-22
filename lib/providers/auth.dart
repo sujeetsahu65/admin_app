@@ -1,4 +1,6 @@
 import 'package:admin_app/pages/auth/services/basic.dart';
+import 'package:admin_app/providers/basic.dart';
+import 'package:admin_app/providers/order.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -8,16 +10,16 @@ import 'package:admin_app/constants/global_variables.dart';
 // import 'package:admin_app/constants/utils.dart';
 // import 'package:admin_app/pages/auth/services/auth_service.dart';
 
-final BasicService basicService = BasicService();
+// final BasicService basicService = BasicService();
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  return AuthNotifier();
+  return AuthNotifier(ref);
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier() : super(AuthState.initial()) {
+  AuthNotifier(this.ref) : super(AuthState.initial()) {
     _loadToken();
   }
-
+  final Ref ref;
   Future<void> _loadToken() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('x-auth-token');
@@ -70,8 +72,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+
+    // CLEAR NECESSARY VALUES FROM LOCAL STORAGE
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('x-auth-token');
+
+    // DISPOSE/REST ALL THE STATES THAT ARE NOT HAVING AUTO-DISPOSE
+    ref.read(orderProvider.notifier).disposeNotifier();//Having to user disposeNotifier as we are infinitely fetching orders so have to manually stop that loop
+    ref.invalidate(orderProvider);
+    ref.invalidate(generalDataProvider);
     state = AuthState.initial();
   }
 }

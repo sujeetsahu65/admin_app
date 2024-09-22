@@ -67,15 +67,16 @@ final orderExpansionProvider =
 final orderItemsProvider =
     FutureProvider.family<Map<String, List>, int>((ref, orderId) async {
   // return data.map((item) => OrderItem.fromJson(item)).toList();
-final languageCode = ref.watch(localizationProvider).languageCode;
-  final orderItemsData = await orderService.fetchOrderItems(orderId: orderId,languageCode: languageCode);
+  final languageCode = ref.watch(localizationProvider).languageCode;
+  final orderItemsData = await orderService.fetchOrderItems(
+      orderId: orderId, languageCode: languageCode);
 
   return orderItemsData;
 });
 
 // =============== RECEIVED ORDER PROVIDER=========
-final receivedOrderProvider =
-    StateNotifierProvider.autoDispose<ReceivedOrderNotifier, AsyncValue<List<Order>>>((ref) {
+final receivedOrderProvider = StateNotifierProvider.autoDispose<
+    ReceivedOrderNotifier, AsyncValue<List<Order>>>((ref) {
   return ReceivedOrderNotifier(ref);
 });
 
@@ -87,10 +88,10 @@ class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   Ref ref;
   Future<void> _loadOrders() async {
     while (mounted) {
-       state = const AsyncValue.loading();
+      state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList =
-          await orderService.fetchOrders(mode: "receivedOrders",languageCode: languageCode);
+      final List<Order> orderList = await orderService.fetchOrders(
+          mode: "receivedOrders", languageCode: languageCode);
       // print(List);
       // state = orderJson.map((json) => json).toList();
       state = AsyncValue.data(orderList);
@@ -100,8 +101,8 @@ class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 }
 
 // =============== CANCELLED ORDER PROVIDER=========
-final cancelledOrderProvider =
-    StateNotifierProvider.autoDispose<CancelledOrderNotifier, AsyncValue<List<Order>>>((ref) {
+final cancelledOrderProvider = StateNotifierProvider.autoDispose<
+    CancelledOrderNotifier, AsyncValue<List<Order>>>((ref) {
   return CancelledOrderNotifier(ref);
 });
 
@@ -112,10 +113,10 @@ class CancelledOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   Ref ref;
   Future<void> _loadOrders() async {
     while (mounted) {
-         state = const AsyncValue.loading();
-            final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList =
-          await orderService.fetchOrders(mode: "cancelledOrders",languageCode: languageCode);
+      state = const AsyncValue.loading();
+      final languageCode = ref.watch(localizationProvider).languageCode;
+      final List<Order> orderList = await orderService.fetchOrders(
+          mode: "cancelledOrders", languageCode: languageCode);
       // print(List);
       // state = orderJson.map((json) => json).toList();
       state = AsyncValue.data(orderList);
@@ -124,13 +125,12 @@ class CancelledOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
 }
 
-
-
 // =============== PRE-ORDER PROVIDER=========
-final preOrderProvider =
-    StateNotifierProvider.autoDispose<PreOrderNotifier, AsyncValue<List<Order>>>((ref) {
+final preOrderProvider = StateNotifierProvider.autoDispose<PreOrderNotifier,
+    AsyncValue<List<Order>>>((ref) {
   return PreOrderNotifier(ref);
 });
+
 class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   PreOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
     _loadOrders();
@@ -138,10 +138,10 @@ class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   Ref ref;
   Future<void> _loadOrders() async {
     while (mounted) {
-       state = const AsyncValue.loading();
-            final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList =
-          await orderService.fetchOrders(mode: "preOrders",languageCode: languageCode);
+      state = const AsyncValue.loading();
+      final languageCode = ref.watch(localizationProvider).languageCode;
+      final List<Order> orderList = await orderService.fetchOrders(
+          mode: "preOrders", languageCode: languageCode);
       // print(List);
       // state = orderJson.map((json) => json).toList();
       state = AsyncValue.data(orderList);
@@ -151,10 +151,11 @@ class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 }
 
 // =============== FAILED-ORDER PROVIDER=========
-final failedOrderProvider =
-    StateNotifierProvider.autoDispose<FailedOrderNotifier, AsyncValue<List<Order>>>((ref) {
+final failedOrderProvider = StateNotifierProvider.autoDispose<
+    FailedOrderNotifier, AsyncValue<List<Order>>>((ref) {
   return FailedOrderNotifier(ref);
 });
+
 class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   FailedOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
     _loadOrders();
@@ -162,10 +163,10 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   Ref ref;
   Future<void> _loadOrders() async {
     while (mounted) {
-       state = const AsyncValue.loading();
-            final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList =
-          await orderService.fetchOrders(mode: "failedOrders",languageCode: languageCode);
+      state = const AsyncValue.loading();
+      final languageCode = ref.watch(localizationProvider).languageCode;
+      final List<Order> orderList = await orderService.fetchOrders(
+          mode: "failedOrders", languageCode: languageCode);
       // print(List);
       // state = orderJson.map((json) => json).toList();
       state = AsyncValue.data(orderList);
@@ -173,7 +174,6 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     }
   }
 }
-
 
 // =============== PRE-ORDER PROVIDER=========
 // final orderDetailsProvider =
@@ -184,43 +184,41 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 // Provider for the OrderSearchNotifier
 final orderSearchProvider =
     StateNotifierProvider<OrderSearchNotifier, OrderSearchState>((ref) {
-  return OrderSearchNotifier(ref,orderService);
+  return OrderSearchNotifier(ref, orderService);
 });
 
 class OrderSearchNotifier extends StateNotifier<OrderSearchState> {
   // OrderDetailsNotifier(this.ref) : super([]);
   Ref ref;
 
-   final OrderService _orderService;
+  final OrderService _orderService;
 
-  OrderSearchNotifier(this.ref,this._orderService) : super(OrderSearchState());
+  OrderSearchNotifier(this.ref, this._orderService) : super(OrderSearchState());
 
+  Future<void> searchOrder(String query) async {
+    final languageCode = ref.watch(localizationProvider).languageCode;
+    state = state.copyWith(isLoading: true, order: null, errorMessage: null);
+    try {
+      final order = await _orderService.fetchOrderDetails(
+          query: query, languageCode: languageCode);
 
-Future<void> searchOrder(String query) async {
-  final languageCode = ref.watch(localizationProvider).languageCode;
-  state = state.copyWith(isLoading: true, order: null, errorMessage: null);
-  try {
-    final order = await _orderService.fetchOrderDetails(query: query, languageCode: languageCode);
-
-    if (order != null) {
-      print('order is not null');
-      state = state.copyWith(isLoading: false, order: order);
-    } else {
-      // Clear previous order and show 'no order found' message
-      state = state.copyWith(isLoading: false, order: null, errorMessage: 'No order found');
+      if (order != null) {
+        print('order is not null');
+        state = state.copyWith(isLoading: false, order: order);
+      } else {
+        // Clear previous order and show 'no order found' message
+        state = state.copyWith(
+            isLoading: false, order: null, errorMessage: 'No order found');
+      }
+    } on DioException catch (e) {
+      state = state.copyWith(
+          isLoading: false, order: null, errorMessage: 'No order found');
+    } catch (e) {
+      // Handle any other errors
+      state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
-  } on DioException catch (e) {
-  state = state.copyWith(isLoading: false, order: null, errorMessage: 'No order found');
-  } catch (e) {
-    // Handle any other errors
-    state = state.copyWith(isLoading: false, errorMessage: e.toString());
   }
 }
-
-
-
-}
-
 
 class OrderSearchState {
   final bool isLoading;
@@ -243,27 +241,32 @@ class OrderSearchState {
   }
 }
 
-
-
-final orderProvider = StateNotifierProvider<OrderNotifier, AsyncValue<List<Order>>>((ref) {
+final orderProvider =
+    StateNotifierProvider<OrderNotifier, AsyncValue<List<Order>>>((ref) {
   return OrderNotifier(ref);
 });
 
 class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   OrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadOrders();
+    // _loadOrders();
   }
 
   final Ref ref;
+  bool _isDisposed = false;
 
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     final languageCode = ref.watch(localizationProvider).languageCode;
-    while (true) {
+    while (!_isDisposed) {
       try {
-        final List<Order> orderList = await orderService.fetchOrders(languageCode: languageCode);
-        state = AsyncValue.data(orderList);
+        final List<Order> orderList =
+            await orderService.fetchOrders(languageCode: languageCode);
+        if (!_isDisposed) {
+          state = AsyncValue.data(orderList);
+        }
       } catch (error, stackTrace) {
-        state = AsyncValue.error(error, stackTrace);
+        if (!_isDisposed) {
+          state = AsyncValue.error(error, stackTrace);
+        }
       }
       await Future.delayed(Duration(seconds: 30));
     }
@@ -293,11 +296,19 @@ class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
         // Final update if the order is successfully updated on the server
         state = state.whenData((orders) => [
               for (final order in orders)
-                if (order.orderId == updatedOrder.orderId) updatedOrder else order,
+                if (order.orderId == updatedOrder.orderId)
+                  updatedOrder
+                else
+                  order,
             ]);
       }
     } catch (error, stackTrace) {
-      state = AsyncValue.error(error, stackTrace); // Handle error by setting error state
+      state = AsyncValue.error(
+          error, stackTrace); // Handle error by setting error state
     }
+  }
+
+  void disposeNotifier() {
+    _isDisposed = true;
   }
 }
