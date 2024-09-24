@@ -10,6 +10,8 @@ const masterFoodItems = require('./masterFoodItems');
 const visitingTiming = require('./visitingTiming');
 const lunchTiming = require('./lunchTiming');
 const deliveryTiming = require('./deliveryTiming');
+const emailSettings = require('./emailSettings');
+const paymentGatewaySetting = require('./paymentGatewaySettings');
 // const config = require('../../config/config').development;
 
 
@@ -30,6 +32,8 @@ module.exports = {
   masterFoodItems,
   visitingTiming,
   lunchTiming,
-  deliveryTiming
+  deliveryTiming,
+  emailSettings,
+  paymentGatewaySetting
   //   Abc
 };

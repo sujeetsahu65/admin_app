@@ -4,36 +4,43 @@ import 'package:admin_app/models/delivery_timing.dart';
 import 'package:admin_app/models/lunch_timing.dart';
 import 'package:admin_app/models/timing.dart';
 import 'package:admin_app/models/visiting_timing.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:http/http.dart' as http;
 
 class ScheduleService {
   // final String baseUrl = 'https://your-api-url/api/timings';
 
-  Future<List<TimingModel>> fetchTimings(tableName) async {
+  Future<ApiResponse<List<TimingModel>>> fetchTimings(tableName) async {
     late final path;
     if (tableName == 'visiting_timings') {
       path = "visiting-timing";
-    }
-    else if (tableName == 'lunch_timings') {
+    } else if (tableName == 'lunch_timings') {
       path = "lunch-timing";
-    }
-    else if (tableName == 'delivery_timings') {
+    } else if (tableName == 'delivery_timings') {
       path = "delivery-timing";
     }
-    final token = await getLocalToken();
-    final response = await http.get(
-      Uri.parse('$uri/basic/timing/$path'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-auth-token': '$token',
-      },
-    );
 
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body)['data'][tableName];
-      return jsonResponse.map((data) => TimingModel.fromJson(data)).toList();
-    } else {
-      throw Exception('Failed to load visiting timings');
+    try {
+      final token = await getLocalToken();
+      final response = await http.get(
+        Uri.parse('$uri/basic/timing/$path'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List jsonResponse = json.decode(response.body)['data'][tableName];
+        final data =
+            jsonResponse.map((data) => TimingModel.fromJson(data)).toList();
+        return ApiResponse(data: data, statusCode: 200);
+      } else {
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
+      }
+    } catch (error) {
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
@@ -74,22 +81,34 @@ class ScheduleService {
   //   }
   // }
 
-  Future<void> updateScheduleData(
+  Future<ApiResponse> updateScheduleData(
       String field, dynamic newValue, tableData) async {
-    final token = await getLocalToken();
-    final response = await http.put(
-      Uri.parse('$uri/basic/timing/schedule-update'),
-      headers: {
-        'Content-Type': 'application/json',
-        'x-auth-token': '$token',
-      },
-      body: jsonEncode({
-        'table_name': tableData.tableName,
-        'day_number': tableData.dayNumber,
-        'field': field,
-        'new_value': newValue,
-      }),
-    );
+    try {
+      final token = await getLocalToken();
+      final response = await http.put(
+        Uri.parse('$uri/basic/timing/schedule-update'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+        },
+        body: jsonEncode({
+          'table_name': tableData.tableName,
+          'day_number': tableData.dayNumber,
+          'field': field,
+          'new_value': newValue,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return ApiResponse(data: true, statusCode: 200);
+      } else {
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
+      }
+    } catch (error) {
+      return ApiResponse(statusCode: 503, message: error.toString());
+    }
+
     // Handle response or error
   }
 }

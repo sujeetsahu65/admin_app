@@ -1,6 +1,7 @@
 const utils = require('../utils');
 const { format, subDays } = require('date-fns');
 const { query, body, validationResult } = require('express-validator');
+const { PaymentGatewayDetails,PaymentGatewayCommission } = require('../models/super_admin');
 // ========NEW ORDERS=========
 
 
@@ -17,7 +18,7 @@ exports.getNewOrders = async (req, res) =>
 
     if (!pre_orders_update_status.status)
     {
-      return res.status(500).json({  status_code: 500, status: false,message:'Server error' });
+      return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
     }
 
     const new_orders = await Order.findAll({
@@ -326,12 +327,13 @@ exports.getOrderDetails = async (req, res) =>
     }
 
     let order_details = await utils.getOrderDetails({ req });
-if(order_details.status_code ==200){
-    return res.status(order_details.status_code).json({ status_code: 200, status: true, data: { order_details: order_details.order_details }});
+    if (order_details.status_code == 200)
+    {
+      return res.status(order_details.status_code).json({ status_code: 200, status: true, data: { order_details: order_details.order_details } });
 
-}
+    }
 
-    return res.status(order_details.status_code).json({ status_code: order_details.status_code, status: order_details.status, message:order_details.message});
+    return res.status(order_details.status_code).json({ status_code: order_details.status_code, status: order_details.status, message: order_details.message });
     //  return res.status(200).json({ status_code: 200, status: true, data: { order_details } });
 
   } catch (error)
@@ -398,7 +400,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
   {
 
     const { order_id, delivery_time } = req.body;
-
+    const { EmailSettings } = req.models;
     if (!order_id)
     {
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
@@ -429,8 +431,11 @@ exports.setOrderDeliveryTime = async (req, res) =>
 
       // return res.status(order_details.status_code).json({ ...order_details });
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type);
+      const email_settings = await EmailSettings.findOne({
+        where: { locId: loc_id }
+      });
 
+      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
 
       if (mail_status.status)
       {
@@ -442,6 +447,14 @@ exports.setOrderDeliveryTime = async (req, res) =>
           type: shopSequelize.QueryTypes.UPDATE
         });
       }
+
+      else
+      {
+
+        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
+
+      }
+
       // console.log(mail_status);
       // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
       // send_email_order_set_time
@@ -472,6 +485,7 @@ exports.concludeOrder = async (req, res) =>
   {
 
     const { order_id } = req.body;
+    const { EmailSettings } = req.models;
 
     if (!order_id)
     {
@@ -499,7 +513,11 @@ exports.concludeOrder = async (req, res) =>
 
       // return res.status(order_details.status_code).json({ ...order_details });
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type);
+      const email_settings = await EmailSettings.findOne({
+        where: { locId: loc_id }
+      });
+
+      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
 
       if (mail_status.status)
       {
@@ -510,6 +528,12 @@ exports.concludeOrder = async (req, res) =>
           replacements: { order_id },
           type: shopSequelize.QueryTypes.UPDATE
         });
+      }
+      else
+      {
+
+        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
+
       }
       // console.log(mail_status);
       // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
@@ -540,6 +564,7 @@ exports.cancelOrder = async (req, res) =>
   {
 
     const { order_id } = req.body;
+    const { EmailSettings } = req.models;
 
     if (!order_id)
     {
@@ -566,8 +591,11 @@ exports.cancelOrder = async (req, res) =>
       let order_details = await utils.getOrderDetails({ req });
 
       // return res.status(order_details.status_code).json({ ...order_details });
+      const email_settings = await EmailSettings.findOne({
+        where: { locId: loc_id }
+      });
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type);
+      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
 
       if (mail_status.status)
       {
@@ -578,6 +606,12 @@ exports.cancelOrder = async (req, res) =>
           replacements: { order_id },
           type: shopSequelize.QueryTypes.UPDATE
         });
+      }
+      else
+      {
+
+        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
+
       }
       // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
       // send_email_order_cancel
@@ -701,7 +735,7 @@ async (req, res) =>
   const errors = validationResult(req);
   if (!errors.isEmpty())
   {
-    return res.status(400).json({ status_code: 400, status: false, message:"Bad request", errors: errors.array() });
+    return res.status(400).json({ status_code: 400, status: false, message: "Bad request", errors: errors.array() });
   }
 
 
@@ -809,7 +843,7 @@ exports.getReports = [
     const errors = validationResult(req);
     if (!errors.isEmpty())
     {
-      return res.status(400).json({ status_code: 400, status: false,message:"Bad request", errors: errors.array() });
+      return res.status(400).json({ status_code: 400, status: false, message: "Bad request", errors: errors.array() });
     }
 
 
@@ -974,3 +1008,81 @@ exports.getReports = [
   }
 ]
 
+// ========CANCELLED ORDERS=========
+exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
+{
+  const { loc_id } = req;
+  const { order_id } = req.body;
+  const { Order, PaymentGatewaySetting } = req.models;
+  const now = new Date()
+  const current_date_time = format(now, 'yyyy-MM-dd HH:mm:ss');
+  try
+  {
+
+
+    const order = await Order.findOne({
+      where: {
+        locId: loc_id,
+        orderId: order_id,
+        // paymentModeId: 3,
+        // ordersStatusId: 7,
+        // paymentStatusId: [2, 3],
+      },
+      attributes: ['paymentGatewayId', 'paymentModeId', 'orderNO'],
+    });
+
+    if (!order)
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "Orders not found" });
+
+    }
+
+    const activePaymentGateway = await PaymentGatewaySetting.findOne({
+      where: {
+        // locId: loc_id,
+        locId: 50,
+        paymentGatewayStatus: 1
+      },
+      attributes: ['gatewayId', 'paymentGatewayDetailId', 'paymentGatewayCommissionId', 'paymentGatewayUserid'],
+    });
+
+
+    if (!activePaymentGateway)
+    {
+      return res.status(404).json({ status_code: 404, status: false, message: "No active payment gateway" });
+
+    }
+
+
+    // payment_gateway_details.payment_gateway_detail_id =$payment_gateway_detail_id and payment_gateway_commission.payment_gateway_commission_id=$payment_gateway_commission_id
+    const paymentGatewayDetails = await PaymentGatewayDetails.findOne({
+      // attributes: [
+      //   'gatewayUserId',
+      //   'gatewayPassword',
+      //   // ['PaymentGatewayCommission.commissionId', 'commissionId'],
+      //   // [sequelize.col('PaymentGatewayCommission.commissionValAmt'), 'commissionValAmt'],
+      //   // [sequelize.col('PaymentGatewayCommission.commissionValPercentage'), 'commissionValPercentage']
+      // ],
+      include: [{
+        model: PaymentGatewayCommission,
+        attributes: [],
+        where: {
+          paymentGatewayCommissionId: activePaymentGateway.paymentGatewayCommissionId
+        }
+      }],
+      where: {
+        paymentGatewayDetailId: activePaymentGateway.paymentGatewayDetailId,
+      }
+    });
+
+
+
+    return res.json({ status_code: 200, status: true, data: { paymentGatewayDetails } });
+
+
+  } catch (error)
+  {
+    console.log(error);
+    return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
+  }
+};

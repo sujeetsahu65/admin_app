@@ -1,4 +1,4 @@
-const { superSequelize, Sequelize, DataTypes, Op,fn,col,literal, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems,visitingTiming,lunchTiming,deliveryTiming } = require('../models/shop');
+const { superSequelize, Sequelize, DataTypes, Op,fn,col,literal, order, user, deliveryType, paymentMode, categoryVariantType, masterFoodCategory, masterFoodItems,visitingTiming,lunchTiming,deliveryTiming,emailSettings,paymentGatewaySetting } = require('../models/shop');
 // const utils = require('../utils');
 
 
@@ -31,7 +31,7 @@ module.exports = async (req, res, next) =>
                 },
                 decimalNumbers: true,
             },
-            //  timezone:'+05:30',
+             timezone:'+05:30',
             //  timezone:'Asia/Kolkata',
 
             pool: {
@@ -87,6 +87,9 @@ module.exports = async (req, res, next) =>
                 //   scope: { locId: shopSequelize.col('MasterFoodCategory.loc_id') },
                 // });
 
+                const EmailSettings = emailSettings(shopSequelize, DataTypes, enc_key);
+                const PaymentGatewaySetting = paymentGatewaySetting(shopSequelize, DataTypes);
+
                 console.log('Connection has been established successfully.');
                 req.shopSequelize = shopSequelize;
                 req.loc_id = loc_id;
@@ -108,6 +111,8 @@ module.exports = async (req, res, next) =>
                     VisitingTiming,
                     LunchTiming,
                     DeliveryTiming,
+                    EmailSettings,
+                    PaymentGatewaySetting
                 }
                 next();
             })

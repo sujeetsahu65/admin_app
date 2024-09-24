@@ -2,6 +2,7 @@ import 'package:admin_app/constants/global_variables.dart';
 import 'package:admin_app/models/combo_offer_model.dart';
 import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -18,7 +19,7 @@ class OrderService {
   //   },
   // ));
 
-  Future<List<Order>> fetchOrders(
+  Future<ApiResponse<List<Order>>> fetchOrders(
       {mode = 'newOrders', required languageCode}) async {
     try {
       final token = await getLocalToken();
@@ -56,17 +57,19 @@ class OrderService {
 
         final List<dynamic> jsonList =
             json.decode(response.body)['data'][dataKey];
-        return jsonList.map((json) => Order.fromJson(json)).toList();
+        final data =  jsonList.map((json) => Order.fromJson(json)).toList();
+  return ApiResponse(data: data, statusCode: 200);
+
       } else {
-        return [];
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return [];
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<bool> setOrderDeliveryTime(Order order) async {
+  Future<ApiResponse<bool>> setOrderDeliveryTime(Order order) async {
     try {
       final token = await getLocalToken();
       final response = await http.put(
@@ -83,17 +86,17 @@ class OrderService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+     return ApiResponse(data: true, statusCode: 200);
       } else {
-        return false;
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return false;
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<bool> setPreOrderAlertTime(Order order) async {
+  Future<ApiResponse<bool>> setPreOrderAlertTime(Order order) async {
     try {
       final token = await getLocalToken();
       final response = await http.put(
@@ -110,17 +113,17 @@ class OrderService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+  return ApiResponse(data: true, statusCode: 200);
       } else {
-        return false;
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return false;
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<bool> concludeOrder(Order order) async {
+  Future<ApiResponse<bool>> concludeOrder(Order order) async {
     try {
       final token = await getLocalToken();
       final response = await http.put(
@@ -136,17 +139,17 @@ class OrderService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+     return ApiResponse(data: true, statusCode: 200);
       } else {
-        return false;
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return false;
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<bool> cancelOrder(Order order) async {
+  Future<ApiResponse<bool>> cancelOrder(Order order) async {
     try {
       final token = await getLocalToken();
       final response = await http.put(
@@ -162,17 +165,17 @@ class OrderService {
       );
 
       if (response.statusCode == 200) {
-        return true;
+            return ApiResponse(data: true, statusCode: 200);
       } else {
-        return false;
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return false;
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<Map<String, List>> fetchOrderItems(
+  Future<ApiResponse<Map<String, List>>> fetchOrderItems(
       {orderId, required languageCode}) async {
     try {
       final token = await getLocalToken();
@@ -204,17 +207,18 @@ class OrderService {
             .map((json) => ComboOfferItem.fromJson(json))
             .toList();
 
-        return {'orderItems': orderItems, 'comboOfferItems': comboOfferItems};
+               final data =  {'orderItems': orderItems, 'comboOfferItems': comboOfferItems};
+            return ApiResponse(data: data, statusCode: 200);
       } else {
-        return {};
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
-      print(error.toString());
-      return {};
+      return ApiResponse(statusCode: 503, message: error.toString());
     }
   }
 
-  Future<Order?> fetchOrderDetails(
+  Future<ApiResponse<Order?>> fetchOrderDetails(
       {required String query, required languageCode}) async {
     try {
       final token = await getLocalToken();
@@ -235,12 +239,15 @@ class OrderService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             response.data['data']['order_details'];
-        return Order.fromJson(jsonData);
-      } else {
-        return null;
+        final data =  Order.fromJson(jsonData);
+            return ApiResponse(data: data, statusCode: 200);
       }
-    } on DioException catch (e) {
-  throw e;
+       else {
+        final errorMsg = json.decode(response.data)['message'];
+        return ApiResponse(statusCode: response.statusCode??404, message: errorMsg);
+      }
+    } on DioException catch (error) {
+      return ApiResponse(statusCode: 404, message: 'Order not found');
     }
   }
 }

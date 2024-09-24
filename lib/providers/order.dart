@@ -2,6 +2,7 @@ import 'package:admin_app/constants/global_variables.dart';
 import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/pages/auth/services/order.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/language.dart';
 import 'package:dio/dio.dart';
 // import 'package:admin_app/providers/auth_provider.dart';
@@ -65,13 +66,26 @@ final orderExpansionProvider =
 // ===============ORDER ITEM PROVIDER=========
 
 final orderItemsProvider =
-    FutureProvider.family<Map<String, List>, int>((ref, orderId) async {
+    FutureProvider.autoDispose.family<Map<String, List>, int>((ref, orderId) async {
   // return data.map((item) => OrderItem.fromJson(item)).toList();
   final languageCode = ref.watch(localizationProvider).languageCode;
-  final orderItemsData = await orderService.fetchOrderItems(
-      orderId: orderId, languageCode: languageCode);
 
-  return orderItemsData;
+  try {
+    final response = await orderService.fetchOrderItems(
+        orderId: orderId, languageCode: languageCode);
+
+    if (response.isSuccess) {
+      final orderItemsData = response.data!;
+
+      return orderItemsData;
+    } else {
+      ref.read(globalMessageProvider.notifier).showError(response.message);
+      return {};
+    }
+  } catch (error) {
+    ref.read(globalMessageProvider.notifier).showError("Something went wrong");
+    return {};
+  }
 });
 
 // =============== RECEIVED ORDER PROVIDER=========
@@ -89,12 +103,24 @@ class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   Future<void> _loadOrders() async {
     while (mounted) {
       state = const AsyncValue.loading();
-      final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList = await orderService.fetchOrders(
-          mode: "receivedOrders", languageCode: languageCode);
-      // print(List);
-      // state = orderJson.map((json) => json).toList();
-      state = AsyncValue.data(orderList);
+      try {
+        final languageCode = ref.watch(localizationProvider).languageCode;
+        final ApiResponse<List<Order>> response = await orderService
+            .fetchOrders(mode: "receivedOrders", languageCode: languageCode);
+        final orderList = response.data!;
+
+        if (response.isSuccess) {
+          state = AsyncValue.data(orderList);
+        } else if (response.isNotFound) {
+          state = AsyncValue.data([]);
+        } else {
+          ref.read(globalMessageProvider.notifier).showError(response.message);
+        }
+      } catch (error) {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError("Something went wrong");
+      }
       await Future.delayed(Duration(seconds: 30));
     }
   }
@@ -115,11 +141,24 @@ class CancelledOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList = await orderService.fetchOrders(
-          mode: "cancelledOrders", languageCode: languageCode);
-      // print(List);
-      // state = orderJson.map((json) => json).toList();
-      state = AsyncValue.data(orderList);
+
+      try {
+        final ApiResponse<List<Order>> response = await orderService
+            .fetchOrders(mode: "cancelledOrders", languageCode: languageCode);
+
+        if (response.isSuccess) {
+          final orderList = response.data!;
+          state = AsyncValue.data(orderList);
+        } else if (response.isNotFound) {
+          state = AsyncValue.data([]);
+        } else {
+          ref.read(globalMessageProvider.notifier).showError(response.message);
+        }
+      } catch (error) {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError("Something went wrong");
+      }
       await Future.delayed(Duration(seconds: 30));
     }
   }
@@ -140,11 +179,24 @@ class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList = await orderService.fetchOrders(
-          mode: "preOrders", languageCode: languageCode);
-      // print(List);
-      // state = orderJson.map((json) => json).toList();
-      state = AsyncValue.data(orderList);
+      try {
+        final ApiResponse<List<Order>> response = await orderService
+            .fetchOrders(mode: "preOrders", languageCode: languageCode);
+
+        if (response.isSuccess) {
+          final orderList = response.data!;
+          state = AsyncValue.data(orderList);
+        } else if (response.isNotFound) {
+          state = AsyncValue.data([]);
+        } else {
+          ref.read(globalMessageProvider.notifier).showError(response.message);
+        }
+      } catch (error) {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError("Something went wrong");
+      }
+
       await Future.delayed(Duration(seconds: 30));
     }
   }
@@ -165,11 +217,24 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
-      final List<Order> orderList = await orderService.fetchOrders(
-          mode: "failedOrders", languageCode: languageCode);
-      // print(List);
-      // state = orderJson.map((json) => json).toList();
-      state = AsyncValue.data(orderList);
+
+      try {
+        final ApiResponse<List<Order>> response = await orderService
+            .fetchOrders(mode: "failedOrders", languageCode: languageCode);
+
+        if (response.isSuccess) {
+          final orderList = response.data!;
+          state = AsyncValue.data(orderList);
+        } else if (response.isNotFound) {
+          state = AsyncValue.data([]);
+        } else {
+          ref.read(globalMessageProvider.notifier).showError(response.message);
+        }
+      } catch (error) {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError("Something went wrong");
+      }
       await Future.delayed(Duration(seconds: 30));
     }
   }
@@ -199,23 +264,36 @@ class OrderSearchNotifier extends StateNotifier<OrderSearchState> {
     final languageCode = ref.watch(localizationProvider).languageCode;
     state = state.copyWith(isLoading: true, order: null, errorMessage: null);
     try {
-      final order = await _orderService.fetchOrderDetails(
+      final response = await _orderService.fetchOrderDetails(
           query: query, languageCode: languageCode);
 
-      if (order != null) {
-        print('order is not null');
-        state = state.copyWith(isLoading: false, order: order);
-      } else {
-        // Clear previous order and show 'no order found' message
+      if (response.isSuccess) {
+        final order = response.data!;
+
+        if (order != null) {
+          print('order is not null');
+          state = state.copyWith(isLoading: false, order: order);
+        } else {
+          // Clear previous order and show 'no order found' message
+          state = state.copyWith(
+              isLoading: false, order: null, errorMessage: 'No order found');
+        }
+      } else if (response.isNotFound) {
         state = state.copyWith(
             isLoading: false, order: null, errorMessage: 'No order found');
+      } else {
+        ref.read(globalMessageProvider.notifier).showError(response.message);
       }
     } on DioException catch (e) {
+      ref.read(globalMessageProvider.notifier).showError("No order found");
       state = state.copyWith(
           isLoading: false, order: null, errorMessage: 'No order found');
     } catch (e) {
       // Handle any other errors
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Something went wrong");
     }
   }
 }
@@ -258,14 +336,26 @@ class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     final languageCode = ref.watch(localizationProvider).languageCode;
     while (!_isDisposed) {
       try {
-        final List<Order> orderList =
+        final ApiResponse<List<Order>> response =
             await orderService.fetchOrders(languageCode: languageCode);
-        if (!_isDisposed) {
-          state = AsyncValue.data(orderList);
+
+        if (response.isSuccess) {
+          final orderList = response.data!;
+
+          if (!_isDisposed) {
+            state = AsyncValue.data(orderList);
+          }
+        } else if (response.isNotFound) {
+          state = AsyncValue.data([]);
+        } else {
+          ref.read(globalMessageProvider.notifier).showError(response.message);
         }
       } catch (error, stackTrace) {
         if (!_isDisposed) {
           state = AsyncValue.error(error, stackTrace);
+          ref
+              .read(globalMessageProvider.notifier)
+              .showError("Something went wrong");
         }
       }
       await Future.delayed(Duration(seconds: 30));
@@ -274,25 +364,26 @@ class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 
   Future<void> updateOrder(Order updatedOrder, String mode) async {
     // Optimistically update the UI
-    state = state.whenData((orders) => [
-          for (final order in orders)
-            if (order.orderId == updatedOrder.orderId) updatedOrder else order,
-        ]);
+    // state = state.whenData((orders) => [
+    //       for (final order in orders)
+    //         if (order.orderId == updatedOrder.orderId) updatedOrder else order,
+    //     ]);
 
-    bool isOrderUpdated = false;
+    ApiResponse<bool> response =
+        ApiResponse(data: false, statusCode: 404, message: 'initial');
 
     try {
       if (mode == 'setOrderDeliveryTime') {
-        isOrderUpdated = await orderService.setOrderDeliveryTime(updatedOrder);
+        response = await orderService.setOrderDeliveryTime(updatedOrder);
       } else if (mode == 'setPreOrderAlertTime') {
-        isOrderUpdated = await orderService.setPreOrderAlertTime(updatedOrder);
+        response = await orderService.setPreOrderAlertTime(updatedOrder);
       } else if (mode == 'concludeOrder') {
-        isOrderUpdated = await orderService.concludeOrder(updatedOrder);
+        response = await orderService.concludeOrder(updatedOrder);
       } else if (mode == 'cancelOrder') {
-        isOrderUpdated = await orderService.cancelOrder(updatedOrder);
+        response = await orderService.cancelOrder(updatedOrder);
       }
 
-      if (isOrderUpdated) {
+      if (response.isSuccess) {
         // Final update if the order is successfully updated on the server
         state = state.whenData((orders) => [
               for (final order in orders)
@@ -301,10 +392,14 @@ class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
                 else
                   order,
             ]);
+      } else {
+        ref.read(globalMessageProvider.notifier).showError(response.message);
       }
     } catch (error, stackTrace) {
-      state = AsyncValue.error(
-          error, stackTrace); // Handle error by setting error state
+      state = AsyncValue.error(error, stackTrace);
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Something went wrong");
     }
   }
 

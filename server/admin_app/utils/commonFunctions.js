@@ -58,20 +58,36 @@ async function setPreOrderToCurrentOrder (sequelize, loc_id)
     }
 }
 
-async function mailTo (sequelize, loc_id, order_data, mail_type)
+async function mailTo (sequelize, loc_id, body, mail_type, email_settings = null)
 {
+  
     return new Promise((resolve, reject) =>
     {
+
+        let text = '';
+        let html = '';
         try
         {
+
+            if (mail_type === 'password_reset_otp')
+            {
+                text = body;
+            }
+
+            else
+            {
+
+                console.log(mail_type);
+            }
+
             // Create a transporter with SMTP configuration
             const transporter = nodemailer.createTransport({
-                host: "foozuio2.cloudhostdns.net",
+                host: email_settings.emailHost,
                 // port: process.env.SMTP_PORT,
                 secure: false, // true for 465, false for other ports
                 auth: {
-                    user: "order.grandemargherita@foodzone.fi",
-                    pass: "W6&60gaf9"
+                    user: email_settings.systemMailId,
+                    pass: email_settings.password
                 }
             });
 
@@ -80,8 +96,8 @@ async function mailTo (sequelize, loc_id, order_data, mail_type)
                 from: `"Your Name" <sujeet>`,
                 to: 'sujeetsahu655@gmail.com',
                 subject: 'Test Email',
-                text: 'This is a test email sent from Node.js using Nodemailer!',
-                html: '<p>This is a test email sent from <strong>Node.js</strong> using Nodemailer!</p>'
+                text: text,
+                html: `<p>${text}</p>`
             };
 
             // Send email
@@ -124,7 +140,7 @@ async function mailTo (sequelize, loc_id, order_data, mail_type)
 
         } catch (error)
         {
-            return { status_code: 500, status: false, message: 'Server error' };
+            return { status_code: 500, status: false, message: 'Server error2' };
         }
 
     })
@@ -159,7 +175,7 @@ async function getOrderDetails ({ req })
         const order_details = await Order.findOne({
             where: {
                 loc_id: loc_id,
-                ordersStatusId:[3,4,5,6,7],
+                ordersStatusId: [3, 4, 5, 6, 7],
                 ...replacements
                 // order_date: {
                 //   [Op.gte]: yesterday,
@@ -362,7 +378,8 @@ async function getOrderComboOfferItems ({ sequelize, loc_id, order_id, lang_id, 
                         };
 
                     }
-                    else{
+                    else
+                    {
 
                         return [];
                     }

@@ -5,29 +5,40 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class SettingsNotifier extends StateNotifier<Settings?> {
   SettingsNotifier(this.ref) : super(null);
-final Ref ref;
+  final Ref ref;
   Future<void> fetchSettings() async {
-    final response = await SettingsService.getSettings();
-    if(response.isSuccess){
-    state = response.data;
-    }
-    else{
-        ref.read(globalMessageProvider.notifier).showError('Failed to fetch settings');
+    try {
+      final response = await SettingsService.getSettings();
+      if (response.isSuccess) {
+        state = response.data;
+      } else {
+        ref.read(globalMessageProvider.notifier).showError(response.message);
+      }
+    } catch (error) {
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Something went wrong");
     }
   }
 
   Future<void> updateSettings(Settings updatedSettings) async {
-    final response = await SettingsService.updateSettings(updatedSettings);
-    if(response.isSuccess){
-    state = updatedSettings;
+    try {
+      final response = await SettingsService.updateSettings(updatedSettings);
+      if (response.isSuccess) {
+        state = updatedSettings;
         ref.read(globalMessageProvider.notifier).showSuccess(response.message);
-    }
-    else{
+      } else {
         ref.read(globalMessageProvider.notifier).showError(response.message);
+      }
+    } catch (error) {
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Something went wrong");
     }
   }
 }
 
-final settingsProvider = StateNotifierProvider.autoDispose<SettingsNotifier, Settings?>((ref) {
+final settingsProvider =
+    StateNotifierProvider.autoDispose<SettingsNotifier, Settings?>((ref) {
   return SettingsNotifier(ref);
 });

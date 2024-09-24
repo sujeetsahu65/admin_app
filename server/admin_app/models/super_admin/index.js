@@ -1,6 +1,9 @@
 const { Sequelize, DataTypes,Op,fn,col,literal } = require('sequelize');
 const adminModel = require('./admin');
 const adminLoginModel = require('./adminLogin');
+const client = require('./client');
+const paymentGatewayDetails = require('./paymentGatewayDetails');
+const paymentGatewayCommission = require('./paymentGatewayCommission');
 const config = require('../../config/config').development;
 // const abcModel = require('./abc');
 
@@ -31,6 +34,7 @@ const superSequelize = new Sequelize(config.database, config.username, config.pa
     },
     decimalNumbers: true,
   },
+    timezone: '+05:30',
   pool: {
     max: 10,
     min: 0,
@@ -54,14 +58,19 @@ superSequelize.authenticate()
 
 const Admin = adminModel(superSequelize, DataTypes);
 const AdminLogin = adminLoginModel(superSequelize, DataTypes);
+const Client = client(superSequelize, DataTypes);
+const PaymentGatewayDetails = paymentGatewayDetails(superSequelize, DataTypes);
+const PaymentGatewayCommission = paymentGatewayCommission(superSequelize, DataTypes);
 
 // const Abc = abcModel(sequelize, Sequelize);
 // const Admin = require('./admin')(superSequelize, DataTypes);
 
-// Admin.hasMany(AdminLogin, { foreignKey: 'loc_id', sourceKey: 'loc_id' });
-// AdminLogin.belongsTo(Admin, { foreignKey: 'loc_id', targetKey: 'loc_id' });
+Admin.hasMany(AdminLogin, { foreignKey: 'loc_id', sourceKey: 'loc_id' });
+AdminLogin.belongsTo(Admin, { foreignKey: 'loc_id', targetKey: 'loc_id' });
+Client.hasMany(AdminLogin, { foreignKey: 'client_id', sourceKey: 'clientId' });
+AdminLogin.belongsTo(Client, { foreignKey: 'client_id', targetKey: 'clientId' });
 
-
+PaymentGatewayDetails.hasMany(PaymentGatewayCommission,{ foreignKey: 'paymentGatewayDetailId', sourceKey: 'paymentGatewayDetailId' })
 // Order.belongsTo(DeliveryTypeMaster, { foreignKey: 'delivery_type_id' });
 // Order.belongsTo(PaymentModeMaster, { foreignKey: 'payment_mode_id' });
 // superSequelize.sync().then(() =>
@@ -77,7 +86,10 @@ module.exports = {
   literal,
   Admin,
   AdminLogin,
+  Client,
   superSequelize,
-  Sequelize
+  Sequelize,
+  PaymentGatewayDetails,
+  PaymentGatewayCommission
   //   Abc
 };

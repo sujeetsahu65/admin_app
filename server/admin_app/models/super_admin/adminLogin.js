@@ -25,7 +25,13 @@ module.exports = (superSequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM('admin', 'super_admin'),
       defaultValue: 'admin'
-    }
+    },
+        otp: {
+      type: DataTypes.STRING, // store hashed OTP
+    },
+    otp_expires_at: {
+      type: DataTypes.DATE, // OTP expiration time
+    },
   },
 
   {

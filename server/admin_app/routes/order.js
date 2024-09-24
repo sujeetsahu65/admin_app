@@ -20,5 +20,6 @@ router.get('/order-toppings',authMiddleware,shopDbMiddleware, orderController.or
 router.get('/combo-offer-items',authMiddleware,shopDbMiddleware, orderController.orderComboOfferItems);
 router.get('/combo-offer',authMiddleware,shopDbMiddleware, orderController.comboOfferById);
 router.get('/report',authMiddleware,shopDbMiddleware, orderController.getReports);
+router.put('/move-failed-order',authMiddleware,shopDbMiddleware, orderController.convertFailedOrderWithSuccessPayment);
 
 module.exports = router;

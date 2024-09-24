@@ -1,5 +1,6 @@
 import 'package:admin_app/pages/auth/services/basic.dart';
 import 'package:admin_app/providers/basic.dart';
+import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,61 +25,87 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('x-auth-token');
     if (token != null) {
-      final response = await http.get(
-        Uri.parse('$uri/auth/verify-token'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'x-auth-token': token
-        },
-      );
+      try {
+        final response = await http.get(
+          Uri.parse('$uri/auth/verify-token'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'x-auth-token': token
+          },
+        );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
 
-        // final appData = await basicService.fetchAppData(token);
+          // final appData = await basicService.fetchAppData(token);
 
-        state = AuthState(token: token, role: data['role']);
-        // await prefs.setString('app-data', jsonEncode(appData));
+          state = AuthState(token: token, role: data['role']);
+          // await prefs.setString('app-data', jsonEncode(appData));
+          ref
+              .read(globalMessageProvider.notifier)
+              .showSuccess("Logged in successfully");
+        } else {
+          ref
+              .read(globalMessageProvider.notifier)
+              .showError(json.decode(response.body)['message']);
+        }
+      } catch (error) {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError('Something went wrong');
       }
     }
   }
 
   Future<void> login(String username, String password) async {
-    final response = await http.post(
-      Uri.parse('$uri/auth/login'),
-      body: jsonEncode({
-        "username": username,
-        "password": password,
-      }),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$uri/auth/login'),
+        body: jsonEncode({
+          "username": username,
+          "password": password,
+        }),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
 
-    print(response.body);
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final token = data['token'];
-      final role = data['role'];
-      // final appData = await basicService.fetchAppData(token);
-      // state = AuthState(token: token, role: role, appData: appData);
-      state = AuthState(token: token, role: role);
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('x-auth-token', token);
-      // await prefs.setString('app-data', jsonEncode(appData));
-    } else {
-      throw Exception('Failed to login');
+      print(response.body);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final token = data['token'];
+        final role = data['role'];
+        // final appData = await basicService.fetchAppData(token);
+        // state = AuthState(token: token, role: role, appData: appData);
+        state = AuthState(token: token, role: role);
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('x-auth-token', token);
+        // await prefs.setString('app-data', jsonEncode(appData));
+
+        ref
+            .read(globalMessageProvider.notifier)
+            .showSuccess("Logged in successfully");
+      } else {
+        ref
+            .read(globalMessageProvider.notifier)
+            .showError(json.decode(response.body)['message']);
+      }
+    } catch (error) {
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError('Something went wrong');
     }
   }
 
   Future<void> logout() async {
-
     // CLEAR NECESSARY VALUES FROM LOCAL STORAGE
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('x-auth-token');
 
     // DISPOSE/REST ALL THE STATES THAT ARE NOT HAVING AUTO-DISPOSE
-    ref.read(orderProvider.notifier).disposeNotifier();//Having to user disposeNotifier as we are infinitely fetching orders so have to manually stop that loop
+    ref
+        .read(orderProvider.notifier)
+        .disposeNotifier(); //Having to user disposeNotifier as we are infinitely fetching orders so have to manually stop that loop
     ref.invalidate(orderProvider);
     ref.invalidate(generalDataProvider);
     state = AuthState.initial();

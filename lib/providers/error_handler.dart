@@ -43,6 +43,6 @@ class ApiResponse<T> {
   ApiResponse({this.data, this.message, required this.statusCode});
 
   bool get isSuccess => statusCode == 200;
-  bool get isNotFound => statusCode == 400;
-  bool get badRequest => statusCode == 404;
+  bool get badRequest => statusCode == 400;
+  bool get isNotFound => statusCode == 404;
 }

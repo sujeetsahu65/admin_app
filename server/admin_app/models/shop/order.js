@@ -5,6 +5,10 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
 {
   const Order = superSequelize.define('Order', {
 
+    locId: {
+      type: DataTypes.INTEGER,
+      field: 'loc_id'
+    },
     userMobileNo: {
       type: DataTypes.STRING,
       field: 'user_mobile_no',
@@ -100,6 +104,10 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
     paymentModeId: {
       type: DataTypes.INTEGER,
       field: 'payment_mode_id'
+    },
+    paymentGatewayId: {
+      type: DataTypes.INTEGER,
+      field: 'payment_gateway_id'
     },
     paymentStatusId: {
       type: DataTypes.INTEGER,
