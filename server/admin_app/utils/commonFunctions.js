@@ -68,14 +68,20 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
         try
         {
 
+            let to_mail = '';
+            let subject = '';
+
             if (mail_type === 'password_reset_otp')
             {
                 html = `<p>${data}</p>`;
+                subject = 'Password reset';
+                to_mail = email_settings.contactFormMail;
             }
 
             else if (mail_type === 'set_delivery_time' || mail_type === 'on_the_way' || mail_type === 'cancel')
             {
 
+                to_mail = data.User.userEmail;
 
                 let userformessage = '';
                 const locationInfo = await shopSequelize.query(`SELECT loc_name,dis_name,loc_address,loc_image,loc_logo,loc_favicon,display_order,active_status,active_email_status,deactive_email_status,website,businessid,location_type,website_type,site_url FROM location_master where loc_id =${loc_id} `, {
@@ -105,6 +111,8 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
 
                 if (mail_type === 'set_delivery_time')
                 {
+
+                    subject = 'Order delivery time update';
                     userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_on_the_way} ${data.setOrderMinutTime} ${labels.title_delivered_to_last} minuutissa`;
 
                 }
@@ -114,20 +122,20 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
 
                     if (data.deliveryTypeId == 1)
                     {
-
+                        subject = 'Order is on the way';
                         userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_on_the_way}`;
                     }
 
                     else
                     {
-
+                        subject = 'Order is ready to pick';
                         userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_ready_to_pick}`;
                     }
 
                 }
                 else if (mail_type === 'cancel')
                 {
-
+                    subject = 'Order is cancelled';
                     userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_was_cancelled}`;
 
                 }
@@ -300,9 +308,9 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
 
             // Define email options
             const mailOptions = {
-                from: `"Your Name" <sujeet>`,
-                to: 'sujeetsahu655@gmail.com',
-                subject: 'Test Email',
+                from: ``,
+                to: to_mail,
+                subject: subject,
                 text: '',
                 html: html
             };
