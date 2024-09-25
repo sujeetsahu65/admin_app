@@ -29,9 +29,9 @@ class _HomePage extends ConsumerState<HomePage> {
       _initializeOtherData(), // Then load other data like orders etc.
     ]).then((_) {
       // After all the initial data is loaded, proceed with widget setup if needed.
-      ref
-          .read(globalMessageProvider.notifier)
-          .showSuccess("Successfully to initialize data.");
+      // ref
+      //     .read(globalMessageProvider.notifier)
+      //     .showSuccess("Successfully to initialize data.");
     }).catchError((error) {
       ref
           .read(globalMessageProvider.notifier)
@@ -46,6 +46,7 @@ class _HomePage extends ConsumerState<HomePage> {
 
 // Function to load other data, like orders or printers
   Future<void> _initializeOtherData() async {
+    // Start order polling after general data
     ref
         .read(orderProvider.notifier)
         .startOrderPolling(); // Start order polling after general data

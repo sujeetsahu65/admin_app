@@ -175,6 +175,16 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
 
   Future<void> printReceipt(Order order, context) async {
     ref.read(loadingProvider.notifier).showLoader();
+    final currentPaperSize = ref.watch(printerSizeProvider);
+    late final paperSize;
+    if (currentPaperSize == 'mm72') {
+      paperSize = PaperSize.mm72;
+    } else if (currentPaperSize == 'mm80') {
+      paperSize = PaperSize.mm80;
+    } else {
+      paperSize = PaperSize.mm58;
+    }
+    // mm58
 // await _bluetoothPermissionHandler.requestAndEnsureBluetooth();
     final ReceiptSectionText receiptHeadText = ReceiptSectionText();
     // final ReceiptSectionText receiptHeadText = ReceiptSectionText();
@@ -523,11 +533,10 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
       // receiptHeadText.addSpacer(useDashed: true);
 
       // Add more text as needed
-      await _bluePrintPos.printReceiptText(
-        receiptHeadText,
-        feedCount: 0,
-        // useRaster: true,
-      );
+      await _bluePrintPos.printReceiptText(receiptHeadText,
+          feedCount: 0, paperSize: paperSize
+          // useRaster: true,
+          );
 
       // await _bluePrintPos.printReceiptText(
       //   receiptHeadText,
@@ -578,3 +587,19 @@ extension on OrderItem {
     return toppingsByVariantOption;
   }
 }
+
+enum PrinterSize { mm58, mm72, mm80 }
+
+class PrinterSizeNotifier extends StateNotifier<PrinterSize> {
+  PrinterSizeNotifier() : super(PrinterSize.mm58); // Default to 58mm
+
+  void updatePrinterSize(PrinterSize newSize) {
+    state = newSize;
+  }
+}
+
+// Create a provider for the PrinterSizeNotifier
+final printerSizeProvider =
+    StateNotifierProvider<PrinterSizeNotifier, PrinterSize>(
+  (ref) => PrinterSizeNotifier(),
+);

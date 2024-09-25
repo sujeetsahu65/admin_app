@@ -1,5 +1,7 @@
 import 'package:admin_app/models/settings.dart';
+import 'package:admin_app/providers/printer.dart';
 import 'package:admin_app/providers/settings.dart';
+import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -20,7 +22,7 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-
+    final printerSize = ref.watch(printerSizeProvider);
     if (settings == null) {
       return Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -97,6 +99,42 @@ class _SettingsState extends ConsumerState<Settings> {
                           ref
                               .read(settingsProvider.notifier)
                               .updateSettings(updatedSettings);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text('Print Paper Size:'),
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 12.0),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5.0),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<PrinterSize>(
+                      value: printerSize,
+                      items:const [
+                        DropdownMenuItem(
+                          value: PrinterSize.mm58,
+                          child: Text('58mm'),
+                        ),
+                        DropdownMenuItem(
+                          value: PrinterSize.mm72,
+                          child: Text('72mm'),
+                        ),
+                        DropdownMenuItem(
+                          value: PrinterSize.mm80,
+                          child: Text('80mm'),
+                        ),
+                      ],
+                      onChanged: (PrinterSize? newSize) {
+                        if (newSize != null) {
+                          ref
+                              .read(printerSizeProvider.notifier)
+                              .updatePrinterSize(newSize);
                         }
                       },
                     ),
