@@ -5,10 +5,26 @@ import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ReceivedOrders extends ConsumerWidget {
-  final String page = 'received-orders';
+class ReceivedOrders extends ConsumerStatefulWidget {
+  const ReceivedOrders({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ReceivedOrders> createState() => _ReceivedOrders();
+}
+
+class _ReceivedOrders extends ConsumerState<ReceivedOrders> {
+
+
+  final String page = 'received-orders';
+
+  @override
+  void initState() {
+
+    ref.read(receivedOrderProvider.notifier).loadOrders();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
     final AsyncValue<List<Order>> orders = ref.watch(receivedOrderProvider);
     return Scaffold(
         body: orders.when(

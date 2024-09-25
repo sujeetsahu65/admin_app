@@ -126,6 +126,14 @@ class OrderCard extends ConsumerWidget {
     );
     orderNotifier.updateOrder(updatedOrder, 'concludeOrder');
   }
+  void _onMoveFailedOrder(WidgetRef ref) {
+    final failedOrderNotifier = ref.read(failedOrderProvider.notifier);
+    final updatedOrder = order.copyWith(
+      ordersStatusId: 3,
+      paymentStatusId: 5
+    );
+    failedOrderNotifier.updateOrder(updatedOrder, 'moveFailedOrder');
+  }
 
   void _onCacelOrder(WidgetRef ref) {
     final orderNotifier = ref.read(orderProvider.notifier);
@@ -480,6 +488,14 @@ class OrderCard extends ConsumerWidget {
                               order.deliveryTypeId == 1
                                   ? 'order on the way'
                                   : 'Ready to pick')),
+                        )
+                      else if (order.ordersStatusId == 7 && order.paymentModeId==3 && (order.paymentStatusId ==2 || order.paymentStatusId==3))
+                        ElevatedButton(
+                          onPressed: () {
+                            // Respond to button press
+                            _onMoveFailedOrder(ref);
+                          },
+                          child: Text(AppLocalizations.of(context).translate('move to order title')),
                         )
                     ],
                   ),

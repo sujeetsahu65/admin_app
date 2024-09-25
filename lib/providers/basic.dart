@@ -70,9 +70,7 @@ final generalDataProvider =
         (ref) => GeneralDataNotifier());
 
 class GeneralDataNotifier extends StateNotifier<BasicModels> {
-  GeneralDataNotifier() : super(BasicModels.initial()){
-    loadGeneralData();
-  }
+  GeneralDataNotifier() : super(BasicModels.initial()){}
 
   Future<void> loadGeneralData() async {
     final generalData = await basicService.fetchGeneralData();

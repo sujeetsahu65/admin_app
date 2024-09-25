@@ -4,10 +4,26 @@ import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FailedOrders extends ConsumerWidget {
-  final String page = 'failed-orders';
+class FailedOrders extends ConsumerStatefulWidget {
+  const FailedOrders({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FailedOrders> createState() => _FailedOrders();
+}
+
+class _FailedOrders extends ConsumerState<FailedOrders> {
+
+
+  final String page = 'failed-orders';
+
+  @override
+  void initState() {
+
+    ref.read(failedOrderProvider.notifier).loadOrders();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
     final AsyncValue<List<Order>> orders = ref.watch(failedOrderProvider);
 
     return Scaffold(

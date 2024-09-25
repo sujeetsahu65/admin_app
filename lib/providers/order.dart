@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:admin_app/constants/global_variables.dart';
 import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
@@ -8,60 +10,13 @@ import 'package:dio/dio.dart';
 // import 'package:admin_app/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:quiver/async.dart'; // quiver provides useful debounce utilities
+
 final OrderService orderService = OrderService();
 final orderExpansionProvider =
     StateProvider.family<bool, int>((ref, id) => false);
 
-// final orderProvider = StateNotifierProvider<OrderNotifier, List<Order>>((ref) {
-//   return OrderNotifier(ref);
-// });
 
-// class OrderNotifier extends StateNotifier<List<Order>> {
-//   OrderNotifier(this.ref) : super([]) {
-//     _loadOrders();
-//   }
-
-//     final Ref ref;
-// // sdgfdg
-// // await Future.delayed(Duration(seconds: 30));
-//   Future<void> _loadOrders() async {
-// final languageCode = ref.watch(localizationProvider).languageCode;
-//     while (true) {
-//       final List<Order> orderList = await orderService.fetchOrders(languageCode: languageCode);
-//       // print(List);
-//       // state = orderJson.map((json) => json).toList();
-//       state = orderList;
-//       await Future.delayed(Duration(seconds: 30));
-//     }
-//   }
-
-//   void updateOrder(Order updatedOrder, mode) async {
-//     state = [
-//       for (final order in state)
-//         if (order.orderId == updatedOrder.orderId) updatedOrder else order,
-//     ];
-
-//     if (mode == 'setOrderDeliveryTime') {
-//       final bool isOrderUpdated =
-//           await orderService.setOrderDeliveryTime(updatedOrder);
-//     } else if (mode == 'setPreOrderAlertTime') {
-//       final bool isOrderUpdated =
-//           await orderService.setPreOrderAlertTime(updatedOrder);
-//     } else if (mode == 'concludeOrder') {
-//       final bool isOrderUpdated =
-//           await orderService.concludeOrder(updatedOrder);
-//     } else if (mode == 'cancelOrder') {
-//       final bool isOrderUpdated = await orderService.cancelOrder(updatedOrder);
-//     }
-
-//     // if (isOrderUpdated) {
-//     //   state = [
-//     //     for (final order in state)
-//     //       if (order.orderId == updatedOrder.orderId) updatedOrder else order,
-//     //   ];
-//     // }
-//   }
-// }
 
 // ===============ORDER ITEM PROVIDER=========
 
@@ -96,11 +51,11 @@ final receivedOrderProvider = StateNotifierProvider.autoDispose<
 
 class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   ReceivedOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadOrders();
+    // _loadOrders();
   }
 
   Ref ref;
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     while (mounted) {
       state = const AsyncValue.loading();
       try {
@@ -134,10 +89,10 @@ final cancelledOrderProvider = StateNotifierProvider.autoDispose<
 
 class CancelledOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   CancelledOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadOrders();
+    // _loadOrders();
   }
   Ref ref;
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
@@ -172,10 +127,10 @@ final preOrderProvider = StateNotifierProvider.autoDispose<PreOrderNotifier,
 
 class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   PreOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadOrders();
+    // _loadOrders();
   }
   Ref ref;
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
@@ -210,10 +165,10 @@ final failedOrderProvider = StateNotifierProvider.autoDispose<
 
 class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   FailedOrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    _loadOrders();
+    // _loadOrders();
   }
   Ref ref;
-  Future<void> _loadOrders() async {
+  Future<void> loadOrders() async {
     while (mounted) {
       state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
@@ -236,6 +191,40 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
             .showError("Something went wrong");
       }
       await Future.delayed(Duration(seconds: 30));
+    }
+  }
+
+    Future<void> updateOrder(Order updatedOrder, String mode) async {
+
+
+    ApiResponse<bool> response =
+        ApiResponse(data: false, statusCode: 404, message: 'initial');
+
+    try {
+      if (mode == 'moveFailedOrder') {
+        response = await orderService.moveFailedOrder(updatedOrder);
+      }
+
+      if (response.isSuccess) {
+        // Final update if the order is successfully updated on the server
+        state = state.whenData((orders) => [
+              for (final order in orders)
+                if (order.orderId == updatedOrder.orderId)
+                  updatedOrder
+                else
+                  order,
+            ]);
+              ref.read(globalMessageProvider.notifier).showSuccess('Order moved to new order list');
+              ref.read(orderProvider.notifier).dispose();
+              ref.read(orderProvider.notifier).startOrderPolling();
+      } else {
+        ref.read(globalMessageProvider.notifier).showError(response.message);
+      }
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Something went wrong");
     }
   }
 }
@@ -324,43 +313,150 @@ final orderProvider =
   return OrderNotifier(ref);
 });
 
+// class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
+//   OrderNotifier(this.ref) : super(const AsyncValue.loading()) {
+//     // _loadOrders();
+//   }
+
+//   final Ref ref;
+//   bool _isDisposed = false;
+
+//   Future<void> loadOrders() async {
+//     final languageCode = ref.watch(localizationProvider).languageCode;
+//     while (!_isDisposed) {
+//       try {
+//         final ApiResponse<List<Order>> response =
+//             await orderService.fetchOrders(languageCode: languageCode);
+
+//         if (response.isSuccess) {
+//           final orderList = response.data!;
+
+//           if (!_isDisposed) {
+//             state = AsyncValue.data(orderList);
+//           }
+//         } else if (response.isNotFound) {
+//           state = AsyncValue.data([]);
+//         } else {
+//           ref.read(globalMessageProvider.notifier).showError(response.message);
+//         }
+//       } catch (error, stackTrace) {
+//         if (!_isDisposed) {
+//           state = AsyncValue.error(error, stackTrace);
+//           ref
+//               .read(globalMessageProvider.notifier)
+//               .showError("Something went wrong");
+//         }
+//       }
+//       await Future.delayed(Duration(seconds: 30));
+//     }
+//   }
+
+//   Future<void> updateOrder(Order updatedOrder, String mode) async {
+//     // Optimistically update the UI
+//     // state = state.whenData((orders) => [
+//     //       for (final order in orders)
+//     //         if (order.orderId == updatedOrder.orderId) updatedOrder else order,
+//     //     ]);
+
+//     ApiResponse<bool> response =
+//         ApiResponse(data: false, statusCode: 404, message: 'initial');
+
+//     try {
+//       if (mode == 'setOrderDeliveryTime') {
+//         response = await orderService.setOrderDeliveryTime(updatedOrder);
+//       } else if (mode == 'setPreOrderAlertTime') {
+//         response = await orderService.setPreOrderAlertTime(updatedOrder);
+//       } else if (mode == 'concludeOrder') {
+//         response = await orderService.concludeOrder(updatedOrder);
+//       } else if (mode == 'cancelOrder') {
+//         response = await orderService.cancelOrder(updatedOrder);
+//       }
+
+//       if (response.isSuccess) {
+//         // Final update if the order is successfully updated on the server
+//         state = state.whenData((orders) => [
+//               for (final order in orders)
+//                 if (order.orderId == updatedOrder.orderId)
+//                   updatedOrder
+//                 else
+//                   order,
+//             ]);
+//       } else {
+//         ref.read(globalMessageProvider.notifier).showError(response.message);
+//       }
+//     } catch (error, stackTrace) {
+//       state = AsyncValue.error(error, stackTrace);
+//       ref
+//           .read(globalMessageProvider.notifier)
+//           .showError("Something went wrong");
+//     }
+//   }
+
+//   void disposeNotifier() {
+//     _isDisposed = true;
+//   }
+// }
+
+
 class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
-  OrderNotifier(this.ref) : super(const AsyncValue.loading()) {
-    // _loadOrders();
-  }
+  OrderNotifier(this.ref) : super(const AsyncValue.loading());
 
   final Ref ref;
-  bool _isDisposed = false;
+  StreamSubscription<List<Order>>? _orderSubscription;
 
-  Future<void> loadOrders() async {
+  // This starts the stream that fetches orders immediately, then every 30 seconds
+  void startOrderPolling() async {
+    _orderSubscription?.cancel(); // Cancel any previous stream
     final languageCode = ref.watch(localizationProvider).languageCode;
-    while (!_isDisposed) {
-      try {
-        final ApiResponse<List<Order>> response =
-            await orderService.fetchOrders(languageCode: languageCode);
 
-        if (response.isSuccess) {
-          final orderList = response.data!;
+    // Fetch orders immediately
+    await _fetchOrdersImmediately(languageCode);
 
-          if (!_isDisposed) {
-            state = AsyncValue.data(orderList);
-          }
-        } else if (response.isNotFound) {
-          state = AsyncValue.data([]);
-        } else {
-          ref.read(globalMessageProvider.notifier).showError(response.message);
-        }
-      } catch (error, stackTrace) {
-        if (!_isDisposed) {
+    // Create a stream that fetches orders every 30 seconds
+    _orderSubscription = Stream.periodic(Duration(seconds: 30), (_) async {
+      return await _loadOrders(languageCode);
+    }).asyncMap((event) async => await event) // Wait for async fetch result
+      .listen(
+        (orderList) => state = AsyncValue.data(orderList),
+        onError: (error, stackTrace) {
           state = AsyncValue.error(error, stackTrace);
-          ref
-              .read(globalMessageProvider.notifier)
-              .showError("Something went wrong");
-        }
-      }
-      await Future.delayed(Duration(seconds: 30));
+          ref.read(globalMessageProvider.notifier).showError("Something went wrong");
+        },
+      );
+  }
+
+  // Function to fetch orders immediately
+  Future<void> _fetchOrdersImmediately(String languageCode) async {
+    try {
+      final orderList = await _loadOrders(languageCode);
+      state = AsyncValue.data(orderList);
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+      ref.read(globalMessageProvider.notifier).showError("Something went wrong");
     }
   }
+
+  // Function to fetch orders
+  Future<List<Order>> _loadOrders(String languageCode) async {
+    final ApiResponse<List<Order>> response =
+        await orderService.fetchOrders(languageCode: languageCode);
+
+    if (response.isSuccess) {
+      return response.data!;
+    } else if (response.isNotFound) {
+      return [];
+    } else {
+      ref.read(globalMessageProvider.notifier).showError(response.message);
+      throw Exception(response.message);
+    }
+  }
+
+  @override
+  void dispose() {
+    _orderSubscription?.cancel(); // Clean up subscription on dispose
+    super.dispose();
+  }
+
 
   Future<void> updateOrder(Order updatedOrder, String mode) async {
     // Optimistically update the UI
@@ -403,7 +499,7 @@ class OrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
     }
   }
 
-  void disposeNotifier() {
-    _isDisposed = true;
-  }
+  // void disposeNotifier() {
+  //   _isDisposed = true;
+  // }
 }

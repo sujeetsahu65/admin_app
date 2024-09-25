@@ -4,10 +4,26 @@ import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CancelledOrders extends ConsumerWidget {
-  final String page = 'cancelled-orders';
+class CancelledOrders extends ConsumerStatefulWidget {
+  const CancelledOrders({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CancelledOrders> createState() => _CancelledOrders();
+}
+
+class _CancelledOrders extends ConsumerState<CancelledOrders> {
+
+
+  final String page = 'cancelled-orders';
+
+  @override
+  void initState() {
+
+    ref.read(cancelledOrderProvider.notifier).loadOrders();
+    super.initState();
+  }
+  @override
+  Widget build(BuildContext context) {
     final AsyncValue<List<Order>> orders = ref.watch(cancelledOrderProvider);
 
     return Scaffold(

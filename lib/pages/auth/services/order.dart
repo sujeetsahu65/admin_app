@@ -175,6 +175,32 @@ class OrderService {
     }
   }
 
+  Future<ApiResponse<bool>> moveFailedOrder(Order order) async {
+    try {
+      final token = await getLocalToken();
+      final response = await http.put(
+        Uri.parse('$uri/order/move-failed-order'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
+
+      if (response.statusCode == 200) {
+            return ApiResponse(data: true, statusCode: 200);
+      } else {
+        final errorMsg = json.decode(response.body)['message'];
+        return ApiResponse(statusCode: response.statusCode, message: errorMsg);
+      }
+    } catch (error) {
+      return ApiResponse(statusCode: 503, message: error.toString());
+    }
+  }
+
   Future<ApiResponse<Map<String, List>>> fetchOrderItems(
       {orderId, required languageCode}) async {
     try {

@@ -1,7 +1,8 @@
 const utils = require('../utils');
 const { format, subDays } = require('date-fns');
 const { query, body, validationResult } = require('express-validator');
-const { PaymentGatewayDetails,PaymentGatewayCommission } = require('../models/super_admin');
+const { PaymentGatewayDetails, PaymentGatewayCommission } = require('../models/super_admin');
+
 // ========NEW ORDERS=========
 
 
@@ -202,6 +203,7 @@ exports.getFailedOrders = async (req, res) =>
     const failed_orders = await Order.findAll({
       where: {
         loc_id: loc_id,
+        paymentModeId: 3,
         ordersStatusId: 7,
         paymentStatusId: [2, 3],
         // order_date: {
@@ -392,7 +394,7 @@ exports.setPreOrderResponseAlertTime = async (req, res) =>
 // ========SET ORDER DELIVERY TIME=========
 exports.setOrderDeliveryTime = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
+  const { shopSequelize,superSequelize, loc_id } = req;
   const mail_type = "set_delivery_time"
   const now = new Date()
   const current_date_time = format(now, 'yyyy-MM-dd HH:mm:ss');
@@ -400,7 +402,8 @@ exports.setOrderDeliveryTime = async (req, res) =>
   {
 
     const { order_id, delivery_time } = req.body;
-    const { EmailSettings } = req.models;
+    const { EmailSettings, Order,User } = req.models;
+
     if (!order_id)
     {
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
@@ -410,59 +413,61 @@ exports.setOrderDeliveryTime = async (req, res) =>
       return res.status(400).json({ status_code: 400, status: false, message: "Missing delivery time" });
     }
 
-    let str_delivery_time = delivery_time
-    let query = `update orders set orders_status_id=5,set_order_minut_time= :set_order_minut_time,order_timer_start_time='${current_date_time}' where loc_id = ${loc_id} and order_id = :order_id`;
 
-    let replacements = { order_id, set_order_minut_time: str_delivery_time };
-
-    const [set_delivery_time, metadata] = await shopSequelize.query(query, {
-      replacements,
-      type: shopSequelize.QueryTypes.UPDATE
+    const order = await Order.findOne({
+      where: {
+        locId: loc_id,
+        orderId: order_id,
+      },
+       include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'userEmail']
+        }]
     });
 
-    if (metadata === 0)
+    if (!order)
     {
-      return res.status(404).json({ status_code: 404, status: false, message: "Order not found" });
+      return res.status(404).json({ status_code: 404, status: false, message: "Orders not found" });
+
     }
-    else
-    {
 
-      let order_details = await utils.getOrderDetails({ req });
+    let str_delivery_time = delivery_time
 
-      // return res.status(order_details.status_code).json({ ...order_details });
+    await order.update({ ordersStatusId: 5, setOrderMinutTime: str_delivery_time, orderTimerStartTime: current_date_time });
 
-      const email_settings = await EmailSettings.findOne({
-        where: { locId: loc_id }
+    // return res.status(order_details.status_code).json({ ...order_details });
+
+    const email_settings = await EmailSettings.findOne({
+      where: { locId: loc_id }
+    });
+
+   utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+      .then(mail_status =>
+      {
+        // This will run after the email is sent
+        if (mail_status.status)
+        {
+          return order.update({ sendEmailOrderSetTime: 1 });
+        }
       });
+      // return res.status(400).json({ status_code: 400, status: false, message: "Missing delivery time" });
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
+    // else
+    // {
 
-      if (mail_status.status)
-      {
+    //   return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
 
-        let mail_status_query = `update orders set send_email_order_set_time=1 where loc_id = ${loc_id} and order_id = :order_id`;
+    // }
 
-        const [set_mail_status, metadata] = await shopSequelize.query(mail_status_query, {
-          replacements: { order_id },
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-      }
-
-      else
-      {
-
-        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
-
-      }
-
-      // console.log(mail_status);
-      // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
-      // send_email_order_set_time
-      // send_sms_order_set_time
+    // console.log(mail_status);
+    // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
+    // send_email_order_set_time
+    // send_sms_order_set_time
 
 
-      return res.json({ status_code: 200, status: true, mail_status_code: mail_status.status_code, mail_response: mail_status.mail_response });
-    }
+    return res.json({ status_code: 200, status: true });
+
 
   } catch (error)
   {
@@ -476,7 +481,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
 // ========SET ORDER ON THE WAY TIME=========
 exports.concludeOrder = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
+  const { superSequelize,shopSequelize, loc_id } = req;
   const lang_id = req.lang_id;
   const mail_type = "on_the_way";
   const now = new Date();
@@ -485,66 +490,54 @@ exports.concludeOrder = async (req, res) =>
   {
 
     const { order_id } = req.body;
-    const { EmailSettings } = req.models;
+    const { EmailSettings, Order } = req.models;
 
     if (!order_id)
     {
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
     }
 
-
-    let query = `update orders set orders_status_id ='6',stop_timer='1',ontheway_datetime='${current_date_time}' where loc_id = ${loc_id} and order_id = :order_id`;
-
-    let replacements = { order_id };
-
-    const [order_on_the_way, metadata] = await shopSequelize.query(query, {
-      replacements,
-      type: shopSequelize.QueryTypes.UPDATE
+    const order = await Order.findOne({
+      where: {
+        locId: loc_id,
+        orderId: order_id,
+      },
     });
 
-    if (metadata === 0)
+    if (!order)
     {
-      return res.status(404).json({ status_code: 404, status: false, message: "Order not found" });
+      return res.status(404).json({ status_code: 404, status: false, message: "Orders not found" });
+
     }
-    else
-    {
 
-      let order_details = await utils.getOrderDetails({ req });
+    await order.update({ ordersStatusId: 6, stopTimer: 1, onthewayDateTime: current_date_time });
 
-      // return res.status(order_details.status_code).json({ ...order_details });
+    // return res.status(order_details.status_code).json({ ...order_details });
 
-      const email_settings = await EmailSettings.findOne({
-        where: { locId: loc_id }
+    const email_settings = await EmailSettings.findOne({
+      where: { locId: loc_id }
+    });
+
+    utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+      .then(mail_status =>
+      {
+        // This will run after the email is sent
+        if (mail_status.status)
+        {
+
+          return order.update({ sendEmailOrderOntheway: 1 });
+        }
       });
+    // console.log(mail_status);
+    // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
+    // send_email_order_cancel
+    // send_sms_order_cancel
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
+    // send_email_order_ontheway
+    // send_sms_order_ontheway
 
-      if (mail_status.status)
-      {
+    return res.json({ status_code: 200, status: true });
 
-        let mail_status_query = `update orders set send_email_order_ontheway=1 where loc_id = ${loc_id} and order_id = :order_id`;
-
-        const [set_mail_status, metadata] = await shopSequelize.query(mail_status_query, {
-          replacements: { order_id },
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-      }
-      else
-      {
-
-        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
-
-      }
-      // console.log(mail_status);
-      // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
-      // send_email_order_cancel
-      // send_sms_order_cancel
-
-      // send_email_order_ontheway
-      // send_sms_order_ontheway
-
-      return res.json({ status_code: 200, status: true, mail_status_code: mail_status.status_code, mail_response: mail_status.mail_response });
-    }
 
   } catch (error)
   {
@@ -558,67 +551,58 @@ exports.concludeOrder = async (req, res) =>
 // ========SET CANCEL ORDER=========
 exports.cancelOrder = async (req, res) =>
 {
-  const { shopSequelize, loc_id } = req;
+  const { shopSequelize,superSequelize, loc_id } = req;
   const mail_type = "cancel"
   try
   {
 
     const { order_id } = req.body;
-    const { EmailSettings } = req.models;
+    const { EmailSettings, Order } = req.models;
 
     if (!order_id)
     {
       return res.status(400).json({ status_code: 400, status: false, message: "Missing order ID" });
     }
 
-
-    let query = `update orders set orders_status_id = 4,stop_timer='1' where loc_id = ${loc_id} and order_id = :order_id`;
-
-    let replacements = { order_id };
-
-    const [order_on_the_way, metadata] = await shopSequelize.query(query, {
-      replacements,
-      type: shopSequelize.QueryTypes.UPDATE
+    const order = await Order.findOne({
+      where: {
+        locId: loc_id,
+        orderId: order_id,
+      },
     });
 
-    if (metadata === 0)
+    if (!order)
     {
-      return res.status(404).json({ status_code: 404, status: false, message: "Order not found" });
+      return res.status(404).json({ status_code: 404, status: false, message: "Orders not found" });
+
     }
-    else
-    {
 
-      let order_details = await utils.getOrderDetails({ req });
 
-      // return res.status(order_details.status_code).json({ ...order_details });
-      const email_settings = await EmailSettings.findOne({
-        where: { locId: loc_id }
+    await order.update({ ordersStatusId: 4, stopTimer: 1 });
+
+    // return res.status(order_details.status_code).json({ ...order_details });
+
+    const email_settings = await EmailSettings.findOne({
+      where: { locId: loc_id }
+    });
+
+    utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+      .then(mail_status =>
+      {
+        // This will run after the email is sent
+        if (mail_status.status)
+        {
+
+
+          return order.update({ sendEmailOrderCancel: 1 });
+        }
       });
+    // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
+    // send_email_order_cancel
+    // send_sms_order_cancel
 
-      let mail_status = await utils.mailTo(shopSequelize, loc_id, order_details, mail_type, email_settings);
+    return res.json({ status_code: 200, status: true });
 
-      if (mail_status.status)
-      {
-
-        let mail_status_query = `update orders set send_email_order_cancel=1 where loc_id = ${loc_id} and order_id = :order_id`;
-
-        const [set_mail_status, metadata] = await shopSequelize.query(mail_status_query, {
-          replacements: { order_id },
-          type: shopSequelize.QueryTypes.UPDATE
-        });
-      }
-      else
-      {
-
-        return res.json({ status_code: mail_res.status_code, status: true, message: mail_res.mail_response });
-
-      }
-      // CALL A FUNCTION TO SEND EMAIL AND SMS AND UPDATE ORDER
-      // send_email_order_cancel
-      // send_sms_order_cancel
-
-      return res.json({ status_code: 200, status: true, mail_status_code: mail_status.status_code, mail_response: mail_status.mail_response });
-    }
 
   } catch (error)
   {
@@ -1008,7 +992,7 @@ exports.getReports = [
   }
 ]
 
-// ========CANCELLED ORDERS=========
+// ========CONVERT THE FAILD PAYMENT STATUS TO SUCCESS ORDERS=========
 exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
 {
   const { loc_id } = req;
@@ -1016,6 +1000,12 @@ exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
   const { Order, PaymentGatewaySetting } = req.models;
   const now = new Date()
   const current_date_time = format(now, 'yyyy-MM-dd HH:mm:ss');
+
+  if (!order_id)
+  {
+    return res.status(400).json({ status_code: 400, status: false, message: "Missing order_id" });
+
+  }
   try
   {
 
@@ -1024,11 +1014,12 @@ exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
       where: {
         locId: loc_id,
         orderId: order_id,
-        // paymentModeId: 3,
-        // ordersStatusId: 7,
-        // paymentStatusId: [2, 3],
+        paymentModeId: 3,
+        ordersStatusId: 7,
+        paymentStatusId: [2, 3],
       },
-      attributes: ['paymentGatewayId', 'paymentModeId', 'orderNO'],
+      attributes: ['paymentGatewayId', 'paymentModeId', 'orderNO', 'orderId',],
+      // Note: to perform update query you must select the primary key column in attributes
     });
 
     if (!order)
@@ -1039,8 +1030,7 @@ exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
 
     const activePaymentGateway = await PaymentGatewaySetting.findOne({
       where: {
-        // locId: loc_id,
-        locId: 50,
+        locId: loc_id,
         paymentGatewayStatus: 1
       },
       attributes: ['gatewayId', 'paymentGatewayDetailId', 'paymentGatewayCommissionId', 'paymentGatewayUserid'],
@@ -1076,9 +1066,46 @@ exports.convertFailedOrderWithSuccessPayment = async (req, res) =>
     });
 
 
+    // Example usage:
+    const apiKey = paymentGatewayDetails.gatewayUserId;
+    const privateKey = paymentGatewayDetails.gatewayPassword;
+    const orderNumber = order.orderNO;
 
-    return res.json({ status_code: 200, status: true, data: { paymentGatewayDetails } });
 
+    if (order.paymentGatewayId === 7)
+    {//Only visma
+
+      const visma_response = await utils.checkStatusWithOrderNumber(apiKey, privateKey, orderNumber);
+
+      if (visma_response.status)
+      {
+
+        if (visma_response.data.result === 0)
+        {
+
+          await order.update({ ordersStatusId: 3, moveToOrderTap: 1, moveToOrderListTime: current_date_time, paymentStatusId: 5 });
+
+          return res.json({ status_code: 200, status: true, result: visma_response.data.result });
+        } else if (visma_response.data.result === 1)
+        {
+          return res.json({ status_code: 401, status: false, message: "Validation error" });
+        }
+        else
+        {
+          return res.json({ status_code: 500, status: false, message: "Something Went wrong" });
+        }
+
+      }
+      else
+      {
+        return res.json({ status_code: 404, status: false, message: `This service not available for the Gateway with gateway id: ${order.paymentGatewayId}` });
+      }
+
+    }
+    else
+    {
+
+    }
 
   } catch (error)
   {

@@ -105,7 +105,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // DISPOSE/REST ALL THE STATES THAT ARE NOT HAVING AUTO-DISPOSE
     ref
         .read(orderProvider.notifier)
-        .disposeNotifier(); //Having to user disposeNotifier as we are infinitely fetching orders so have to manually stop that loop
+        .dispose(); //Having to user disposeNotifier as we are infinitely fetching orders so have to manually stop that loop
     ref.invalidate(orderProvider);
     ref.invalidate(generalDataProvider);
     state = AuthState.initial();

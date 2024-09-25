@@ -121,30 +121,30 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.INTEGER,
       field: 'pre_order_booking'
     },
-    // sendEmailOrderSetTime: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_email_order_set_time'
-    // },
-    // sendSmsOrderSetTime: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_sms_order_set_time'
-    // },
-    // sendEmailOrderOntheway: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_email_order_ontheway'
-    // },
-    // sendSmsOrderOntheway: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_sms_order_ontheway'
-    // },
-    // sendEmailOrderCancel: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_email_order_cancel'
-    // },
-    // sendSmsOrderCancel: {
-    //   type: DataTypes.INTEGER,
-    //   field: 'send_sms_order_cancel'
-    // },
+    sendEmailOrderSetTime: {
+      type: DataTypes.INTEGER,
+      field: 'send_email_order_set_time'
+    },
+    sendSmsOrderSetTime: {
+      type: DataTypes.INTEGER,
+      field: 'send_sms_order_set_time'
+    },
+    sendEmailOrderOntheway: {
+      type: DataTypes.INTEGER,
+      field: 'send_email_order_ontheway'
+    },
+    sendSmsOrderOntheway: {
+      type: DataTypes.INTEGER,
+      field: 'send_sms_order_ontheway'
+    },
+    sendEmailOrderCancel: {
+      type: DataTypes.INTEGER,
+      field: 'send_email_order_cancel'
+    },
+    sendSmsOrderCancel: {
+      type: DataTypes.INTEGER,
+      field: 'send_sms_order_cancel'
+    },
     orderLanguageId: {
       type: DataTypes.INTEGER,
       field: 'order_language_id'
@@ -157,6 +157,18 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
       type: DataTypes.STRING,
       field: 'set_order_minut_time',
       allowNull: true
+    },
+    moveToOrderTap: {
+      type: DataTypes.INTEGER,
+      field: 'move_to_order_tap',
+    },
+    moveToOrderListTime: {
+      type: DataTypes.DATE,
+      field: 'move_to_order_list_time',
+    },
+    onthewayDateTime: {
+      type: DataTypes.DATE,
+      field: 'ontheway_datetime',
     },
     foodItemSubtotalAmt: {
       type: DataTypes.DOUBLE,
@@ -246,6 +258,10 @@ module.exports = (superSequelize, DataTypes, enc_key) =>
     comboOfferApplied: {
       type: DataTypes.INTEGER,
       field: 'combo_offer_applied'
+    },
+    stopTimer: {
+      type: DataTypes.INTEGER,
+      field: 'stop_timer'
     }
   }, {
     timestamps: false,

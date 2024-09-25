@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { format, subDays, parse, differenceInMinutes } = require('date-fns');
+const axios = require('axios');
 
 async function setPreOrderToCurrentOrder (sequelize, loc_id)
 {
@@ -58,27 +59,233 @@ async function setPreOrderToCurrentOrder (sequelize, loc_id)
     }
 }
 
-async function mailTo (sequelize, loc_id, body, mail_type, email_settings = null)
+async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, email_settings)
 {
-  
-    return new Promise((resolve, reject) =>
+
+    return new Promise(async (resolve, reject) =>
     {
 
-        let text = '';
-        let html = '';
         try
         {
 
             if (mail_type === 'password_reset_otp')
             {
-                text = body;
+                html = `<p>${data}</p>`;
             }
 
-            else
+            else if (mail_type === 'set_delivery_time' || mail_type === 'on_the_way' || mail_type === 'cancel')
             {
 
-                console.log(mail_type);
+
+                let userformessage = '';
+                const locationInfo = await shopSequelize.query(`SELECT loc_name,dis_name,loc_address,loc_image,loc_logo,loc_favicon,display_order,active_status,active_email_status,deactive_email_status,website,businessid,location_type,website_type,site_url FROM location_master where loc_id =${loc_id} `, {
+                    type: shopSequelize.QueryTypes.SELECT
+                });
+
+                const location = locationInfo[0];
+
+                const contactUs = await shopSequelize.query(`SELECT org_name_${data.orderLanguageId} as org_name,address_lang_${data.orderLanguageId} as address,email_id,phone,businessid,online_ordering,online_ordering_feature,pre_booking,pre_booking_feature,print_no_of_copy,print_style,device_type_print,orientation,org_city,org_zipcode,latitude,longitude FROM contact_us where loc_id =${loc_id} `, {
+                    type: shopSequelize.QueryTypes.SELECT
+                });
+
+
+
+                const contact_us = contactUs[0];
+                const logo = `https://foozu3.fi/pizzaadmin/web_admin_common/onlinetandoorivilla/logo/g7yfbi4kyi8scsc0wc.png`;
+
+                const label_data = await getOrderEmailLabels(superSequelize, data.orderLanguageId);
+                if (!label_data.status)
+                {
+                    return { status_code: 404, status: false, mail_response: 'labels not found' };
+                }
+                let labels = label_data.data;
+
+                let text = '';
+
+
+                if (mail_type === 'set_delivery_time')
+                {
+                    userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_on_the_way} ${data.setOrderMinutTime} ${labels.title_delivered_to_last} minuutissa`;
+
+                }
+                else if (mail_type === 'on_the_way')
+                {
+
+
+                    if (data.deliveryTypeId == 1)
+                    {
+
+                        userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_on_the_way}`;
+                    }
+
+                    else
+                    {
+
+                        userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_is_ready_to_pick}`;
+                    }
+
+                }
+                else if (mail_type === 'cancel')
+                {
+
+                    userformessage = `${labels.order_no_title} ${data.orderNO} ${labels.title_was_cancelled}`;
+
+                }
+
+                else
+                {
+
+                    console.log(mail_type);
+                }
+
+
+
+                let html_head = `<!DOCTYPE html>
+    <html>
+    <head>
+      <title>Order Info</title>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <style type="text/css">
+        body,
+        table,
+        td,
+        a {
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+        }
+    
+        table,
+        td {
+          mso-table-lspace: 0pt;
+          mso-table-rspace: 0pt;
+        }
+    
+        img {
+          -ms-interpolation-mode: bicubic;
+        }
+    
+        img {
+          border: 0;
+          height: auto;
+          line-height: 100%;
+          outline: none;
+          text-decoration: none;
+        }
+    
+        table {
+          border-collapse: collapse !important;
+        }
+    
+        body {
+          height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+        }
+    
+    
+        a[x-apple-data-detectors] {
+          color: inherit !important;
+          text-decoration: none !important;
+          font-size: inherit !important;
+          font-family: inherit !important;
+          font-weight: inherit !important;
+          line-height: inherit !important;
+        }
+    
+        @media screen and (max-width: 480px) {
+          .mobile-hide {
+            display: none !important;
+          }
+    
+          .mobile-center {
+            text-align: center !important;
+          }
+        }
+    
+        div[style*="margin: 16px 0;"] {
+          margin: 0 !important;
+        }
+    
+        p {
+          display: block;
+          margin-block-start: 0.25em;
+          margin-block-end: 0.25em;
+          margin-inline-start: 0px;
+          margin-inline-end: 0px;
+        }
+      </style>
+    
+    </head>
+    
+    <body style="margin: 0 !important; padding: 0 !important; background-color: #eeeeee;" bgcolor="#eeeeee">
+    
+    
+      <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td align="center" style="background-color: #eeeeee;" bgcolor="#eeeeee">
+    
+            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%"
+              style="max-width:600px; padding: 10px; background-color: #ffffff;" bgcolor="#ffffff">`;
+
+                let html_body = `<tr>
+              <td align="start"
+                style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px; padding: 5px 10px;">
+                <h2 style="font-size: 16px; font-weight: 400; line-height: 36px; color: #333333; margin: 0;">
+                  ${labels.title_Hello} ${data.User.firstName} ${data.User.lastName},
+                  <br>
+                    ${userformessage}
+                </h2>
+              </td>
+              </tr>
+
+              <tr>
+              <td align="center" style="padding: 10px; background-color: #ffffff;" bgcolor="#ffffff">
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                  <tr>
+                    <td align="start">
+                      <img src="${logo}" width="37" height="37" style="display: block; border: 0px;" />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="start"
+                      style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px; padding: 5px 0 10px 0;">
+                      <p style="font-size: 14px; font-weight: 800; line-height: 18px; color: #333333;">
+                        ${labels.thank_regard}
+                        <br>
+                         ${contact_us.org_name}
+                        <br>
+                        <span style="font-weight: 400;">
+                          ${contact_us.address}
+                        </span>
+                        <br> ${labels.Mobile_No_label} : <span style="font-weight: 400;"> ${contact_us.phone}</span>
+                        <br> ${labels.E_mail_label}: <a href="mailto:${contact_us.email_id}" style="font-weight: 400;"  target="_blank">${contact_us.email_id}</a>
+                        <br> ${labels.title_site} : ${location.site_url}
+                        <br>
+                        Powered by: <a href="https://onlinetandoorivilla.fi/" style="font-weight: 400;"  target="_blank"> Tandoorivilla</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+              </tr>`;
+
+
+                let html_footer = `</table>
+              </td>
+            </tr>
+          </table>
+          </body>
+          </html>`;
+
+                html = html_head + html_body + html_footer;
+
+
             }
+
+
 
             // Create a transporter with SMTP configuration
             const transporter = nodemailer.createTransport({
@@ -96,8 +303,8 @@ async function mailTo (sequelize, loc_id, body, mail_type, email_settings = null
                 from: `"Your Name" <sujeet>`,
                 to: 'sujeetsahu655@gmail.com',
                 subject: 'Test Email',
-                text: text,
-                html: `<p>${text}</p>`
+                text: '',
+                html: html
             };
 
             // Send email
@@ -140,6 +347,7 @@ async function mailTo (sequelize, loc_id, body, mail_type, email_settings = null
 
         } catch (error)
         {
+            console.log(error);
             return { status_code: 500, status: false, message: 'Server error2' };
         }
 
@@ -605,6 +813,100 @@ function encryptPassWithKey (string, key)
 // }
 
 
+
+
+
+
+
+//**
+//  * Function to calculate authcode based on the input string and private key
+//  * @param {string} input - The concatenated string (api_key|order_number or token)
+//  * @param {string} privateKey - The private key for the Visma API
+//  * @returns {string} - The authcode hash
+//  */
+function calcAuthcode (input, privateKey)
+{
+    return crypto.createHmac('sha256', privateKey).update(input).digest('hex').toUpperCase();
+}
+
+/**
+ * Function to check the payment status using the order number
+ * @param {string} apiKey - The API key for the Visma API
+ * @param {string} privateKey - The private key for the Visma API
+ * @param {string} orderNumber - The order number to check the payment status for
+ */
+async function checkStatusWithOrderNumber (apiKey, privateKey, orderNumber)
+{
+    // Input validation
+    if (!apiKey || !privateKey || !orderNumber)
+    {
+        return { status_code: 400, status: false, message: 'Missing required parameters: apiKey, privateKey, or orderNumber' };
+    }
+
+    // Create authcode based on API key and order number
+    const authcodeInput = `${apiKey}|${orderNumber}`;
+    const authcode = calcAuthcode(authcodeInput, privateKey);
+
+    // Payload to send to Visma Pay API
+    const params = {
+        version: 'w3.2', // Assuming API version 3.2; update if needed
+        api_key: apiKey,
+        order_number: orderNumber,
+        authcode: authcode,
+    };
+
+    try
+    {
+        // Making the POST request to the Visma Pay API
+        const response = await axios.post(`https://www.vismapay.com/pbwapi/check_payment_status`, params, {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        // Log and return the payment status
+        console.log('Payment Status:', response.data);
+        return { status_code: 200, status: true, data: response.data };
+    } catch (error)
+    {
+        // Catch and handle errors
+        return { status_code: 500, status: false, message: error.message };
+    }
+}
+
+async function getOrderEmailLabels (sequelize, order_lang_id)
+{
+
+
+    const query = `SELECT (SELECT title from admin_dashboard_content where header='order no title' and language_id='${order_lang_id}' ) as order_no_title ,(SELECT title from admin_dashboard_content where header='title_delivered_to' and language_id='${order_lang_id}' ) as title_delivered_to,(SELECT title from admin_dashboard_content where header='title_can_be_picked_up' and language_id='${order_lang_id}' ) as title_can_be_picked_up,(SELECT title from admin_dashboard_content where header='title_can_be_Ready_to_serve_in' and language_id='${order_lang_id}' ) as title_can_be_Ready_to_serve_in ,(SELECT title from admin_dashboard_content where header='title_Hello' and language_id='${order_lang_id}' ) as title_Hello ,(SELECT title from admin_dashboard_content where header='thank regard' and language_id='${order_lang_id}' ) as thank_regard ,(SELECT title from admin_dashboard_content where header='Mobile No label' and language_id='${order_lang_id}' ) as Mobile_No_label ,(SELECT title from admin_dashboard_content where header='E-mail label' and language_id='${order_lang_id}' ) as E_mail_label ,(SELECT title from admin_dashboard_content where header='title_site' and language_id='${order_lang_id}' ) as title_site ,(SELECT title from admin_dashboard_content where header='title_delivered_to_middle' and language_id='${order_lang_id}' ) as title_delivered_to_middle ,(SELECT title from admin_dashboard_content where header='title_delivered_to_last' and language_id='${order_lang_id}' ) as title_delivered_to_last ,(SELECT title from admin_dashboard_content where header='title_can_be_picked_up_middle' and language_id='${order_lang_id}' ) as title_can_be_picked_up_middle,(SELECT title from admin_dashboard_content where header='title_it_on_the_way' and language_id='${order_lang_id}' ) as title_it_on_the_way,(SELECT title from admin_dashboard_content where header='title_is_ready_to_pick' and language_id='${order_lang_id}' ) as title_is_ready_to_pick,(SELECT title from admin_dashboard_content where header='title_is_ready_to_serve' and language_id='${order_lang_id}' ) as title_is_ready_to_serve,(SELECT title from admin_dashboard_content where header='title_is_on_the_way' and language_id='${order_lang_id}' ) as title_is_on_the_way,(SELECT title from admin_dashboard_content where header='title_was_cancelled' and language_id='${order_lang_id}' ) as title_was_cancelled   FROM admin_dashboard_content limit 1`;
+    // console.log('pre-order:'+query);
+
+    try
+    {
+        const labels = await sequelize.query(query, {
+            type: sequelize.QueryTypes.SELECT
+        });
+
+
+        if (labels.length > 0)
+        {
+
+            return { status_code: 200, status: true, data: labels[0] };
+
+        }
+        else
+        {
+            return { status_code: 503, status: false, message: 'Something went wrong' };
+        }
+
+
+    } catch (error)
+    {
+        return { status_code: 500, status: false, message: 'Server error' };
+    }
+}
+
+
 module.exports = {
     setPreOrderToCurrentOrder,
     mailTo,
@@ -615,6 +917,7 @@ module.exports = {
     getOrderItemToppings,
     getComboOffersbyid,
     getOrderComboOfferItems,
-    getItemSizeName
+    getItemSizeName,
+    checkStatusWithOrderNumber
 
 };
