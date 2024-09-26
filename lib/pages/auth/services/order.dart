@@ -65,6 +65,7 @@ class OrderService {
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
+      print(error);
       return ApiResponse(statusCode: 503, message: error.toString());
     }
   }

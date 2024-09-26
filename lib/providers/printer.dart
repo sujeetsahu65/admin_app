@@ -225,6 +225,11 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
         style: ReceiptTextStyleType.normal,
       );
       receiptHeadText.addText(
+        order.paymentMode,
+        size: ReceiptTextSizeType.large,
+        style: ReceiptTextStyleType.bold,
+      );
+      receiptHeadText.addText(
         order.deliveryType,
         size: ReceiptTextSizeType.large,
         style: ReceiptTextStyleType.bold,

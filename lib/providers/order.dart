@@ -56,15 +56,15 @@ class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
 
   Ref ref;
   Future<void> loadOrders() async {
-    while (mounted) {
-      state = const AsyncValue.loading();
-      try {
+      // state = const AsyncValue.loading();
         final languageCode = ref.watch(localizationProvider).languageCode;
+    while (mounted) {
+      try {
         final ApiResponse<List<Order>> response = await orderService
             .fetchOrders(mode: "receivedOrders", languageCode: languageCode);
-        final orderList = response.data!;
 
         if (response.isSuccess) {
+        final orderList = response.data!;
           state = AsyncValue.data(orderList);
         } else if (response.isNotFound) {
           state = AsyncValue.data([]);
@@ -72,9 +72,10 @@ class ReceivedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
           ref.read(globalMessageProvider.notifier).showError(response.message);
         }
       } catch (error) {
+        print(error);
         ref
             .read(globalMessageProvider.notifier)
-            .showError("Something went wrong");
+            .showError("Something went wrong1");
       }
       await Future.delayed(Duration(seconds: 30));
     }
@@ -93,9 +94,9 @@ class CancelledOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
   Ref ref;
   Future<void> loadOrders() async {
-    while (mounted) {
-      state = const AsyncValue.loading();
+      // state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
+    while (mounted) {
 
       try {
         final ApiResponse<List<Order>> response = await orderService
@@ -131,9 +132,9 @@ class PreOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
   Ref ref;
   Future<void> loadOrders() async {
-    while (mounted) {
-      state = const AsyncValue.loading();
+      // state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
+    while (mounted) {
       try {
         final ApiResponse<List<Order>> response = await orderService
             .fetchOrders(mode: "preOrders", languageCode: languageCode);
@@ -169,9 +170,9 @@ class FailedOrderNotifier extends StateNotifier<AsyncValue<List<Order>>> {
   }
   Ref ref;
   Future<void> loadOrders() async {
-    while (mounted) {
-      state = const AsyncValue.loading();
+      // state = const AsyncValue.loading();
       final languageCode = ref.watch(localizationProvider).languageCode;
+    while (mounted) {
 
       try {
         final ApiResponse<List<Order>> response = await orderService
