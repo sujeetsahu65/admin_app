@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 
-// String uri = 'https://api.foozu3.fi/admin-app';
-String uri = 'http://localhost:8000/admin-app';
+String uri = 'https://api.foozu3.fi/admin-app';
+// String uri = 'http://localhost:8000/admin-app';
 String defaultLangCode = 'fi';
 int localeId = 2;
 Future getLocalToken() async {
@@ -76,8 +76,8 @@ class TZ {
     final now = tz.TZDateTime.now(tz.local);
     final nowString = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
     DateTime.parse(nowString);
-    // return DateTime.parse(nowString);
-    return DateTime.now();
+    return DateTime.parse(nowString);
+    // return DateTime.now();
   }
 
   static String currentDate() {

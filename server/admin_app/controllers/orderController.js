@@ -9,8 +9,10 @@ const { PaymentGatewayDetails, PaymentGatewayCommission } = require('../models/s
 exports.getNewOrders = async (req, res) =>
 {
 
-  const { shopSequelize, loc_id } = req;
+  const { shopSequelize, loc_id,Op } = req;
   const { User, Order, DeliveryType, PaymentMode } = req.models;
+  const now = new Date();
+  const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
   try
   {
 
@@ -27,7 +29,10 @@ exports.getNewOrders = async (req, res) =>
         loc_id: loc_id,
         paymentStatusId: 5,
         ordersStatusId: [3, 5],
-        preOrderBooking: [0, 1, 3]
+        preOrderBooking: [0, 1, 3],
+        order_date: {
+          [Op.gte]: yesterday,
+        }
       },
       include: [
         {
@@ -89,9 +94,9 @@ exports.getCancelledOrders = async (req, res) =>
       where: {
         loc_id: loc_id,
         ordersStatusId: 4,
-        // order_date: {
-        //   [Op.gte]: current_date,
-        // }
+        order_date: {
+          [Op.gte]: current_date,
+        }
       },
       include: [
         {
@@ -145,9 +150,9 @@ exports.getReceivedOrders = async (req, res) =>
       where: {
         loc_id: loc_id,
         ordersStatusId: 6,
-        // order_date: {
-        //   [Op.gte]: yesterday,
-        // }
+        order_date: {
+          [Op.gte]: yesterday,
+        }
       },
       include: [
         {
@@ -206,9 +211,9 @@ exports.getFailedOrders = async (req, res) =>
         paymentModeId: 3,
         ordersStatusId: 7,
         paymentStatusId: [2, 3],
-        // order_date: {
-        //   [Op.lte]: yesterday,
-        // }
+        order_date: {
+          [Op.gte]: yesterday,
+        }
       },
       include: [
         {
@@ -256,10 +261,10 @@ exports.getPreOrders = async (req, res) =>
 {
 
   // const {Op, loc_id } = req;
-  const { loc_id } = req;
+  const { loc_id,Op } = req;
   const { User, Order, DeliveryType, PaymentMode } = req.models;
-  // const now = new Date()
-  // const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
+  const now = new Date()
+  const yesterday = format(subDays(now, 1), 'yyyy-MM-dd');
 
   try
   {
@@ -270,9 +275,9 @@ exports.getPreOrders = async (req, res) =>
         ordersStatusId: 3,
         paymentStatusId: 5,
         preOrderBooking: 2,
-        // order_date: {
-        //   [Op.gte]: yesterday,
-        // }
+        order_date: {
+          [Op.gte]: yesterday,
+        }
       },
       include: [
         {
@@ -310,6 +315,7 @@ exports.getPreOrders = async (req, res) =>
 
   } catch (error)
   {
+    console.log(error);
     return res.status(500).json({ status_code: 500, status: false, message: 'Server error' });
   }
 };
@@ -394,7 +400,7 @@ exports.setPreOrderResponseAlertTime = async (req, res) =>
 // ========SET ORDER DELIVERY TIME=========
 exports.setOrderDeliveryTime = async (req, res) =>
 {
-  const { shopSequelize,superSequelize, loc_id } = req;
+  const { shopSequelize, superSequelize, loc_id } = req;
   const mail_type = "set_delivery_time"
   const now = new Date()
   const current_date_time = format(now, 'yyyy-MM-dd HH:mm:ss');
@@ -402,7 +408,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
   {
 
     const { order_id, delivery_time } = req.body;
-    const { EmailSettings, Order,User } = req.models;
+    const { EmailSettings, Order, User } = req.models;
 
     if (!order_id)
     {
@@ -419,7 +425,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
         locId: loc_id,
         orderId: order_id,
       },
-       include: [
+      include: [
         {
           model: User,
           attributes: ['firstName', 'lastName', 'userEmail']
@@ -442,7 +448,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
       where: { locId: loc_id }
     });
 
-   utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+    utils.mailTo(shopSequelize, superSequelize, loc_id, order, mail_type, email_settings)
       .then(mail_status =>
       {
         // This will run after the email is sent
@@ -451,7 +457,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
           return order.update({ sendEmailOrderSetTime: 1 });
         }
       });
-      // return res.status(400).json({ status_code: 400, status: false, message: "Missing delivery time" });
+    // return res.status(400).json({ status_code: 400, status: false, message: "Missing delivery time" });
 
     // else
     // {
@@ -481,7 +487,7 @@ exports.setOrderDeliveryTime = async (req, res) =>
 // ========SET ORDER ON THE WAY TIME=========
 exports.concludeOrder = async (req, res) =>
 {
-  const { superSequelize,shopSequelize, loc_id } = req;
+  const { superSequelize, shopSequelize, loc_id } = req;
   const lang_id = req.lang_id;
   const mail_type = "on_the_way";
   const now = new Date();
@@ -490,7 +496,7 @@ exports.concludeOrder = async (req, res) =>
   {
 
     const { order_id } = req.body;
-    const { EmailSettings, Order } = req.models;
+    const { EmailSettings, Order, User } = req.models;
 
     if (!order_id)
     {
@@ -502,6 +508,12 @@ exports.concludeOrder = async (req, res) =>
         locId: loc_id,
         orderId: order_id,
       },
+
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'userEmail']
+        }]
     });
 
     if (!order)
@@ -518,7 +530,7 @@ exports.concludeOrder = async (req, res) =>
       where: { locId: loc_id }
     });
 
-    utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+    utils.mailTo(shopSequelize, superSequelize, loc_id, order, mail_type, email_settings)
       .then(mail_status =>
       {
         // This will run after the email is sent
@@ -551,13 +563,13 @@ exports.concludeOrder = async (req, res) =>
 // ========SET CANCEL ORDER=========
 exports.cancelOrder = async (req, res) =>
 {
-  const { shopSequelize,superSequelize, loc_id } = req;
+  const { shopSequelize, superSequelize, loc_id } = req;
   const mail_type = "cancel"
   try
   {
 
     const { order_id } = req.body;
-    const { EmailSettings, Order } = req.models;
+    const { EmailSettings, Order, User } = req.models;
 
     if (!order_id)
     {
@@ -569,6 +581,11 @@ exports.cancelOrder = async (req, res) =>
         locId: loc_id,
         orderId: order_id,
       },
+      include: [
+        {
+          model: User,
+          attributes: ['firstName', 'lastName', 'userEmail']
+        }]
     });
 
     if (!order)
@@ -586,7 +603,7 @@ exports.cancelOrder = async (req, res) =>
       where: { locId: loc_id }
     });
 
-    utils.mailTo(shopSequelize,superSequelize, loc_id, order, mail_type, email_settings)
+    utils.mailTo(shopSequelize, superSequelize, loc_id, order, mail_type, email_settings)
       .then(mail_status =>
       {
         // This will run after the email is sent

@@ -82,7 +82,7 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
             {
 
                 to_mail = data.User.userEmail;
-
+// console.log(data.User.userEmail);
                 let userformessage = '';
                 const locationInfo = await shopSequelize.query(`SELECT loc_name,dis_name,loc_address,loc_image,loc_logo,loc_favicon,display_order,active_status,active_email_status,deactive_email_status,website,businessid,location_type,website_type,site_url FROM location_master where loc_id =${loc_id} `, {
                     type: shopSequelize.QueryTypes.SELECT
@@ -308,10 +308,10 @@ async function mailTo (shopSequelize, superSequelize, loc_id, data, mail_type, e
 
             // Define email options
             const mailOptions = {
-                from: ``,
+                from: `${email_settings.systemMailId}`,
                 to: to_mail,
                 subject: subject,
-                text: '',
+                text: 'Order update',
                 html: html
             };
 

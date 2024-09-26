@@ -31,7 +31,7 @@ class _MyApp extends ConsumerState<MyApp> {
   static const appcastURL =
       'https://raw.githubusercontent.com/larryaasen/upgrader/master/test/testappcast.xml';
 
-  Key _appKey = UniqueKey();
+  // Key _appKey = UniqueKey();
 
   @override
   void initState() {
@@ -59,15 +59,15 @@ class _MyApp extends ConsumerState<MyApp> {
     final goRouter = ref.watch(goRouterProvider);
     final locale = ref.watch(localizationProvider);
     // Listen for language changes and trigger app rebuild
-    ref.listen<Locale>(localizationProvider, (previous, next) {
-      setState(() {
-        print("the locale is listened");
-        _appKey = UniqueKey(); // Update the key to rebuild the app
-      });
-    });
+    // ref.listen<Locale>(localizationProvider, (previous, next) {
+    //   setState(() {
+    //     print("the locale is listened");
+    //     _appKey = UniqueKey(); // Update the key to rebuild the app
+    //   });
+    // });
 
     return MaterialApp.router(
-      key: _appKey,
+      // key: _appKey,
       routerConfig: goRouter,
       locale: locale,
       supportedLocales: [

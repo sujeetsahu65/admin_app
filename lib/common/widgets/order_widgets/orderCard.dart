@@ -382,7 +382,7 @@ class OrderCard extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (order.ordersStatusId == 5)
+                          if (order.ordersStatusId == 5 && page == 'home')
                             GaugeClock(
                               setDeliveryMinutes: order.setOrderMinutTime,
                               setDeliveryMinuteDatetime:
@@ -470,15 +470,15 @@ class OrderCard extends ConsumerWidget {
 // MAIN ROW 6
                 Padding(
                   padding: EdgeInsets.all(10),
-                  child: Row(
+                  child: (page == 'home' || page == 'failed-orders') ?Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (order.ordersStatusId == 3 &&
+                      if (order.ordersStatusId == 3 && page == 'home' &&
                           (order.preOrderBooking == 0 ||
                               order.preOrderBooking == 1 ||
                               order.preOrderBooking == 3))
                         deliveryTimeButtons(context, ref)
-                      else if (order.ordersStatusId == 5)
+                      else if (order.ordersStatusId == 5 && page == 'home')
                         ElevatedButton(
                           onPressed: () {
                             // Respond to button press
@@ -489,7 +489,7 @@ class OrderCard extends ConsumerWidget {
                                   ? 'order on the way'
                                   : 'Ready to pick')),
                         )
-                      else if (order.ordersStatusId == 7 && order.paymentModeId==3 && (order.paymentStatusId ==2 || order.paymentStatusId==3))
+                      else if (order.ordersStatusId == 7 && order.paymentModeId==3 && page == 'failed-orders' && (order.paymentStatusId ==2 || order.paymentStatusId==3))
                         ElevatedButton(
                           onPressed: () {
                             // Respond to button press
@@ -498,7 +498,7 @@ class OrderCard extends ConsumerWidget {
                           child: Text(AppLocalizations.of(context).translate('move to order title')),
                         )
                     ],
-                  ),
+                  ):null,
                 )
               ],
             ),

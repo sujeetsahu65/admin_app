@@ -209,7 +209,8 @@ class PrinterNotifier extends StateNotifier<PrinterState> {
 // ==============LOCATION DETAILS========
 
       receiptHeadText.addText(
-        locationDetails.disName.toUpperCase(),
+        // locationDetails.disName.toUpperCase(),
+        'TANDOORIVILLA',
         size: ReceiptTextSizeType.extraLarge,
         style: ReceiptTextStyleType.bold,
       );

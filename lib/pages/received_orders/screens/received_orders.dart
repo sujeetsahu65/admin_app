@@ -27,27 +27,30 @@ class _ReceivedOrders extends ConsumerState<ReceivedOrders> {
   Widget build(BuildContext context) {
     final AsyncValue<List<Order>> orders = ref.watch(receivedOrderProvider);
     return Scaffold(
-        body: orders.when(
-      data: (orders) {
-        if (orders.isEmpty) {
-          return const Center(child: Text('No orders'));
-        } else {
-          return ListView.builder(
-            itemCount: orders.length,
-            itemBuilder: (context, index) {
-              final order = orders[index];
-              return OrderCard(
-                order: order,
-                page: page,
-              );
-            },
-          );
-        }
-      },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => Center(
-        child: Text('Error: $error'),
-      ),
-    ));
+        body: Stack(
+          children:[ orders.when(
+              data: (orders) {
+          if (orders.isEmpty) {
+            return const Center(child: Text('No orders'));
+          } else {
+            return ListView.builder(
+              itemCount: orders.length,
+              itemBuilder: (context, index) {
+                final order = orders[index];
+                return OrderCard(
+                  order: order,
+                  page: page,
+                );
+              },
+            );
+          }
+              },
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) => Center(
+          child: Text('Error: $error'),
+              ),
+            ),
+             GlobalLoader(),]
+        ));
   }
 }
