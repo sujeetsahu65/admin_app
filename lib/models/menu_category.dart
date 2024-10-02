@@ -1,4 +1,4 @@
-import 'package:admin_app/models/food_category.dart';
+// import 'package:admin_app/models/food_category.dart';
 
 class MenuCategory {
   final int catgVariantTypeId;

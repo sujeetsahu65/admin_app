@@ -36,10 +36,10 @@ const superSequelize = new Sequelize(config.database, config.username, config.pa
   },
     timezone: '+05:30',
   pool: {
-    max: 10,
+    max: 50,
     min: 0,
     acquire: 30000,
-    idle: 10000
+    idle: 5000
   }
 });
 

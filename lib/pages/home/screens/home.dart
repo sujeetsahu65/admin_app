@@ -61,6 +61,14 @@ class _HomePage extends ConsumerState<HomePage> {
     // final authNotifier = ref.read(authProvider.notifier);
 
     // Watch the order provider that returns AsyncValue<List<Order>>
+
+    // FlutterForegroundTask.addTaskDataCallback((data) {
+    //   if (data == 'fetch_orders') {
+    //     ref.read(orderProvider.notifier).startOrderPolling();
+    //   }
+    // });
+
+
     final orderAsyncValue = ref.watch(orderProvider);
 
     return Scaffold(

@@ -35,10 +35,10 @@ module.exports = async (req, res, next) =>
             //  timezone:'Asia/Kolkata',
 
             pool: {
-                max: 10,
+                max: 50,
                 min: 0,
                 acquire: 30000,
-                idle: 10000,
+                idle: 5000,
                 timezone: 'Z'
             }
             // const shopSequelize = new Sequelize("foodzone", shopDb[0].db_username, shopDb[0].db_password, {

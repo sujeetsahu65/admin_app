@@ -1,5 +1,5 @@
 import 'package:admin_app/constants/global_variables.dart';
-import 'package:admin_app/models/basic_models.dart';
+// import 'package:admin_app/models/basic_models.dart';
 import 'package:admin_app/models/bluetooth.dart';
 import 'package:admin_app/models/combo_offer_model.dart';
 import 'package:admin_app/models/order_items_model.dart';
@@ -18,13 +18,13 @@ import 'package:blue_print_pos/receipt/receipt_section_text.dart';
 import 'package:blue_print_pos/receipt/receipt_text_size_type.dart';
 import 'package:blue_print_pos/receipt/receipt_text_style_type.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod/riverpod.dart';
+// import 'package:riverpod/riverpod.dart';
 import 'package:blue_print_pos/blue_print_pos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 final bluePrintPosProvider = Provider<BluePrintPos>((ref) {
   return BluePrintPos.instance;

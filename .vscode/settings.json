@@ -1,5 +1,3 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic",
-    "dart.previewFlutterUiGuides": true,
-    "dart.previewFlutterUiGuidesCustomTracking": true
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
