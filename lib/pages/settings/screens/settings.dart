@@ -22,7 +22,7 @@ class _SettingsState extends ConsumerState<Settings> {
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    final printerSize = ref.watch(printerSizeProvider);
+    // final printerSize = ref.watch(printerSizeProvider);
     if (settings == null) {
       return Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -113,32 +113,32 @@ class _SettingsState extends ConsumerState<Settings> {
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<PrinterSize>(
-                      value: printerSize,
-                      items:const [
-                        DropdownMenuItem(
-                          value: PrinterSize.mm58,
-                          child: Text('58mm'),
-                        ),
-                        DropdownMenuItem(
-                          value: PrinterSize.mm72,
-                          child: Text('72mm'),
-                        ),
-                        DropdownMenuItem(
-                          value: PrinterSize.mm80,
-                          child: Text('80mm'),
-                        ),
-                      ],
-                      onChanged: (PrinterSize? newSize) {
-                        if (newSize != null) {
-                          ref
-                              .read(printerSizeProvider.notifier)
-                              .updatePrinterSize(newSize);
-                        }
-                      },
-                    ),
-                  ),
+                  // child: DropdownButtonHideUnderline(
+                  //   child: DropdownButton<PrinterSize>(
+                  //     value: printerSize,
+                  //     items:const [
+                  //       DropdownMenuItem(
+                  //         value: PrinterSize.mm58,
+                  //         child: Text('58mm'),
+                  //       ),
+                  //       DropdownMenuItem(
+                  //         value: PrinterSize.mm72,
+                  //         child: Text('72mm'),
+                  //       ),
+                  //       DropdownMenuItem(
+                  //         value: PrinterSize.mm80,
+                  //         child: Text('80mm'),
+                  //       ),
+                  //     ],
+                  //     onChanged: (PrinterSize? newSize) {
+                  //       if (newSize != null) {
+                  //         ref
+                  //             .read(printerSizeProvider.notifier)
+                  //             .updatePrinterSize(newSize);
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
                 ),
                 SizedBox(height: 8),
 

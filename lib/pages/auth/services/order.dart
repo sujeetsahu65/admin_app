@@ -48,9 +48,17 @@ class OrderService {
           'x-auth-token': '$token',
           'lang-code': '$languageCode',
         },
-      );
+      ).timeout(
+      Duration(seconds: 10), // Set the timeout duration
+      onTimeout: () {
+        // Optional: handle the timeout case
+        return http.Response('Request Timeout111', 408); // You can return a custom response here
+        //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
+      },
+    );
 
       if (response.statusCode == 200) {
+        print("uuuuuuuuuu");
         // final List orderJson = json.decode(response.body)['data']['new_orders'];
         // // print(List);
         // state = orderJson.map((json) => json).toList();
@@ -62,6 +70,7 @@ class OrderService {
 
       } else {
         final errorMsg = json.decode(response.body)['message'];
+         print("$errorMsg");
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {

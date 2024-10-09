@@ -45,11 +45,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: '/settings',
             builder: (BuildContext context, GoRouterState state) => Settings(),
             routes: [
-              GoRoute(
-                path: 'printer-setting', // '/settings/printer-setting'
-                builder: (BuildContext context, GoRouterState state) =>
-                    PrinterSetting(),
-              ),
+              // GoRoute(
+              //   path: 'printer-setting', // '/settings/printer-setting'
+              //   builder: (BuildContext context, GoRouterState state) =>
+              //       PrinterSetting(),
+              // ),
               GoRoute(
                 path: 'shop-timings', // '/settings/shop-timings'
                 builder: (BuildContext context, GoRouterState state) =>

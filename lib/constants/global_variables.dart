@@ -5,6 +5,14 @@ import 'package:timezone/timezone.dart' as tz;
 
 String uri = 'https://api.foozu3.fi/admin-app';
 // String uri = 'http://localhost:8000/admin-app';
+
+
+// this will be used as notification channel id
+const notificationChannelId = 'my_foreground';
+
+// this will be used for notification id, So you can update your custom notification with this id.
+const notificationId = 888;
+
 String defaultLangCode = 'fi';
 int localeId = 2;
 Future getLocalToken() async {

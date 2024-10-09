@@ -96,9 +96,9 @@ class _OrderReportState extends ConsumerState<OrderReport> {
               //     : null, // Disable button if no report data
               child: Text('Print Report'),
               style: ElevatedButton.styleFrom(
-                primary: reportState.report != null && reportState.report.successOrders.totalOrders >0
-                    ? Colors.blue // Enabled color
-                    : Colors.grey, // Disabled color
+                // primary: reportState.report != null && reportState.report.successOrders.totalOrders >0
+                    // ? Colors.blue // Enabled color
+                    // : Colors.grey, // Disabled color
               ),
             ),
           ),

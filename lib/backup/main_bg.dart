@@ -14,20 +14,10 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Needed for background execution
-  
-  // Initialize background services
-  // await initializeBackgroundService();
-
-  // Initialize local notifications
-  // await initializeLocalNotifications();
+  // await FlutterBackground.initialize(); // Initialize background execution
 
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('Europe/Helsinki'));
@@ -35,36 +25,6 @@ void main() async {
 
   runApp(ProviderScope(child: MyApp()));
 }
-
-
-// Future<void> initializeLocalNotifications() async {
-//   const AndroidInitializationSettings initializationSettingsAndroid =
-//       AndroidInitializationSettings('background_icon'); // Add your app icon here
-
-//   final InitializationSettings initializationSettings =
-//       InitializationSettings(android: initializationSettingsAndroid);
-
-//   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-// }
-
-// Future<void> initializeBackgroundService() async {
-//   const androidConfig = FlutterBackgroundAndroidConfig(
-//     notificationTitle: "Admin App",
-//     notificationText: "Fetching orders in the background",
-//     notificationImportance: AndroidNotificationImportance.Default,
-//     notificationIcon: AndroidResource(name: 'background_icon', defType: 'drawable'),
-//   );
-
-//   bool success = await FlutterBackground.initialize(androidConfig: androidConfig);
-  
-//   if (success) {
-//     await FlutterBackground.enableBackgroundExecution();
-//   } else {
-//     print('Background service initialization failed');
-//   }
-// }
-
-
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -86,7 +46,7 @@ class _MyApp extends ConsumerState<MyApp> {
     // FlutterBackground.enableBackgroundExecution();
         // Initialize background service with Android-specific config
     initializeBackgroundService();
-initializeLocalNotifications();
+
     // Keep the screen on when the app is open
     WakelockPlus.enable();
     checkAppUpdate(context);
@@ -119,16 +79,6 @@ initializeLocalNotifications();
       print('Background service initialization failed');
     }
   }
-
-  Future<void> initializeLocalNotifications() async {
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('background_icon'); // Add your app icon here
-
-  final InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
-
-  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-}
 
 
 

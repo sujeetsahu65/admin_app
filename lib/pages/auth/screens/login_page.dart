@@ -35,15 +35,12 @@ class _LoginPage extends ConsumerState<LoginPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    
     final authNotifier = ref.read(authProvider.notifier);
 
     // final languageId = ref.watch(languageIdProvider);
     final languageContent = ref.watch(languageContentProvider);
-
 
     ref.listen<GlobalMessageState?>(globalMessageProvider, (previous, next) {
       if (next != null && next.message != null) {
@@ -68,8 +65,8 @@ class _LoginPage extends ConsumerState<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Align(alignment: Alignment.centerLeft,
-                child: LanguageSwitcher()),
+                Align(
+                    alignment: Alignment.centerLeft, child: LanguageSwitcher()),
                 SizedBox(height: 50),
                 Image.asset(
                   'assets/images/foozu_logo_dark.png', // replace with your logo asset
@@ -83,7 +80,8 @@ class _LoginPage extends ConsumerState<LoginPage> {
                   decoration: InputDecoration(
                     // labelText: languageContent['forgot client username']??'',
                     // labelText: AppLocalizations.of(context)!.helloYou,
-                    labelText: AppLocalizations.of(context).translate('forgot client username'),
+                    labelText: AppLocalizations.of(context)
+                        .translate('forgot client username'),
                     border: OutlineInputBorder(),
                   ),
                   validator: (val) {
@@ -102,7 +100,8 @@ class _LoginPage extends ConsumerState<LoginPage> {
                   controller: _passwordController,
                   obscureText: _obscureText,
                   decoration: InputDecoration(
-                    labelText: AppLocalizations.of(context).translate('forgot client password'),
+                    labelText: AppLocalizations.of(context)
+                        .translate('forgot client password'),
                     border: OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
@@ -129,7 +128,8 @@ class _LoginPage extends ConsumerState<LoginPage> {
                         });
                       },
                     ),
-                    Text(AppLocalizations.of(context).translate('remember me title')),
+                    Text(AppLocalizations.of(context)
+                        .translate('remember me title')),
                   ],
                 ),
                 SizedBox(height: 20),
@@ -144,15 +144,18 @@ class _LoginPage extends ConsumerState<LoginPage> {
                         context.go('/home');
                       } catch (e) {
                         print(e.toString());
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Login failed')),
-                        );
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Login failed')),
+                          );
+                        }
                       }
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    primary:
-                        Color.fromARGB(255, 15, 51, 254), // background color
+                    backgroundColor: Color.fromARGB(255, 15, 51, 254),
+                    // primary:
+                    //     Color.fromARGB(255, 15, 51, 254), // background color
                     padding:
                         EdgeInsets.symmetric(horizontal: 100, vertical: 20),
                   ),
