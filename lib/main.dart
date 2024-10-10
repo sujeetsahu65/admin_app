@@ -50,11 +50,11 @@ Future<void> initializeService() async {
       iosConfiguration: IosConfiguration(),
       androidConfiguration: AndroidConfiguration(
         onStart: onStart,
-        autoStart: true,
+        autoStart: false,
         isForegroundMode: true,
         notificationChannelId: notificationChannelId,
-        initialNotificationTitle: 'AWESOME SERVICE',
-        initialNotificationContent: 'Initializing',
+        initialNotificationTitle: 'ADMIN SERVICE',
+        initialNotificationContent: 'Running',
         foregroundServiceNotificationId: notificationId,
       ));
 }
@@ -88,8 +88,7 @@ Future<void> onStart(ServiceInstance service) async {
       } else {
         playAlertSound(mode: false);
       }
-    }
-    else{
+    } else {
       service.stopSelf();
     }
   });
@@ -180,8 +179,8 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       print("app is on");
       _stopBackgroundService();
-      AudioService().stopAlarmSound();
     }
+    AudioService().stopAlarmSound();
   }
 
   void _startBackgroundService() {
@@ -201,24 +200,26 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
         _appKey = UniqueKey();
       });
     });
-
-    return MaterialApp.router(
-      key: _appKey,
-      routerConfig: goRouter,
-      locale: locale,
-      supportedLocales: const [Locale('en'), Locale('fi'), Locale('es')],
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      debugShowCheckedModeBanner: false,
-      title: 'Admin app',
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-      ),
-    );
+    return PopScope(
+        canPop: false,
+        child: MaterialApp.router(
+          key: _appKey,
+          routerConfig: goRouter,
+          locale: locale,
+          supportedLocales: const [Locale('en'), Locale('fi'), Locale('es')],
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          debugShowCheckedModeBanner: false,
+          title: 'Admin app',
+          theme: ThemeData(
+            textTheme:
+                GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+          ),
+        ));
   }
 }
 

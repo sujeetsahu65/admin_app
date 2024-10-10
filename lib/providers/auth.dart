@@ -1,4 +1,5 @@
 // import 'package:admin_app/pages/auth/services/basic.dart';
+import 'package:admin_app/pages/home/services/audio.dart';
 import 'package:admin_app/providers/basic.dart';
 import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/order.dart';
@@ -101,7 +102,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     // CLEAR NECESSARY VALUES FROM LOCAL STORAGE
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('x-auth-token');
-
+ AudioService().stopAlarmSound();
     // DISPOSE/REST ALL THE STATES THAT ARE NOT HAVING AUTO-DISPOSE
     ref
         .read(orderProvider.notifier)
