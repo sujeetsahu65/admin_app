@@ -1,5 +1,5 @@
 import 'package:admin_app/models/settings.dart';
-import 'package:admin_app/providers/printer.dart';
+import 'package:admin_app/providers/printer_old.dart';
 import 'package:admin_app/providers/settings.dart';
 import 'package:esc_pos_utils_plus/esc_pos_utils.dart';
 import 'package:flutter/material.dart';

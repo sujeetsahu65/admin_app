@@ -3,7 +3,7 @@ import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/pages/auth/services/version.dart';
 import 'package:admin_app/providers/language.dart';
 // import 'package:admin_app/providers/error_handler.dart';
-import 'package:admin_app/providers/printer.dart';
+import 'package:admin_app/providers/printer_old.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background/flutter_background.dart';
 // import 'package:flutter_blue_plus/flutter_blue_plus.dart';

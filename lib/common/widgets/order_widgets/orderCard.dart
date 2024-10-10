@@ -6,7 +6,7 @@ import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/pages/auth/services/gauge_clock.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/basic.dart';
-import 'package:admin_app/providers/printer.dart';
+import 'package:admin_app/providers/printer_old.dart';
 // import 'package:blue_print_pos/blue_print_pos.dart';
 // import 'package:blue_print_pos/models/blue_device.dart';
 // import 'package:blue_print_pos/receipt/receipt_section_text.dart';

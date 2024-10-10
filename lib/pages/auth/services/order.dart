@@ -49,10 +49,10 @@ class OrderService {
           'lang-code': '$languageCode',
         },
       ).timeout(
-      Duration(seconds: 10), // Set the timeout duration
+      Duration(seconds: 20), // Set the timeout duration
       onTimeout: () {
         // Optional: handle the timeout case
-        return http.Response('Request Timeout111', 408); // You can return a custom response here
+        return http.Response(json.encode('Request Timeout111'), 408); // You can return a custom response here
         //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
       },
     );

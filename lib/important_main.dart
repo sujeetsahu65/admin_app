@@ -9,7 +9,7 @@ import 'package:admin_app/pages/auth/services/version.dart';
 import 'package:admin_app/providers/basic.dart';
 // import 'package:admin_app/providers/basic_provider.dart';
 import 'package:admin_app/providers/language.dart';
-import 'package:admin_app/providers/printer.dart';
+import 'package:admin_app/providers/printer_old.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
