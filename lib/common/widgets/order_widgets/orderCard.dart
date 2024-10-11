@@ -6,7 +6,8 @@ import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/pages/auth/services/gauge_clock.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/providers/basic.dart';
-import 'package:admin_app/providers/printer_old.dart';
+import 'package:admin_app/providers/printer.dart';
+// import 'package:admin_app/providers/printer_old.dart';
 // import 'package:blue_print_pos/blue_print_pos.dart';
 // import 'package:blue_print_pos/models/blue_device.dart';
 // import 'package:blue_print_pos/receipt/receipt_section_text.dart';
@@ -167,7 +168,7 @@ class OrderCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isOrderExpanded = ref.watch(orderExpansionProvider(order.orderId));
     //  final printerState = ref.watch(printerProvider);
-    // final printerNotifier = ref.read(printerProvider.notifier);
+    final printerNotifier = ref.read(printerProvider.notifier);
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Card(
@@ -210,8 +211,8 @@ class OrderCard extends ConsumerWidget {
                         size: 35.0,
                       ),
                       // onTap: () => _printOrder(context,ref,order,printerState),
-                      // onTap: () => printerNotifier.printReceipt(
-                      //     order,context),
+                      onTap: () => printerNotifier.orderPrint(
+                          order,context),
                     ),
                   ],
                 ),

@@ -1,6 +1,6 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class BluetoothPermissionHandler {
   // final FlutterBluePlus flutterBluePlus = FlutterBluePlus.instance;
@@ -30,29 +30,29 @@ class BluetoothPermissionHandler {
     }
 
     // Check if Bluetooth is available and enabled
-    // bool isBluetoothAvailable = await FlutterBluePlus.isSupported;
-    // if (!isBluetoothAvailable) {
-    //   // Bluetooth is not available on this device
-    //   return false;
-    // }
+    bool isBluetoothAvailable = await FlutterBluePlus.isSupported;
+    if (!isBluetoothAvailable) {
+      // Bluetooth is not available on this device
+      return false;
+    }
 // BluetoothAdapterState _adapterState = BluetoothAdapterState.unknown;
 
     //   bool isBluetoothOn = _adapterState == BluetoothAdapterState.on;
     //   if (!isBluetoothOn) {
     // await FlutterBluePlus.turnOn();
     //   }
-// await FlutterBluePlus.turnOn();
-//     var subscription = FlutterBluePlus.adapterState
-//         .listen((BluetoothAdapterState state) async {
-//       // print(state);
-//       if (state == BluetoothAdapterState.on) {
-//         // print("bllllllll_is on");
-//         // usually start scanning, connecting, etc
-//         // await FlutterBluePlus.turnOn();
-//       } else {
-//         // show an error to the user, etc
-//       }
-//     });
+await FlutterBluePlus.turnOn();
+    var subscription = FlutterBluePlus.adapterState
+        .listen((BluetoothAdapterState state) async {
+      // print(state);
+      if (state == BluetoothAdapterState.on) {
+        // print("bllllllll_is on");
+        // usually start scanning, connecting, etc
+        // await FlutterBluePlus.turnOn();
+      } else {
+        // show an error to the user, etc
+      }
+    });
 
     // All permissions granted and Bluetooth is on
     return true;
@@ -87,7 +87,7 @@ class BluetoothPermissionHandler {
     //   },
     // );
 
-    // await FlutterBluePlus.turnOn();
+    await FlutterBluePlus.turnOn();
     return true;
   }
 }

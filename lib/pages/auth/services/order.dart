@@ -50,11 +50,11 @@ class OrderService {
         },
       ).timeout(
       Duration(seconds: 20), // Set the timeout duration
-      onTimeout: () {
-        // Optional: handle the timeout case
-        return http.Response(json.encode('Request Timeout111'), 408); // You can return a custom response here
-        //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
-      },
+      // onTimeout: () {
+      //   // Optional: handle the timeout case
+      //   return http.Response(json.encode('Request Timeout111'), 408); // You can return a custom response here
+      //   //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
+      // },
     );
 
       if (response.statusCode == 200) {

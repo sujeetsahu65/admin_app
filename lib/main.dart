@@ -8,6 +8,7 @@ import 'package:admin_app/pages/home/services/audio.dart';
 import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/language.dart';
 import 'package:admin_app/providers/order.dart';
+import 'package:admin_app/providers/printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -155,6 +156,7 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     requestPermissions();
+    ref.read(printerProvider.notifier).connectToStoredDevice();
     WakelockPlus.enable();
     checkAppUpdate(context);
     ref.read(localizationProvider.notifier).setCachedLanguage();
@@ -230,7 +232,22 @@ Future<void> requestPermissions() async {
   if (await Permission.ignoreBatteryOptimizations.isDenied) {
     await Permission.ignoreBatteryOptimizations.request();
   }
-  if (await Permission.audio.isDenied) {
-    await Permission.audio.request();
-  }
+  // if (await Permission.audio.isDenied) {
+  //   await Permission.audio.request();
+  // }
+  // if (await Permission.bluetooth.isDenied) {
+  //   await Permission.bluetooth.request();
+  // }
+  // if (await Permission.bluetoothScan.isDenied) {
+  //   await Permission.bluetoothScan.request();
+  // }
+  // if (await Permission.bluetoothConnect.isDenied) {
+  //   await Permission.bluetoothConnect.request();
+  // }
+  // if (await Permission.bluetoothAdvertise.isDenied) {
+  //   await Permission.bluetoothAdvertise.request();
+  // }
+  // if (await Permission.locationWhenInUse.isDenied) {
+  //   await Permission.locationWhenInUse.request();
+  // }
 }

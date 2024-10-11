@@ -1,3 +1,4 @@
+import 'package:admin_app/common/widgets/other_widgets/loader.dart';
 import 'package:admin_app/providers/printer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +12,6 @@ class PrinterSetting extends ConsumerStatefulWidget {
 class _PrinterSettingState extends ConsumerState<PrinterSetting> {
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     ref.read(printerProvider.notifier).initPrinter();
   }
@@ -22,72 +22,72 @@ class _PrinterSettingState extends ConsumerState<PrinterSetting> {
     final printerNotifier = ref.read(printerProvider.notifier);
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
-          if (printerState.errorMessage != null)
-            Text(printerState.errorMessage!,
-                style: TextStyle(color: Colors.red)),
-          Expanded(
-            child: ListView.builder(
-              itemCount: printerState.devices.length,
-              itemBuilder: (context, index) {
-                final device = printerState.devices[index];
-                return ListTile(
-                  tileColor: printerState.connectedDevice == device
-                      ? const Color.fromARGB(255, 210, 224, 255)
-                      : null,
-                  title: Text(device.name ?? 'Unknown Device'),
-                  subtitle: Text(device.address ?? 'no device'),
-                  onTap: () async {
-                    await printerNotifier.connectPrinter(
-                        device); // Connect to the selected device
-                  },
-                  trailing: printerState.connectedDevice == device
-                      ? Icon(Icons.check, color: Colors.green)
-                      : null,
-                );
-              },
-            ),
-          ),
-//           if (printerState.isConnected && printerState.connectedDevice != null)
-//             Column(
-//               children: [
-//                 if (printerState.isConnected && printerState.connectedDevice != null)
-
-//                 ...[
-//  Text('Connected to: ${printerState.connectedDevice!.name}'),
-//                 ElevatedButton(
-//                   onPressed: () async {
-//                     await printerNotifier.disconnectPrinter(); // Disconnect
-//                   },
-//                   child: Text('Disconnect'),
-//                 ),
-//                 ],
-//               ],
-//             ),
-
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
             children: [
-              ElevatedButton(
-                onPressed: () async {
-                  await printerNotifier.getDevices(); // Refresh the device list
-                },
-                child: Text('Search Devices'),
-              ),
-              if (printerState.isConnected &&
-                  printerState.connectedDevice != null)
-                ElevatedButton(
-                  onPressed: () async {
-                    await printerNotifier
-                        .printReceipt(); // Print a test receipt
+              if (!printerState.isConnected && printerState.errorMessage != null)
+                Text(printerState.errorMessage!, style: TextStyle(color: Colors.red)),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: printerState.devices.length,
+                  itemBuilder: (context, index) {
+                    final device = printerState.devices[index];
+                    return ListTile(
+                      tileColor: printerState.isConnected && printerState.connectedDevice == device
+                          ? const Color.fromARGB(255, 210, 224, 255)
+                          : null,
+                      title: Text(device.name ?? 'Unknown Device'),
+                      subtitle: Text(device.address ?? 'no device'),
+                      onTap: () async {
+                        await printerNotifier.connectPrinter(device); // Connect to the selected device
+                      },
+                      trailing: printerState.isConnected && printerState.connectedDevice == device
+                          ? Icon(Icons.check, color: Colors.green)
+                          : null,
+                    );
                   },
-                  child: Text('Test Print'),
-                )
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0), // Add margin around the Row
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          await printerNotifier.getDevices(); // Refresh the device list
+                        },
+                        child: Text('Search Devices'),
+                      ),
+                    ),
+                    SizedBox(width: 16), // Add space between the two buttons
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (printerState.isConnected && printerState.connectedDevice != null) {
+                            await printerNotifier.testPrint(); // Print a test receipt
+                          }
+                        },
+                        child: Text('Test Print'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all(
+                            printerState.isConnected && printerState.connectedDevice != null
+                                ? null
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
+            GlobalLoader(),
         ],
       ),
     );
   }
 }
+

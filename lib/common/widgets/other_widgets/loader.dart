@@ -14,7 +14,7 @@ class GlobalLoader extends ConsumerWidget {
 
     return Positioned.fill(
       child: Container(
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withOpacity(0.4),
         child: Center(
           child: CircularProgressIndicator(),
         ),
