@@ -145,6 +145,29 @@ class Order {
 
 
 
+    // Helper function to format a double to a string with two decimal places
+  String _formatDouble(double value) {
+    return value.toStringAsFixed(2);
+  }
+
+  // Getters for  string values
+  String get foodItemSubtotalAmtAsString => _formatDouble(foodItemSubtotalAmt);
+  String get totalItemTaxAmtAsString => _formatDouble(totalItemTaxAmt);
+  String get discountAmtAsString => _formatDouble(discountAmt);
+  String get regOfferAmountAsString => _formatDouble(regOfferAmount);
+  String get deliveryChargesAsString => _formatDouble(deliveryCharges);
+  String get extraDeliveryChargesAsString => _formatDouble(extraDeliveryCharges);
+  String get minimumOrderPriceAsString => _formatDouble(minimumOrderPrice);
+  String get grandTotalAsString => _formatDouble(grandTotal);
+  String get finalPayableAmountAsString => _formatDouble(finalPayableAmount);
+  String get bonusValueUsedAsString => _formatDouble(bonusValueUsed);
+  String get bonusValueGetAsString => _formatDouble(bonusValueGet);
+  String get orderUserDistanceAsString => _formatDouble(orderUserDistance);
+  String get deliveryCouponAmtAsString => _formatDouble(deliveryCouponAmt);
+  String get couponDiscountAsString => _formatDouble(couponDiscount);
+
+
+
 
 Order copyWith({
     String? userEmail,

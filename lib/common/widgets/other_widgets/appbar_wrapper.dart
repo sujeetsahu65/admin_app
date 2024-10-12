@@ -40,7 +40,7 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
 
     return Scaffold(
       appBar: AppBar(
-        // backgroundColor: ThemeColors.primaryColor(),
+        backgroundColor: Colors.blue,
         iconTheme: IconThemeData(color: Colors.white),
         // centerTitle: true,
         titleSpacing: 0.0,

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:admin_app/constants/global_variables.dart';
+import 'package:admin_app/models/bluetooth.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/pages/auth/services/language.dart';
 import 'package:admin_app/pages/auth/services/version.dart';
@@ -151,11 +152,15 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
   static const appcastURL =
       'https://raw.githubusercontent.com/larryaasen/upgrader/master/test/testappcast.xml';
   Key _appKey = UniqueKey();
+    final BluetoothPermissionHandler _bluetoothPermissionHandler =
+      BluetoothPermissionHandler();
+      
 
   @override
   void initState() {
     super.initState();
     requestPermissions();
+     _bluetoothPermissionHandler.requestAndEnsureBluetooth();
     ref.read(printerProvider.notifier).connectToStoredDevice();
     WakelockPlus.enable();
     checkAppUpdate(context);

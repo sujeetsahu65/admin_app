@@ -29,6 +29,14 @@ class ComboOfferItem {
     }
   }
 
+    // Getter method to return totalPrice as a string with trailing zeros
+  String get totalPriceAsString => _formatDouble(totalPrice);
+
+  // Format double values as strings with two decimal places
+  static String _formatDouble(double value) {
+    return value.toStringAsFixed(2);  // Ensures two decimal places with trailing zeros
+  }
+
   factory ComboOfferItem.fromJson(Map<String, dynamic> json) {
     var orderItemsFromJson = json['order_items'] as List;
     List<OrderItem> orderItems =

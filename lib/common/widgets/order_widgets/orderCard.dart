@@ -398,7 +398,7 @@ class OrderCard extends ConsumerWidget {
                         children: [
                           Text(AppLocalizations.of(context)
                               .translate('label_amount')),
-                          Text('${order.finalPayableAmount}€',
+                          Text('${order.finalPayableAmountAsString}€',
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),

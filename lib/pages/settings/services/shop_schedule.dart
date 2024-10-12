@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'package:admin_app/constants/global_variables.dart';
-import 'package:admin_app/models/delivery_timing.dart';
-import 'package:admin_app/models/lunch_timing.dart';
+import 'package:admin_app/constants/http.dart';
 import 'package:admin_app/models/timing.dart';
-import 'package:admin_app/models/visiting_timing.dart';
 import 'package:admin_app/providers/error_handler.dart';
 import 'package:http/http.dart' as http;
 
 class ScheduleService {
+  final HttpClientService httpClient = HttpClientService();
   // final String baseUrl = 'https://your-api-url/api/timings';
 
   Future<ApiResponse<List<TimingModel>>> fetchTimings(tableName) async {
@@ -22,13 +21,14 @@ class ScheduleService {
 
     try {
       final token = await getLocalToken();
-      final response = await http.get(
-        Uri.parse('$uri/basic/timing/$path'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': '$token',
-        },
-      );
+
+      final url = '$uri/basic/timing/$path';
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'x-auth-token': token,
+      };
+
+      final response = await httpClient.getRequest(url, headers: headers);
 
       if (response.statusCode == 200) {
         List jsonResponse = json.decode(response.body)['data'][tableName];
@@ -85,19 +85,21 @@ class ScheduleService {
       String field, dynamic newValue, tableData) async {
     try {
       final token = await getLocalToken();
-      final response = await http.put(
-        Uri.parse('$uri/basic/timing/schedule-update'),
-        headers: {
-          'Content-Type': 'application/json',
-          'x-auth-token': '$token',
-        },
-        body: jsonEncode({
-          'table_name': tableData.tableName,
-          'day_number': tableData.dayNumber,
-          'field': field,
-          'new_value': newValue,
-        }),
-      );
+
+      final url = '$uri/basic/timing/schedule-update';
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+        'x-auth-token': token,
+      };
+
+      final body = {
+        'table_name': tableData.tableName,
+        'day_number': tableData.dayNumber,
+        'field': field,
+        'new_value': newValue,
+      };
+
+      final response = await httpClient.putRequest(url, body, headers: headers);
 
       if (response.statusCode == 200) {
         return ApiResponse(data: true, statusCode: 200);

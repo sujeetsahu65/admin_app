@@ -41,7 +41,7 @@ class ComboOfferItems extends ConsumerWidget {
                   Expanded(
                       flex: 2,
                       child: CustomFont(
-                              text: '${comboOfferItems[i].totalPrice}€',
+                              text: '${comboOfferItems[i].totalPriceAsString}€',
                               textAlign: TextAlign.right)
                           .medium()),
                 ],

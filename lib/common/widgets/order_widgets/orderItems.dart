@@ -36,7 +36,7 @@ class OrderItems extends ConsumerWidget {
                       Expanded(
                         flex: 2,
                         child: CustomFont(
-                          text: '${orderItems[i].totalBasicPrice}€',
+                          text: '${orderItems[i].totalBasicPriceAsString}€',
                           textAlign: TextAlign.right,
                         ).medium(),
                       ),
@@ -80,7 +80,7 @@ class OrderItems extends ConsumerWidget {
                               ),
                               Expanded(
                                 child: CustomFont(
-                                  text: '${topping.foodVariantOptionPrice}€',
+                                  text: '${topping.foodVariantOptionPriceAsString}€',
                                   fontWeight: FontWeight.w300,
                                   color: Colors.red,
                                   textAlign: TextAlign.right,

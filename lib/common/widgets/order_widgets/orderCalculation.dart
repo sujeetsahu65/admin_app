@@ -23,38 +23,38 @@ class OrderCalculation extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                  '${AppLocalizations.of(context).translate('sub total label')} : ${order.foodItemSubtotalAmt}€'),
+                  '${AppLocalizations.of(context).translate('sub total label')} : ${order.foodItemSubtotalAmtAsString}€'),
               Text(
-                  '${AppLocalizations.of(context).translate('tax label')} : ${order.totalItemTaxAmt}€'),
+                  '${AppLocalizations.of(context).translate('tax label')} : ${order.totalItemTaxAmtAsString}€'),
               if (order.discountAmt > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('discount label')} : ${order.discountAmt}€'),
+                    '${AppLocalizations.of(context).translate('discount label')} : ${order.discountAmtAsString}€'),
               if (order.regOfferAmount > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.regOfferAmount}€'),
+                    '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.regOfferAmountAsString}€'),
               if (order.deliveryTypeId == 1) ...[
                 Text(
-                    '${AppLocalizations.of(context).translate('title_distance')} : ${order.orderUserDistance}Km'),
+                    '${AppLocalizations.of(context).translate('title_distance')} : ${order.orderUserDistanceAsString}Km'),
                 Text(
-                    '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryCharges}€'),
+                    '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryChargesAsString}€'),
               if (order.extraDeliveryCharges > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryCharges}€'),
+                    '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryChargesAsString}€'),
 
               ],
                 if (order.minimumOrderPrice > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('title_Minimum_order_price')} : ${order.minimumOrderPrice}€'),
+                    '${AppLocalizations.of(context).translate('title_Minimum_order_price')} : ${order.minimumOrderPriceAsString}€'),
                 if (order.deliveryCouponAmt > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('delivery_coupon_discount_title')} : ${order.deliveryCouponAmt}€'),
+                    '${AppLocalizations.of(context).translate('delivery_coupon_discount_title')} : ${order.deliveryCouponAmtAsString}€'),
                 if (order.couponDiscount > 0)
                 Text(
-                    '${AppLocalizations.of(context).translate('coupon discount title')} : ${order.couponDiscount}€'),
+                    '${AppLocalizations.of(context).translate('coupon discount title')} : ${order.couponDiscountAsString}€'),
               Text(
-                  '${AppLocalizations.of(context).translate('title_Grand_Total')} : ${order.grandTotal}€'),
+                  '${AppLocalizations.of(context).translate('title_Grand_Total')} : ${order.grandTotalAsString}€'),
               Text(
-                  '${AppLocalizations.of(context).translate('total label')} : ${order.finalPayableAmount}€')
+                  '${AppLocalizations.of(context).translate('total label')} : ${order.finalPayableAmountAsString}€')
             ],
           )
         ],

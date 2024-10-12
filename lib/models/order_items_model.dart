@@ -45,6 +45,16 @@ class OrderItem {
     }
   }
 
+    // Getter methods to return double values as strings with trailing zeros
+  String get basicPriceAsString => _formatDouble(basicPrice);
+  String get totalBasicPriceAsString => _formatDouble(totalBasicPrice);
+  String get itemTotalToppingsPriceAsString => _formatDouble(itemTotalToppingsPrice);
+
+  // Format double values as strings with two decimal places
+  static String _formatDouble(double value) {
+    return value.toStringAsFixed(2);  // Ensures two decimal places with trailing zeros
+  }
+
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     var toppingsFromJson = json['toppings'] as List;
     List<Topping> toppingsList =

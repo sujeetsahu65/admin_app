@@ -1,16 +1,15 @@
 import 'package:admin_app/constants/global_variables.dart';
-import 'package:admin_app/constants/http.dart';
 import 'package:admin_app/models/combo_offer_model.dart';
 import 'package:admin_app/models/order_items_model.dart';
 import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/providers/error_handler.dart';
-// import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:dio/dio.dart';
 
 class OrderService {
   final Dio _dio = Dio();
-  final HttpClientService httpClient = HttpClientService();
+
 // TO DO: =========
   // final Dio _dio = Dio(BaseOptions(
   //   baseUrl: 'https://api.example.com',
@@ -24,8 +23,8 @@ class OrderService {
       {mode = 'newOrders', required languageCode}) async {
     try {
       final token = await getLocalToken();
-      late final String path;
-      late final String dataKey;
+      late final path;
+      late final dataKey;
       if (mode == 'receivedOrders') {
         path = 'received-orders';
         dataKey = 'received_orders';
@@ -42,31 +41,21 @@ class OrderService {
         path = 'new-orders';
         dataKey = 'new_orders';
       }
-
-      final url = '$uri/order/$path';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-        'lang-code': languageCode,
-      };
-
-      final response = await httpClient.getRequest(url, headers: headers);
-
-      //   final response = await http.get(
-      //     Uri.parse('$uri/order/$path'),
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'x-auth-token': '$token',
-      //       'lang-code': '$languageCode',
-      //     },
-      //   ).timeout(
-      //   Duration(seconds: 20), // Set the timeout duration
-      //   // onTimeout: () {
-      //   //   // Optional: handle the timeout case
-      //   //   return http.Response(json.encode('Request Timeout111'), 408); // You can return a custom response here
-      //   //   //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
-      //   // },
-      // );
+      final response = await http.get(
+        Uri.parse('$uri/order/$path'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-code': '$languageCode',
+        },
+      ).timeout(
+      Duration(seconds: 20), // Set the timeout duration
+      // onTimeout: () {
+      //   // Optional: handle the timeout case
+      //   return http.Response(json.encode('Request Timeout111'), 408); // You can return a custom response here
+      //   //  return ApiResponse(statusCode: 408, message: "Timeout of 10 secs");
+      // },
+    );
 
       if (response.statusCode == 200) {
         print("uuuuuuuuuu");
@@ -76,11 +65,12 @@ class OrderService {
 
         final List<dynamic> jsonList =
             json.decode(response.body)['data'][dataKey];
-        final data = jsonList.map((json) => Order.fromJson(json)).toList();
-        return ApiResponse(data: data, statusCode: 200);
+        final data =  jsonList.map((json) => Order.fromJson(json)).toList();
+  return ApiResponse(data: data, statusCode: 200);
+
       } else {
         final errorMsg = json.decode(response.body)['message'];
-        print("$errorMsg");
+         print("$errorMsg");
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
       }
     } catch (error) {
@@ -92,21 +82,21 @@ class OrderService {
   Future<ApiResponse<bool>> setOrderDeliveryTime(Order order) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/delivery-time';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      };
-      final Map<String, dynamic> body = {
-        'order_id': order.orderId,
-        'delivery_time': order.setOrderMinutTime,
-      };
-
-      final response = await httpClient.putRequest(url, body, headers: headers,timeoutDuration: 5);
+      final response = await http.put(
+        Uri.parse('$uri/order/delivery-time'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+          'delivery_time': order.setOrderMinutTime,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
 
       if (response.statusCode == 200) {
-        return ApiResponse(data: true, statusCode: 200);
+     return ApiResponse(data: true, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -119,21 +109,21 @@ class OrderService {
   Future<ApiResponse<bool>> setPreOrderAlertTime(Order order) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/pre-order/alert-time';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      };
-      final Map<String, dynamic> body = {
-        'order_id': order.orderId,
-        'alert_time': order.preOrderResponseAlertTime,
-      };
-
-      final response = await httpClient.putRequest(url, body, headers: headers,timeoutDuration: 5);
+      final response = await http.put(
+        Uri.parse('$uri/order/pre-order/alert-time'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+          'alert_time': order.preOrderResponseAlertTime,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
 
       if (response.statusCode == 200) {
-        return ApiResponse(data: true, statusCode: 200);
+  return ApiResponse(data: true, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -146,20 +136,20 @@ class OrderService {
   Future<ApiResponse<bool>> concludeOrder(Order order) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/conclude';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      };
-      final Map<String, dynamic> body = {
-        'order_id': order.orderId,
-      };
-
-      final response = await httpClient.putRequest(url, body, headers: headers,timeoutDuration: 5);
+      final response = await http.put(
+        Uri.parse('$uri/order/conclude'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
 
       if (response.statusCode == 200) {
-        return ApiResponse(data: true, statusCode: 200);
+     return ApiResponse(data: true, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -172,20 +162,20 @@ class OrderService {
   Future<ApiResponse<bool>> cancelOrder(Order order) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/cancel';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      };
-      final Map<String, dynamic> body = {
-        'order_id': order.orderId,
-      };
-
-      final response = await httpClient.putRequest(url, body, headers: headers,timeoutDuration: 5);
+      final response = await http.put(
+        Uri.parse('$uri/order/cancel'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
 
       if (response.statusCode == 200) {
-        return ApiResponse(data: true, statusCode: 200);
+            return ApiResponse(data: true, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -198,20 +188,20 @@ class OrderService {
   Future<ApiResponse<bool>> moveFailedOrder(Order order) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/move-failed-order';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-      };
-      final Map<String, dynamic> body = {
-        'order_id': order.orderId,
-      };
-
-      final response = await httpClient.putRequest(url, body, headers: headers,timeoutDuration: 5);
+      final response = await http.put(
+        Uri.parse('$uri/order/move-failed-order'),
+        body: jsonEncode({
+          'order_id': order.orderId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-id': '$localeId',
+        },
+      );
 
       if (response.statusCode == 200) {
-        return ApiResponse(data: true, statusCode: 200);
+            return ApiResponse(data: true, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -225,15 +215,15 @@ class OrderService {
       {orderId, required languageCode}) async {
     try {
       final token = await getLocalToken();
-
-      final url = '$uri/order/order-items?order_id=$orderId&include_toppings=1';
-      final Map<String, String> headers = {
-        'Content-Type': 'application/json',
-        'x-auth-token': token,
-        'lang-code': '$languageCode',
-      };
-
-      final response = await httpClient.getRequest(url, headers: headers);
+      final response = await http.get(
+        Uri.parse(
+            '$uri/order/order-items?order_id=$orderId&include_toppings=1'),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': '$token',
+          'lang-code': '$languageCode',
+        },
+      );
 
       if (response.statusCode == 200) {
         // final List orderJson = json.decode(response.body)['data']['new_orders'];
@@ -253,11 +243,8 @@ class OrderService {
             .map((json) => ComboOfferItem.fromJson(json))
             .toList();
 
-        final data = {
-          'orderItems': orderItems,
-          'comboOfferItems': comboOfferItems
-        };
-        return ApiResponse(data: data, statusCode: 200);
+               final data =  {'orderItems': orderItems, 'comboOfferItems': comboOfferItems};
+            return ApiResponse(data: data, statusCode: 200);
       } else {
         final errorMsg = json.decode(response.body)['message'];
         return ApiResponse(statusCode: response.statusCode, message: errorMsg);
@@ -271,15 +258,6 @@ class OrderService {
       {required String query, required languageCode}) async {
     try {
       final token = await getLocalToken();
-
-      //       final url = '$uri/order/order-details';
-      // final Map<String, String> headers = {
-      //   'Content-Type': 'application/json',
-      //   'x-auth-token': token,
-      //    'lang-code': '$languageCode',
-      // };
-
-      // final response = await httpClient.getRequest(url, headers: headers);
 
       final response = await _dio.get('$uri/order/order-details',
           queryParameters: {
@@ -297,12 +275,12 @@ class OrderService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonData =
             response.data['data']['order_details'];
-        final data = Order.fromJson(jsonData);
-        return ApiResponse(data: data, statusCode: 200);
-      } else {
+        final data =  Order.fromJson(jsonData);
+            return ApiResponse(data: data, statusCode: 200);
+      }
+       else {
         final errorMsg = json.decode(response.data)['message'];
-        return ApiResponse(
-            statusCode: response.statusCode ?? 404, message: errorMsg);
+        return ApiResponse(statusCode: response.statusCode??404, message: errorMsg);
       }
     } on DioException catch (error) {
       return ApiResponse(statusCode: 404, message: 'Order not found');

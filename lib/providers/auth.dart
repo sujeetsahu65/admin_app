@@ -1,11 +1,13 @@
 // import 'package:admin_app/pages/auth/services/basic.dart';
+import 'package:admin_app/constants/http.dart';
+// import 'package:admin_app/pages/auth/services/basic.dart';
 import 'package:admin_app/pages/home/services/audio.dart';
 import 'package:admin_app/providers/basic.dart';
 import 'package:admin_app/providers/error_handler.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'dart:convert';
 // import 'package:admin_app/constants/error_handling.dart';
 import 'package:admin_app/constants/global_variables.dart';
@@ -18,6 +20,7 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 });
 
 class AuthNotifier extends StateNotifier<AuthState> {
+  final HttpClientService httpClient = HttpClientService();
   AuthNotifier(this.ref) : super(AuthState.initial()) {
     _loadToken();
   }
@@ -27,13 +30,13 @@ class AuthNotifier extends StateNotifier<AuthState> {
     final token = prefs.getString('x-auth-token');
     if (token != null) {
       try {
-        final response = await http.get(
-          Uri.parse('$uri/auth/verify-token'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'x-auth-token': token
-          },
-        );
+        final url = '$uri/auth/verify-token';
+        final Map<String, String> headers = {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': token,
+        };
+
+        final response = await httpClient.getRequest(url, headers: headers,timeoutDuration: 5);
 
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
@@ -60,18 +63,19 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> login(String username, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('$uri/auth/login'),
-        body: jsonEncode({
-          "username": username,
-          "password": password,
-        }),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-      );
+      final url = '$uri/auth/login';
+      final Map<String, String> headers = {
+        'Content-Type': 'application/json',
+      };
 
-      print(response.body);
+      final body = {
+        "username": username,
+        "password": password,
+      };
+
+      final response =
+          await httpClient.postRequest(url, body, headers: headers, timeoutDuration: 5);
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final token = data['token'];
@@ -99,10 +103,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> logout() async {
+    HttpClientService().dispose();
+
     // CLEAR NECESSARY VALUES FROM LOCAL STORAGE
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('x-auth-token');
- AudioService().stopAlarmSound();
+    AudioService().stopAlarmSound();
     // DISPOSE/REST ALL THE STATES THAT ARE NOT HAVING AUTO-DISPOSE
     ref
         .read(orderProvider.notifier)

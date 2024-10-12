@@ -29,6 +29,15 @@ class Topping {
     }
   }
 
+    // Getter methods to return double values as strings with trailing zeros
+  String get foodVariantOptionBasePriceAsString => _formatDouble(foodVariantOptionBasePrice);
+  String get foodVariantOptionPriceAsString => _formatDouble(foodVariantOptionPrice);
+
+  // Format double values as strings with two decimal places
+  static String _formatDouble(double value) {
+    return value.toStringAsFixed(2);  // Ensures two decimal places with trailing zeros
+  }
+
   factory Topping.fromJson(Map<String, dynamic> json) {
     return Topping(
       foodVariantOptionTypeId: json['food_varient_option_type_id'],
