@@ -62,6 +62,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> login(String username, String password) async {
+      ref.read(loadingProvider.notifier).showLoader();
     try {
       final url = '$uri/auth/login';
       final Map<String, String> headers = {
@@ -100,9 +101,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
           .read(globalMessageProvider.notifier)
           .showError('Something went wrong');
     }
+
+      ref.read(loadingProvider.notifier).hideLoader();
   }
 
   Future<void> logout() async {
+      ref.read(loadingProvider.notifier).showLoader();
     HttpClientService().dispose();
 
     // CLEAR NECESSARY VALUES FROM LOCAL STORAGE
@@ -116,6 +120,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
     ref.invalidate(orderProvider);
     ref.invalidate(generalDataProvider);
     state = AuthState.initial();
+      ref.read(loadingProvider.notifier).hideLoader();
   }
 }
 

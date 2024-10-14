@@ -16,6 +16,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:admin_app/router.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -152,21 +153,25 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
   static const appcastURL =
       'https://raw.githubusercontent.com/larryaasen/upgrader/master/test/testappcast.xml';
   Key _appKey = UniqueKey();
-    final BluetoothPermissionHandler _bluetoothPermissionHandler =
+  final BluetoothPermissionHandler _bluetoothPermissionHandler =
       BluetoothPermissionHandler();
-      
 
   @override
   void initState() {
     super.initState();
-    requestPermissions();
-     _bluetoothPermissionHandler.requestAndEnsureBluetooth();
+    requestAllPermissions();
     ref.read(printerProvider.notifier).connectToStoredDevice();
     WakelockPlus.enable();
     checkAppUpdate(context);
     ref.read(localizationProvider.notifier).setCachedLanguage();
     WidgetsBinding.instance.addObserver(this);
     _stopBackgroundService();
+  }
+
+  Future<void> requestAllPermissions() async {
+    await requestPermissions(); // First request
+    await _bluetoothPermissionHandler
+        .requestAndEnsureBluetooth(); // Then Bluetooth permissions
   }
 
   @override
@@ -202,11 +207,45 @@ class _MyApp extends ConsumerState<MyApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final goRouter = ref.watch(goRouterProvider);
     final locale = ref.watch(localizationProvider);
+    // final isPendingOrder = ref.watch(pendingOrderProvider);
+
+
+
+      // Listen to changes in pendingOrderProvider and handle routing
+  // ref.listen<bool>(pendingOrderProvider, (previous, next) {
+  //   if (next) { // 'next' is the new value of pendingOrderProvider
+  //     print("Redirecting to home page due to pending order");
+  //     ref.read(goRouterProvider).go('/home'); // Redirect to home page
+  //   }
+  // });
+
+    // final goGo = ref.read(goRouterProvider);
+    // if (isPendingOrder) {
+    //    print("kkkkkkkkkkk");
+    //   goGo.go('/home');
+    // }
     ref.listen<Locale>(localizationProvider, (previous, next) {
       setState(() {
         _appKey = UniqueKey();
       });
     });
+
+
+      final isPendingOrder = ref.watch(orderCheckStreamProvider).when(
+          data: (hasPendingOrder) => hasPendingOrder,
+          loading: () => false,
+          error: (_, __) => false,
+        );
+
+       final currentRouteName = ref.read(goRouterProvider).routerDelegate.currentConfiguration.uri.toString();
+    if (isPendingOrder && currentRouteName !='/home') {
+      //  AudioService().stopAlarmSound();
+      //  AudioService().playAlarmSound();
+      print("Redirecting to home page due to pending order");
+      Future.microtask(() => ref.read(goRouterProvider).go('/home'));
+    }
+
+
     return PopScope(
         canPop: false,
         child: MaterialApp.router(

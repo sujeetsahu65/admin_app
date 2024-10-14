@@ -65,6 +65,13 @@ class CustomFont {
     );
   }
 
+  Widget mediumLarge() {
+    return Text(
+      text,
+      style: _textStyle(19.0),
+      textAlign: textAlign,
+    );
+  }
   Widget extraLarge() {
     return Text(
       text,

@@ -1,18 +1,18 @@
 import 'package:admin_app/common/widgets/order_widgets/orderCard.dart';
 import 'package:admin_app/common/widgets/other_widgets/loader.dart';
-import 'package:admin_app/models/order_model.dart';
+// import 'package:admin_app/models/order_model.dart';
 import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class OrderSearch extends ConsumerWidget {
   final String page = 'order-details';
-
   final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final orderState = ref.watch(orderSearchProvider);
+    // Watch the order search provider
+    final orderAsyncValue = ref.watch(orderSearchProvider);
 
     return Scaffold(
       body: Column(
@@ -27,7 +27,8 @@ class OrderSearch extends ConsumerWidget {
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                         contentPadding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
+                        contentPadding:
+                            EdgeInsets.symmetric(vertical: 12.0, horizontal: 8.0),
                         hintText: 'Enter Order Number',
                         border: OutlineInputBorder(),
                       ),
@@ -54,23 +55,35 @@ class OrderSearch extends ConsumerWidget {
                     child: Text('Search'),
                   ),
                 ),
-
-
-                
               ],
             ),
           ),
+          // Handling different states of AsyncValue
           Expanded(
-            child: orderState.isLoading
-                ? Center(child: CircularProgressIndicator())
-                : orderState.order == null
-                    ? Center(child: Text('Order not found'))
-                    : OrderCard(order: orderState.order!, page: page),
+            child: orderAsyncValue.when(
+              data: (orderState) {
+                if (orderState.order != null) {
+                  // Display the order details if the order exists
+                  return OrderCard(order: orderState.order!, page: page);
+                } else if (orderState.errorMessage != null) {
+                  // Display the error message if provided
+                  return Center(child: Text(orderState.errorMessage!));
+                } else {
+                  // Display a message when no order is found
+                  return Center(child: Text('Order not found'));
+                }
+              },
+              loading: () => Center(child: CircularProgressIndicator()),
+              error: (error, stackTrace) {
+                // Display a general error message
+                return Center(child: Text('Something went wrong: $error'));
+              },
+            ),
           ),
         ],
       ),
       // Loader while fetching data
-      bottomSheet: orderState.isLoading ? GlobalLoader() : null,
+      bottomSheet: GlobalLoader(),
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:admin_app/common/widgets/other_widgets/customFont.dart';
 import 'package:admin_app/common/widgets/other_widgets/language_switcher.dart';
 import 'package:admin_app/common/widgets/other_widgets/sidebar_panel.dart';
 import 'package:admin_app/providers/error_handler.dart';
@@ -12,9 +13,6 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-
-
     // final isAuthenticated = ref.watch(authProvider);
     // final languageId = ref.watch(languageIdProvider);
     final goRouter = ref.watch(goRouterProvider);
@@ -22,14 +20,38 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
         goRouter.routerDelegate.currentConfiguration.uri.toString();
     final bool isNestedPage =
         RegExp(r'^/settings/.*').hasMatch(currentLocation);
-    // final bool isNestedPage = location != '/home' && location != '/settings';
-  
-      ref.listen<GlobalMessageState?>(globalMessageProvider, (previous, next) {
+
+    String? currentRouteName;
+    // print(goRouter.routerDelegate.currentConfiguration.runtimeType);
+
+    final RouteMatchList currentConfig =
+        goRouter.routerDelegate.currentConfiguration;
+
+    if (currentConfig.matches.isNotEmpty) {
+      // Access the first route match
+      final routeMatch = currentConfig.matches.first;
+
+      // Check if the route is a GoRoute
+      if (routeMatch.route is GoRoute) {
+        final GoRoute currentRoute = routeMatch.route as GoRoute;
+        currentRouteName = currentRoute.name;
+        // Now you can access the name and path of the GoRoute
+        // print(currentRoute.name); // Prints the name of the route
+        // print(currentRoute.path); // Prints the path of the route
+      } else {
+        print('The route is not a GoRoute.');
+      }
+    } else {
+      print('No matches found in RouteMatchList');
+    }
+
+    ref.listen<GlobalMessageState?>(globalMessageProvider, (previous, next) {
       if (next != null && next.message != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(next.message!),
             backgroundColor: next.isError ? Colors.red : Colors.green,
+            duration: const Duration(milliseconds: 1500),
           ),
         );
         // Clear the message after showing
@@ -37,14 +59,17 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
       }
     });
 
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
         iconTheme: IconThemeData(color: Colors.white),
         // centerTitle: true,
         titleSpacing: 0.0,
-        title: LanguageSwitcher(),
+        title: currentRouteName != null
+            ? CustomFont(text: currentRouteName, color: Colors.white)
+                .mediumLarge()
+            : null,
+        // title: Text("currentRouteName"),
         leading: isNestedPage
             ? IconButton(
                 icon: Icon(Icons.arrow_back),
@@ -62,11 +87,10 @@ class AppBarWrapper extends ConsumerWidget implements PreferredSizeWidget {
               ),
 
         // actions: isAuthenticated?<Widget>[
-        actions: 1 == 1
-            ? <Widget>[
-                IconButton(onPressed: () {}, icon: Icon(Icons.local_shipping)),
-              ]
-            : null,
+        actions: <Widget>[
+          IconButton(onPressed: () {}, icon: const Icon(Icons.local_shipping)),
+          LanguageSwitcher()
+        ],
         // leading:  IconButton(onPressed: (){},
         //    icon: Icon(Icons.menu)),//since we are already using the drawer
       ),

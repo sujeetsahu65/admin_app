@@ -26,13 +26,17 @@ class AudioService {
   static final AudioService _instance = AudioService._privateConstructor();
   factory AudioService() => _instance;
 
-  final AudioCache _audioCache = AudioCache();
+  // final AudioCache _audioCache = AudioCache(prefix: 'assets/audio/');
   final AudioPlayer _player = AudioPlayer();
 
   void playAlarmSound() async {
     // Stop any currently playing audio
     await _player.stop();
-    await _player.play(AssetSource('audio/schoo-fire-alarm.mp3'));
+    // await _player.play(AssetSource('audio/schoo-fire-alarm.mp3'));
+
+      await _player.setSource(AssetSource('audio/schoo-fire-alarm.mp3'));
+      // Load and play the sound from assets
+      await _player.resume(); // Start playing the audio
   }
 
   void stopAlarmSound() async {

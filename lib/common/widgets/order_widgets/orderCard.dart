@@ -96,13 +96,21 @@ class OrderCard extends ConsumerWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30.0),
-            border: Border.all(
-              // color: index == selectedChipIndex ? Colors.blue : Colors.grey,
-              color: Colors.blue,
-              width: 2.0,
-            ),
+            // border: Border.all(
+            //   // color: index == selectedChipIndex ? Colors.blue : Colors.grey,
+            //   color: Colors.blue,
+            //   width: 2.0,
+            // ),
           ),
           child: ChoiceChip(
+            padding: EdgeInsets.only(left: 12,right: 12),
+            
+            // shape: OvalBorder(side: BorderSide(width: 2.0)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16.0)),side: BorderSide(color: Colors.blue)),
+            // backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+            elevation: 5.0,
+            shadowColor: Colors.grey,
+            // color: ,
             // backgroundColor: const Color.fromARGB(255, 222, 240, 255),
             label: Text('$i'),
             // selected: time == 30, // default selected time
@@ -115,8 +123,13 @@ class OrderCard extends ConsumerWidget {
       );
     }
 
-    return Row(
-      children: buttons,
+    return Flexible(
+      child: Wrap(
+        alignment: WrapAlignment.center, // Center the buttons
+        spacing: 15.0, // Horizontal spacing between buttons
+        runSpacing: 8.0, // Vertical spacing between wrapped lines
+        children: buttons,
+      ),
     );
   }
 
@@ -127,12 +140,10 @@ class OrderCard extends ConsumerWidget {
     );
     orderNotifier.updateOrder(updatedOrder, 'concludeOrder');
   }
+
   void _onMoveFailedOrder(WidgetRef ref) {
     final failedOrderNotifier = ref.read(failedOrderProvider.notifier);
-    final updatedOrder = order.copyWith(
-      ordersStatusId: 3,
-      paymentStatusId: 5
-    );
+    final updatedOrder = order.copyWith(ordersStatusId: 3, paymentStatusId: 5);
     failedOrderNotifier.updateOrder(updatedOrder, 'moveFailedOrder');
   }
 
@@ -145,9 +156,9 @@ class OrderCard extends ConsumerWidget {
   }
 
   void _onDeliveryTimeSelected(
-      BuildContext context, int minutes, WidgetRef ref) {
+      BuildContext context, int minutes, WidgetRef ref) async {
     final orderNotifier = ref.read(orderProvider.notifier);
-
+    final printerNotifier = ref.read(printerProvider.notifier);
     final now = TZ.now();
 
     if (order.preOrderBooking == 3) {
@@ -160,7 +171,8 @@ class OrderCard extends ConsumerWidget {
           ordersStatusId: 5,
           setOrderMinutTime: '${minutes}|Minute',
           orderTimerStartTime: now);
-      orderNotifier.updateOrder(updatedOrder, 'setOrderDeliveryTime');
+      await orderNotifier.updateOrder(updatedOrder, 'setOrderDeliveryTime');
+      printerNotifier.orderPrint(order, context);
     }
   }
 
@@ -180,7 +192,8 @@ class OrderCard extends ConsumerWidget {
           padding: const EdgeInsets.all(8.0),
           child: SingleChildScrollView(
             child: Column(
-              // crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // MAIN ROW 1
                 Row(
@@ -211,8 +224,7 @@ class OrderCard extends ConsumerWidget {
                         size: 35.0,
                       ),
                       // onTap: () => _printOrder(context,ref,order,printerState),
-                      onTap: () => printerNotifier.orderPrint(
-                          order,context),
+                      onTap: () => printerNotifier.orderPrint(order, context),
                     ),
                   ],
                 ),
@@ -297,7 +309,7 @@ class OrderCard extends ConsumerWidget {
                                 SizedBox(
                                   width: 4,
                                 ),
-                                CustomFont(text: order.userAddress).medium()
+                                Expanded(child: CustomFont(text: order.userAddress).medium())
                               ],
                             ),
                           SizedBox(
@@ -373,8 +385,7 @@ class OrderCard extends ConsumerWidget {
                         children: [
                           Text(AppLocalizations.of(context)
                               .translate('title_payment_mode')),
-                          Text(
-                              order.paymentMode,
+                          Text(order.paymentMode,
                               style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
@@ -471,35 +482,44 @@ class OrderCard extends ConsumerWidget {
 // MAIN ROW 6
                 Padding(
                   padding: EdgeInsets.all(10),
-                  child: (page == 'home' || page == 'failed-orders') ?Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (order.ordersStatusId == 3 && page == 'home' &&
-                          (order.preOrderBooking == 0 ||
-                              order.preOrderBooking == 1 ||
-                              order.preOrderBooking == 3))
-                        deliveryTimeButtons(context, ref)
-                      else if (order.ordersStatusId == 5 && page == 'home')
-                        ElevatedButton(
-                          onPressed: () {
-                            // Respond to button press
-                            _onConcludeOrder(ref);
-                          },
-                          child: Text(AppLocalizations.of(context).translate(
-                              order.deliveryTypeId == 1
-                                  ? 'order on the way'
-                                  : 'Ready to pick')),
+                  child: (page == 'home' || page == 'failed-orders')
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (order.ordersStatusId == 3 &&
+                                page == 'home' &&
+                                (order.preOrderBooking == 0 ||
+                                    order.preOrderBooking == 1 ||
+                                    order.preOrderBooking == 3))
+                              deliveryTimeButtons(context, ref)
+                            else if (order.ordersStatusId == 5 &&
+                                page == 'home')
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Respond to button press
+                                  _onConcludeOrder(ref);
+                                },
+                                child: Text(AppLocalizations.of(context)
+                                    .translate(order.deliveryTypeId == 1
+                                        ? 'order on the way'
+                                        : 'Ready to pick')),
+                              )
+                            else if (order.ordersStatusId == 7 &&
+                                order.paymentModeId == 3 &&
+                                page == 'failed-orders' &&
+                                (order.paymentStatusId == 2 ||
+                                    order.paymentStatusId == 3))
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Respond to button press
+                                  _onMoveFailedOrder(ref);
+                                },
+                                child: Text(AppLocalizations.of(context)
+                                    .translate('move to order title')),
+                              )
+                          ],
                         )
-                      else if (order.ordersStatusId == 7 && order.paymentModeId==3 && page == 'failed-orders' && (order.paymentStatusId ==2 || order.paymentStatusId==3))
-                        ElevatedButton(
-                          onPressed: () {
-                            // Respond to button press
-                            _onMoveFailedOrder(ref);
-                          },
-                          child: Text(AppLocalizations.of(context).translate('move to order title')),
-                        )
-                    ],
-                  ):null,
+                      : null,
                 )
               ],
             ),

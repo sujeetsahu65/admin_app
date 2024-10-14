@@ -43,10 +43,13 @@ class LanguageSwitcher extends ConsumerWidget {
   }
 
   Widget _buildFlag(String flagAsset) {
-    return Image.asset(
-      flagAsset,
-      width: 24,
-      height: 24,
+    return Padding(
+      padding: EdgeInsets.only(left: 8,right: 14),
+      child: Image.asset(
+        flagAsset,
+        width: 24,
+        height: 24,
+      ),
     );
   }
 

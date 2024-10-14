@@ -9,6 +9,7 @@ import 'package:admin_app/pages/settings/screens/order_search.dart';
 import 'package:admin_app/pages/settings/screens/printer_setting.dart';
 import 'package:admin_app/pages/settings/screens/settings.dart';
 import 'package:admin_app/pages/settings/screens/shop_timings.dart';
+import 'package:admin_app/providers/order.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,6 +20,7 @@ import 'package:admin_app/pages/auth/screens/splash_screen.dart';
 
 final goRouterProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
+  
   return GoRouter(
     initialLocation: '/',
     routes: [
@@ -27,10 +29,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (BuildContext context, GoRouterState state) => SplashPage(),
       ),
       GoRoute(
+         name: "Login",
         path: '/login',
         builder: (BuildContext context, GoRouterState state) => LoginPage(),
       ),
       GoRoute(
+         name: "Home",
         path: '/home',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: HomePage()),
@@ -42,6 +46,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         },
         routes: [
           GoRoute(
+             name: "Settings",
             path: '/settings',
             builder: (BuildContext context, GoRouterState state) => Settings(),
             routes: [
@@ -70,32 +75,38 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+         name: "Received Orders",
         path: '/received-orders',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: ReceivedOrders()),
       ),
       GoRoute(
+         name: "Pre-Orders",
         path: '/pre-orders',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: PreOrders()),
       ),
       GoRoute(
+         name: "Failed Orders",
         path: '/failed-orders',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: FailedOrders()),
       ),
       GoRoute(
+         name: "Cancelled Orders",
         path: '/cancelled-orders',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: CancelledOrders()),
       ),
       GoRoute(
+         name: "Order Report",
         path: '/order-report',
         builder: (BuildContext context, GoRouterState state) =>
             AppBarWrapper(child: OrderReport()),
       ),
     ],
     redirect: (BuildContext context, GoRouterState state) {
+     
       final isLoggedIn = authState.isLoggedIn;
       final goingToLogin = state.uri == '/login';
       if (!isLoggedIn && !goingToLogin) {

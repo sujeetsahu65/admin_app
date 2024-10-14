@@ -12,7 +12,7 @@ class HttpClientService {
   HttpClientService._internal();
 
   static const int defaultTimeoutDuration = 10; // Timeout duration in seconds
-  static const int maxRetries = 1; // Maximum retry attempts
+  static const int maxRetries = 3; // Maximum retry attempts
 
   // Single instance of http.Client
   final http.Client _client = http.Client();

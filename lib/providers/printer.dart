@@ -144,7 +144,8 @@ class PrinterStateNotifier extends StateNotifier<PrinterState> {
   }
 
   Future<void> orderPrint(Order order, BuildContext context) async {
-    ref.read(loadingProvider.notifier).showLoader();
+    if (state.isConnected) {
+      ref.read(loadingProvider.notifier).showLoader();
 //     // final currentPaperSize = ref.watch(printerSizeProvider);
 //     // late final paperSize;
 //     // if (currentPaperSize == 'mm72') {
@@ -157,192 +158,139 @@ class PrinterStateNotifier extends StateNotifier<PrinterState> {
 //     // mm58
 
 // //  final orderItemsData = ref.watch(orderItemsProvider(order.orderId));
-    final basicDataProvider = ref.watch(generalDataProvider);
-    final locationContact = basicDataProvider.contactUs;
-    final locationDetails = basicDataProvider.locationMaster;
-    final languageCode = ref.watch(localizationProvider).languageCode;
+      final basicDataProvider = ref.watch(generalDataProvider);
+      final locationContact = basicDataProvider.contactUs;
+      final locationDetails = basicDataProvider.locationMaster;
+      final languageCode = ref.watch(localizationProvider).languageCode;
 
-    final response = await orderService.fetchOrderItems(
-        orderId: order.orderId, languageCode: languageCode);
+      final response = await orderService.fetchOrderItems(
+          orderId: order.orderId, languageCode: languageCode);
 
-    if (response.isSuccess) {
-      final orderItemsData = response.data!;
-      List<OrderItem> orderItems =
-          List<OrderItem>.from(orderItemsData['orderItems'] ?? []);
-      List<ComboOfferItem> comboOfferItems =
-          List<ComboOfferItem>.from(orderItemsData['comboOfferItems'] ?? []);
+      if (response.isSuccess) {
+        final orderItemsData = response.data!;
+        List<OrderItem> orderItems =
+            List<OrderItem>.from(orderItemsData['orderItems'] ?? []);
+        List<ComboOfferItem> comboOfferItems =
+            List<ComboOfferItem>.from(orderItemsData['comboOfferItems'] ?? []);
 
 // // ==============LOCATION DETAILS========
 
-      _bluetooth.printCustom("TANDOORIVILLA".toUpperCase(), Size.boldMedium.val,
-          alignText.center.val,
-          charset: "windows-1252");
+        _bluetooth.printCustom("TANDOORIVILLA".toUpperCase(),
+            Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
 
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          order.orderNO, Size.boldMedium.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      _bluetooth.printCustom(
-          order.orderDateTime.toString(), Size.medium.val, alignText.center.val,
-          charset: "windows-1252");
-      // _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          '----------------', Size.boldMedium.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printCustom(
-          order.paymentMode.toUpperCase(), Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          order.deliveryType.toUpperCase(), Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      // _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          '----------------', Size.boldMedium.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      // ==============CUSTOMER DETAILS========
-
-      _bluetooth.printCustom(
-          '${order.firstName} ${order.lastName}'.toUpperCase(),
-          Size.bold.val,
-          alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          order.userMobileNo, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      if (order.deliveryTypeId == 1) {
+        _bluetooth.printNewLine();
         _bluetooth.printCustom(
-            "${order.userAddress}${order.userBuildingNo.isNotEmpty ? ', ${order.userBuildingNo}' : ','}"
-                .toUpperCase(),
-            Size.bold.val,
+            order.orderNO, Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+
+        _bluetooth.printCustom(order.orderDateTime.toString(), Size.medium.val,
             alignText.center.val,
             charset: "windows-1252");
-        _bluetooth.printNewLine();
-
-        _bluetooth.printCustom(
-            '${order.userZipcode}, ${order.userCity}'.toUpperCase(),
-            Size.bold.val,
-            alignText.center.val,
-            charset: "windows-1252");
-      }
-      _bluetooth.printCustom(
-          '----------------', Size.boldMedium.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      // ==============CUSTOMER COMMENT========
-
-      if (order.userNote.isNotEmpty) {
-        _bluetooth.printCustom(
-            'Extra Comment:'.toUpperCase(), Size.bold.val, alignText.left.val,
-            charset: "windows-1252");
-        _bluetooth.printCustom(
-            order.userNote, Size.medium.val, alignText.left.val,
-            charset: "windows-1252");
-        _bluetooth.printNewLine();
-      }
-
-// ==============ORDER ITEMS========
-
-      for (int i = 0; i < orderItems.length; i++) {
-        final item = orderItems[i];
-
-        // Print item quantity, name, and size
-        _bluetooth.printCustom(
-            '${item.itemOrderQty} x ${item.foodItemName}(${item.itemSizeName}) : ${item.totalBasicPriceAsString}€'
-                .toUpperCase(),
-            Size.bold.val,
-            alignText.right.val,
-            charset: "windows-1252");
-        _bluetooth.printNewLine();
-
-        // Print extra comment if available
-        if (item.foodExtratext.isNotEmpty) {
-          _bluetooth.printCustom(
-              'Food Comment:'.toUpperCase(), Size.bold.val, alignText.left.val,
-              charset: "windows-1252");
-          _bluetooth.printCustom(
-              item.foodExtratext, Size.medium.val, alignText.left.val,
-              charset: "windows-1252");
-          _bluetooth.printNewLine();
-        }
-
-        // Print toppings
-        for (var entry in item.toppingsByVariantOption.entries) {
-          _bluetooth.printCustom(
-              entry.key.toUpperCase(), Size.bold.val, alignText.left.val,
-              charset: "windows-1252");
-
-          for (var topping in entry.value) {
-            _bluetooth.printCustom(
-                '${topping.toppingslistname} : ${topping.foodVariantOptionPriceAsString}€'
-                    .toUpperCase(),
-                Size.bold.val,
-                alignText.right.val,
-                charset: "windows-1252");
-          }
-          _bluetooth.printNewLine();
-        }
-
-        // Add a divider if there are more items and not a combo offer
-        // if (i < orderItems.length - 1 && !isComboOffer) {
-        //   receiptHeadText.addSpacer(useDashed: true);
-        // }
-        // if (i < (orderItems.length - 1)) {
+        // _bluetooth.printNewLine();
         _bluetooth.printCustom(
             '----------------', Size.boldMedium.val, alignText.center.val,
             charset: "windows-1252");
-        // }
-      }
 
-// ==============COMBO ITEMS========
-      if (comboOfferItems.isNotEmpty) {
+        _bluetooth.printCustom(order.deliveryType.toUpperCase(), Size.bold.val,
+            alignText.center.val,
+            charset: "windows-1252");
+        // _bluetooth.printNewLine();
+        _bluetooth.printCustom(
+            '----------------', Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        // ==============CUSTOMER DETAILS========
+
+        _bluetooth.printCustom(
+            '${order.firstName} ${order.lastName}'.toUpperCase(),
+            Size.bold.val,
+            alignText.center.val,
+            charset: "windows-1252");
         _bluetooth.printNewLine();
         _bluetooth.printCustom(
-            'COMBO OFFER ITEMS', Size.bold.val, alignText.center.val,
-            charset: "windows-1252");
-      }
-
-      for (int j = 0; j < comboOfferItems.length; j++) {
-        final comboItem = comboOfferItems[j];
-
-        _bluetooth.printLeftRight(comboItem.comboName,
-            '${comboItem.totalPriceAsString}€'.toUpperCase(), Size.bold.val,
+            order.userMobileNo, Size.bold.val, alignText.center.val,
             charset: "windows-1252");
         _bluetooth.printNewLine();
 
-        for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
-          final comboFooditem = comboOfferItems[j].orderItems[k];
-
-          // Print comboFooditem quantity, name, and size
-
+        if (order.deliveryTypeId == 1) {
           _bluetooth.printCustom(
-              '${comboFooditem.itemOrderQty} x ${comboFooditem.foodItemName}(${comboFooditem.itemSizeName})'
+              "${order.userAddress}${order.userBuildingNo.isNotEmpty ? ', ${order.userBuildingNo}' : ','}"
                   .toUpperCase(),
               Size.bold.val,
-              alignText.left.val,
+              alignText.center.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+
+          _bluetooth.printCustom(
+              '${order.userZipcode}, ${order.userCity}'.toUpperCase(),
+              Size.bold.val,
+              alignText.center.val,
+              charset: "windows-1252");
+        }
+        _bluetooth.printCustom(
+            '----------------', Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+
+        // ==============CUSTOMER COMMENT========
+
+        if (order.userNote.isNotEmpty) {
+          _bluetooth.printCustom(
+              'Extra Comment:'.toUpperCase(), Size.bold.val, alignText.left.val,
+              charset: "windows-1252");
+          _bluetooth.printCustom(
+              order.userNote, Size.medium.val, alignText.left.val,
+              charset: "windows-1252");
+
+              _bluetooth.printCustom(
+            '----------------', Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        }
+
+       
+
+        _bluetooth.printCustom(
+            '${AppLocalizations.of(context).translate('total label')} Items : ${orderItems.length}'
+                .toUpperCase()
+                .toUpperCase(),
+            Size.bold.val,
+            alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printCustom(
+            '----------------', Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+
+// ==============ORDER ITEMS========
+
+        for (int i = 0; i < orderItems.length; i++) {
+          final item = orderItems[i];
+
+          // Print item quantity, name, and size
+          _bluetooth.printCustom(
+              '${item.itemOrderQty} x ${item.foodItemName}(${item.itemSizeName}) : ${item.totalBasicPriceAsString}€'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
               charset: "windows-1252");
           _bluetooth.printNewLine();
 
           // Print extra comment if available
-          if (comboFooditem.foodExtratext.isNotEmpty) {
-            _bluetooth.printCustom(
-                'Food Comment:', Size.bold.val, alignText.left.val,
-                charset: "windows-1252");
-            _bluetooth.printCustom(comboFooditem.foodExtratext, Size.medium.val,
+          if (item.foodExtratext.isNotEmpty) {
+            _bluetooth.printCustom('Food Comment:'.toUpperCase(), Size.bold.val,
                 alignText.left.val,
+                charset: "windows-1252");
+            _bluetooth.printCustom(
+                item.foodExtratext, Size.medium.val, alignText.left.val,
                 charset: "windows-1252");
             _bluetooth.printNewLine();
           }
 
           // Print toppings
-          for (var entry in comboFooditem.toppingsByVariantOption.entries) {
+          for (var entry in item.toppingsByVariantOption.entries) {
             _bluetooth.printCustom(
                 entry.key.toUpperCase(), Size.bold.val, alignText.left.val,
                 charset: "windows-1252");
@@ -357,150 +305,226 @@ class PrinterStateNotifier extends StateNotifier<PrinterState> {
             }
             _bluetooth.printNewLine();
           }
+
+          // Add a divider if there are more items and not a combo offer
+          // if (i < orderItems.length - 1 && !isComboOffer) {
+          //   receiptHeadText.addSpacer(useDashed: true);
+          // }
+          // if (i < (orderItems.length - 1)) {
+          _bluetooth.printCustom(
+              '----------------', Size.boldMedium.val, alignText.center.val,
+              charset: "windows-1252");
+          // }
         }
 
-        // if (j < (comboOfferItems.length - 1)) {
-        _bluetooth.printCustom(
-            '----------------', Size.boldMedium.val, alignText.center.val,
-            charset: "windows-1252");
-        // }
-      }
+// ==============COMBO ITEMS========
+        if (comboOfferItems.isNotEmpty) {
+          _bluetooth.printNewLine();
+          _bluetooth.printCustom(
+              'COMBO OFFER ITEMS', Size.bold.val, alignText.center.val,
+              charset: "windows-1252");
+        }
+
+        for (int j = 0; j < comboOfferItems.length; j++) {
+          final comboItem = comboOfferItems[j];
+
+          _bluetooth.printLeftRight(comboItem.comboName,
+              '${comboItem.totalPriceAsString}€'.toUpperCase(), Size.bold.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+
+          for (int k = 0; k < comboOfferItems[j].orderItems.length; k++) {
+            final comboFooditem = comboOfferItems[j].orderItems[k];
+
+            // Print comboFooditem quantity, name, and size
+
+            _bluetooth.printCustom(
+                '${comboFooditem.itemOrderQty} x ${comboFooditem.foodItemName}(${comboFooditem.itemSizeName})'
+                    .toUpperCase(),
+                Size.bold.val,
+                alignText.left.val,
+                charset: "windows-1252");
+            _bluetooth.printNewLine();
+
+            // Print extra comment if available
+            if (comboFooditem.foodExtratext.isNotEmpty) {
+              _bluetooth.printCustom(
+                  'Food Comment:', Size.bold.val, alignText.left.val,
+                  charset: "windows-1252");
+              _bluetooth.printCustom(comboFooditem.foodExtratext,
+                  Size.medium.val, alignText.left.val,
+                  charset: "windows-1252");
+              _bluetooth.printNewLine();
+            }
+
+            // Print toppings
+            for (var entry in comboFooditem.toppingsByVariantOption.entries) {
+              _bluetooth.printCustom(
+                  entry.key.toUpperCase(), Size.bold.val, alignText.left.val,
+                  charset: "windows-1252");
+
+              for (var topping in entry.value) {
+                _bluetooth.printCustom(
+                    '${topping.toppingslistname} : ${topping.foodVariantOptionPriceAsString}€'
+                        .toUpperCase(),
+                    Size.bold.val,
+                    alignText.right.val,
+                    charset: "windows-1252");
+              }
+              _bluetooth.printNewLine();
+            }
+          }
+
+          // if (j < (comboOfferItems.length - 1)) {
+          _bluetooth.printCustom(
+              '----------------', Size.boldMedium.val, alignText.center.val,
+              charset: "windows-1252");
+          // }
+        }
 
 // ==============CALCULATIONS========
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          ('${AppLocalizations.of(context).translate('sub total label')} : ${order.foodItemSubtotalAmtAsString}€')
-              .toUpperCase(),
-          Size.bold.val,
-          alignText.right.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      _bluetooth.printCustom(
-          '${AppLocalizations.of(context).translate('tax label')} : ${order.totalItemTaxAmtAsString}€'
-              .toUpperCase(),
-          Size.bold.val,
-          alignText.right.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          '${AppLocalizations.of(context).translate('discount label')} : ${order.discountAmtAsString}€'
-              .toUpperCase(),
-          Size.bold.val,
-          alignText.right.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      if (order.regOfferAmount > 0) {
+        _bluetooth.printNewLine();
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.regOfferAmountAsString}€'
+            ('${AppLocalizations.of(context).translate('sub total label')} : ${order.foodItemSubtotalAmtAsString}€')
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
         _bluetooth.printNewLine();
-      }
 
-      if (order.deliveryTypeId == 1) {
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('title_distance')} : ${order.orderUserDistanceAsString} Km'
+            '${AppLocalizations.of(context).translate('tax label')} : ${order.totalItemTaxAmtAsString}€'
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
         _bluetooth.printNewLine();
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryChargesAsString}€'
+            '${AppLocalizations.of(context).translate('discount label')} : ${order.discountAmtAsString}€'
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
-
         _bluetooth.printNewLine();
 
-        if (order.extraDeliveryCharges > 0) {
+        if (order.regOfferAmount > 0) {
           _bluetooth.printCustom(
-              '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryChargesAsString}€'
+              '${AppLocalizations.of(context).translate('title_registration_Offers')} : ${order.regOfferAmountAsString}€'
                   .toUpperCase(),
               Size.bold.val,
               alignText.right.val,
               charset: "windows-1252");
           _bluetooth.printNewLine();
         }
-      }
 
-      if (order.minimumOrderPrice > 0) {
+        if (order.deliveryTypeId == 1) {
+          _bluetooth.printCustom(
+              '${AppLocalizations.of(context).translate('title_distance')} : ${order.orderUserDistanceAsString} Km'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+          _bluetooth.printCustom(
+              '${AppLocalizations.of(context).translate('delivery charge label')} : ${order.deliveryChargesAsString}€'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
+              charset: "windows-1252");
+
+          _bluetooth.printNewLine();
+
+          if (order.extraDeliveryCharges > 0) {
+            _bluetooth.printCustom(
+                '${AppLocalizations.of(context).translate('Extra Delivery Charges label')} : ${order.extraDeliveryChargesAsString}€'
+                    .toUpperCase(),
+                Size.bold.val,
+                alignText.right.val,
+                charset: "windows-1252");
+            _bluetooth.printNewLine();
+          }
+        }
+
+        if (order.minimumOrderPrice > 0) {
+          _bluetooth.printCustom(
+              '${AppLocalizations.of(context).translate('title_Minimum_order_price')} : ${order.minimumOrderPriceAsString}€'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+        }
+        if (order.deliveryCouponAmt > 0) {
+          _bluetooth.printCustom(
+              '${AppLocalizations.of(context).translate('delivery_coupon_discount_title')} : ${order.deliveryCouponAmtAsString}€'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+        }
+        if (order.couponDiscount > 0) {
+          _bluetooth.printCustom(
+              '${AppLocalizations.of(context).translate('coupon discount title')} : ${order.couponDiscountAsString}€'
+                  .toUpperCase(),
+              Size.bold.val,
+              alignText.right.val,
+              charset: "windows-1252");
+          _bluetooth.printNewLine();
+        }
+
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('title_Minimum_order_price')} : ${order.minimumOrderPriceAsString}€'
+            '${AppLocalizations.of(context).translate('title_Grand_Total')} : ${order.grandTotalAsString}€'
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
         _bluetooth.printNewLine();
-      }
-      if (order.deliveryCouponAmt > 0) {
+
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('delivery_coupon_discount_title')} : ${order.deliveryCouponAmtAsString}€'
+            '${AppLocalizations.of(context).translate('total label')} : ${order.finalPayableAmountAsString}€'
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
         _bluetooth.printNewLine();
-      }
-      if (order.couponDiscount > 0) {
         _bluetooth.printCustom(
-            '${AppLocalizations.of(context).translate('coupon discount title')} : ${order.couponDiscountAsString}€'
+            '${AppLocalizations.of(context).translate('payment type title')} : ${order.paymentMode}€'
+                .toUpperCase()
                 .toUpperCase(),
             Size.bold.val,
             alignText.right.val,
             charset: "windows-1252");
+
+        _bluetooth.printCustom(
+            '_______________', Size.boldMedium.val, alignText.center.val,
+            charset: "windows-1252");
         _bluetooth.printNewLine();
-      }
-
-      _bluetooth.printCustom(
-          '${AppLocalizations.of(context).translate('title_Grand_Total')} : ${order.grandTotalAsString}€'
-              .toUpperCase(),
-          Size.bold.val,
-          alignText.right.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-
-      _bluetooth.printCustom(
-          '${AppLocalizations.of(context).translate('total label')} : ${order.finalPayableAmountAsString}€'
-              .toUpperCase(),
-          Size.bold.val,
-          alignText.right.val,
-          charset: "windows-1252");
-
-      _bluetooth.printCustom(
-          '_______________', Size.boldMedium.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
 
 // ==============FOOTER========
-      _bluetooth.printCustom(
-          locationContact.address, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          locationContact.phone, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          locationContact.emailId, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          locationContact.businessId, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
-      _bluetooth.printNewLine();
-      _bluetooth.printCustom(
-          locationDetails.website, Size.bold.val, alignText.center.val,
-          charset: "windows-1252");
+        _bluetooth.printCustom(
+            locationContact.address, Size.bold.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        _bluetooth.printCustom(
+            locationContact.phone, Size.bold.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        _bluetooth.printCustom(
+            locationContact.emailId, Size.bold.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        _bluetooth.printCustom(
+            locationContact.businessId, Size.bold.val, alignText.center.val,
+            charset: "windows-1252");
+        _bluetooth.printNewLine();
+        _bluetooth.printCustom(
+            locationDetails.website, Size.bold.val, alignText.center.val,
+            charset: "windows-1252");
 
-      _bluetooth.printNewLine();
-      _bluetooth.printNewLine();
-      _bluetooth.paperCut();
+        _bluetooth.printNewLine();
+        _bluetooth.printNewLine();
+        _bluetooth.paperCut();
 
 // ==============
 // final List byteBuffer = await _getBytes(
@@ -511,29 +535,29 @@ class PrinterStateNotifier extends StateNotifier<PrinterState> {
 // useRaster: useRaster,
 // );
 // _printProcess(byteBuffer);
-      // receiptHeadText.addSpacer(useDashed: true);
-      // receiptHeadText.addText(
-      //   'EXTRA LARGE WITHOUT BOLD',
-      //   size: ReceiptTextSizeType.small,
-      //   style: ReceiptTextStyleType.normal,
-      // );
-      // receiptHeadText.addSpacer(useDashed: true);
+        // receiptHeadText.addSpacer(useDashed: true);
+        // receiptHeadText.addText(
+        //   'EXTRA LARGE WITHOUT BOLD',
+        //   size: ReceiptTextSizeType.small,
+        //   style: ReceiptTextStyleType.normal,
+        // );
+        // receiptHeadText.addSpacer(useDashed: true);
 
-      // Add more text as needed
+        // Add more text as needed
 
-      // await _bluePrintPos.printReceiptText(
-      //   receiptHeadText,
-      //   feedCount: 0,
-      // );
-      // await _bluePrintPos.printReceiptText(
-      //   receiptHeadText,
-      //   feedCount: 0,
-      // );
-      ref.read(loadingProvider.notifier).hideLoader();
-      // await _bluePrintPos.printReceiptText(
-      //   receiptFooterText,
-      //   feedCount: 1,
-      // );
+        // await _bluePrintPos.printReceiptText(
+        //   receiptHeadText,
+        //   feedCount: 0,
+        // );
+        // await _bluePrintPos.printReceiptText(
+        //   receiptHeadText,
+        //   feedCount: 0,
+        // );
+        ref.read(loadingProvider.notifier).hideLoader();
+        // await _bluePrintPos.printReceiptText(
+        //   receiptFooterText,
+        //   feedCount: 1,
+        // );
 
 // var subscription = FlutterBluePlus.adapterState.listen((BluetoothAdapterState state) {
 //     print(state);
@@ -545,15 +569,20 @@ class PrinterStateNotifier extends StateNotifier<PrinterState> {
 // });
 
 // if (Platform.isAndroid) {
-      // await FlutterBluePlus.turnOn();
+        // await FlutterBluePlus.turnOn();
 // }
 
 // cancel to prevent duplicate listeners
 // subscription.cancel();
+      } else {
+        ref.read(globalMessageProvider.notifier).showError(response.message);
+      }
+      ref.read(loadingProvider.notifier).hideLoader();
     } else {
-      ref.read(globalMessageProvider.notifier).showError(response.message);
+      ref
+          .read(globalMessageProvider.notifier)
+          .showError("Printer is not connected");
     }
-    ref.read(loadingProvider.notifier).hideLoader();
   }
 }
 

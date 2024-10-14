@@ -57,6 +57,9 @@ class _OrderReportState extends ConsumerState<OrderReport> {
     return Scaffold(
       body: Column(
         children: [
+          if (reportState.report != null &&
+              reportState.report!.successOrders.totalOrders > 0)
+            _buildSavingsBar(reportState.report!.successOrders.totalAmount),
           Expanded(
             child: reportState.isLoading
                 ? Center(child: CircularProgressIndicator())
@@ -67,7 +70,8 @@ class _OrderReportState extends ConsumerState<OrderReport> {
                             'Select a date range to see the report'),
                       ),
           ),
-          _buildBottomSheetButtons(context, reportState), // Bottom sheet trigger with both buttons
+          _buildBottomSheetButtons(
+              context, reportState), // Bottom sheet trigger with both buttons
         ],
       ),
     );
@@ -87,7 +91,7 @@ class _OrderReportState extends ConsumerState<OrderReport> {
               child: Text('Select Date'),
             ),
           ),
-           SizedBox(width: 10),
+          SizedBox(width: 10),
           Expanded(
             child: ElevatedButton(
               onPressed: null,
@@ -96,10 +100,10 @@ class _OrderReportState extends ConsumerState<OrderReport> {
               //     : null, // Disable button if no report data
               child: Text('Print Report'),
               style: ElevatedButton.styleFrom(
-                // primary: reportState.report != null && reportState.report.successOrders.totalOrders >0
-                    // ? Colors.blue // Enabled color
-                    // : Colors.grey, // Disabled color
-              ),
+                  // primary: reportState.report != null && reportState.report.successOrders.totalOrders >0
+                  // ? Colors.blue // Enabled color
+                  // : Colors.grey, // Disabled color
+                  ),
             ),
           ),
         ],
@@ -179,9 +183,7 @@ class _OrderReportState extends ConsumerState<OrderReport> {
 
   // Table for Order Summary
   Widget _buildOrderSummaryTable(Report report) {
-    return DataTable(
-      
-      columns: [
+    return DataTable(columns: [
       DataColumn(label: Text('Order Type')),
       DataColumn(label: Text('Orders')),
       DataColumn(label: Text('Amount')),
@@ -246,5 +248,27 @@ class _OrderReportState extends ConsumerState<OrderReport> {
                 Text('${deliveryTypeOrder.totalAmount.toStringAsFixed(2)}€')),
           ]);
         }).toList());
+  }
+
+  // Build the savings bar
+  Widget _buildSavingsBar(double totalAmount) {
+    final double savings = totalAmount * 0.14; // Calculate 14% savings
+    return Container(
+      color: const Color.fromARGB(255, 164, 47, 17),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Icon(Icons.discount, color: Colors.white),
+          Expanded(
+            child: Text(
+              'By using our service, you have saved ${savings.toStringAsFixed(2)}€ on a charge percentage of 14%.',
+              style: TextStyle(color: Colors.white),
+              textAlign: TextAlign.right,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
