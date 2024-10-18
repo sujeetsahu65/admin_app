@@ -37,7 +37,8 @@ exports.getNewOrders = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         },
         {
           model: DeliveryType,
@@ -101,7 +102,8 @@ exports.getCancelledOrders = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         },
         {
           model: DeliveryType,
@@ -157,7 +159,8 @@ exports.getReceivedOrders = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+			required: true, // This ensures only orders with an existing user are included
         },
         {
           model: DeliveryType,
@@ -218,7 +221,8 @@ exports.getFailedOrders = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+			required: true,
         },
         {
           model: DeliveryType,
@@ -282,7 +286,8 @@ exports.getPreOrders = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         },
         {
           model: DeliveryType,
@@ -428,7 +433,8 @@ exports.setOrderDeliveryTime = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         }]
     });
 
@@ -512,7 +518,8 @@ exports.concludeOrder = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         }]
     });
 
@@ -584,7 +591,8 @@ exports.cancelOrder = async (req, res) =>
       include: [
         {
           model: User,
-          attributes: ['firstName', 'lastName', 'userEmail']
+          attributes: ['firstName', 'lastName', 'userEmail'],
+          	required: true,
         }]
     });
 
